@@ -11,10 +11,14 @@ export abstract class DomainEntity<TDomainEntityProps> {
   private _audit: DomainAuditValueObject;
   private _brokenRules: BrokenRuleCollection;
 
+  protected abstract businessRules(props: TDomainEntityProps): void;
+
   constructor({ id, props, audit }: IDomainEntityProps<TDomainEntityProps>) {
     this.guard(props);
+    this.businessRules(props);
 
-    if (this._brokenRules) throw new DomainException(this._brokenRules);
+    if (this._brokenRules.hasBrokenRules())
+      throw new DomainException(this._brokenRules.getItems());
 
     this._id = id;
     this._brokenRules = new BrokenRuleCollection();

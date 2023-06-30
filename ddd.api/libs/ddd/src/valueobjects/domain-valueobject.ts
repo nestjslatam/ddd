@@ -21,7 +21,7 @@ export abstract class DomainValueObject<T> {
     this.validate(props);
 
     if (this._brokenRules.hasBrokenRules)
-      throw new DomainException(this._brokenRules);
+      throw new DomainException(this._brokenRules.getItems());
 
     this.props = props;
   }

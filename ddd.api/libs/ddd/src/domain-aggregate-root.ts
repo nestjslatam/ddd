@@ -1,83 +1,44 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { getDomainEventHandler } from '@nestjslatam/ddd';
-import { DomainEntity } from './domain-entity';
-import { DomainEvent } from './domaint-event';
+import { DomainEvent, DomainEventCollection } from './domaint-event';
 
-export abstract class DomainAggregateRoot<
-  TAggregateProps,
-  TDomainEvent extends DomainEvent = DomainEvent,
-> extends DomainEntity<TAggregateProps> {
-  private _domainEvents: Array<TDomainEvent> = [];
-  private _version = -1;
+export class DomainAggregateRoot {
+  private _domainEvents: DomainEventCollection;
 
-  public setVersion(value: number): void {
-    this._version = value;
+  protected businessRules(): void {}
+
+  publish(domainEvent: DomainEvent) {}
+
+  publishAll(domainEvents: DomainEvent[]) {}
+
+  constructor() {
+    this._domainEvents = new DomainEventCollection();
   }
 
-  public getVersion(): number {
-    return this._version;
+  existsDomainEvent(domainEvent: DomainEvent): boolean {
+    return this._domainEvents.exists(domainEvent);
   }
 
-  publish(domainEvent: TDomainEvent) {}
-
-  publishAll(domainEvents: TDomainEvent[]) {}
-
-  protected existsEvent(domainEvent: TDomainEvent): boolean {
-    return this._domainEvents.includes(domainEvent);
+  clearDomainEvents(): void {
+    this._domainEvents.clear();
   }
 
-  public clearEvents(): void {
-    this._domainEvents = [];
+  get getDomainEvents(): DomainEvent[] {
+    return this._domainEvents.getItems();
   }
 
-  get getDomainEvents(): TDomainEvent[] {
-    return this._domainEvents;
+  addDomainEvent(domainEvent: DomainEvent): void {
+    this._domainEvents.add(domainEvent);
   }
 
-  addEvent(domainEvent: TDomainEvent): void {
-    if (!this.existsEvent(domainEvent)) this._domainEvents.push(domainEvent);
-  }
-
-  removeEvent(domainEvent: TDomainEvent): void {
-    if (!domainEvent) return;
-
-    this._domainEvents = this._domainEvents.filter(
-      (e) => e.id === domainEvent.id,
-    );
+  removeDomainEvent(domainEvent: DomainEvent): void {
+    this._domainEvents.remove(domainEvent);
   }
 
   commit(): void {
     if (!this._domainEvents) return;
 
-    this.publishAll(this._domainEvents);
-    this._domainEvents.length = 0;
-  }
-
-  protected loadFromHistory(history: TDomainEvent[]): void {
-    if (!history) return;
-
-    history.forEach((event) => this.apply(event, true));
-  }
-
-  apply<T extends TDomainEvent = TDomainEvent>(
-    event: T,
-    isFromHistory = false,
-  ): void {
-    if (!event) return;
-
-    if (!isFromHistory) this._domainEvents.push(event);
-
-    this.publish(event);
-
-    const handler = getDomainEventHandler(event);
-
-    handler && handler.call(this, event);
-  }
-
-  replayEvents(events: TDomainEvent[]): void {
-    if (events) {
-      events.forEach((e) => this.apply(e, true));
-    }
+    this.publishAll(this._domainEvents.getItems());
+    this._domainEvents.clear();
   }
 }

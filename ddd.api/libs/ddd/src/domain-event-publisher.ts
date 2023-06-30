@@ -12,7 +12,7 @@ export interface Constructor<T> {
 export class DomainEventPublisher<EventBase extends DomainEvent = DomainEvent> {
   constructor(private readonly eventBus: DomainEventBus<EventBase>) {}
 
-  mergeClassContext<T extends Constructor<DomainAggregateRoot<any, EventBase>>>(
+  mergeClassContext<T extends Constructor<DomainAggregateRoot>>(
     metatype: T,
   ): T {
     const eventBus = this.eventBus;
@@ -31,9 +31,7 @@ export class DomainEventPublisher<EventBase extends DomainEvent = DomainEvent> {
     };
   }
 
-  mergeObjectContext<T extends DomainAggregateRoot<any, EventBase>>(
-    object: T,
-  ): T {
+  mergeObjectContext<T extends DomainAggregateRoot>(object: T): T {
     const eventBus = this.eventBus;
     object.publish = (event: EventBase) => {
       eventBus.publish(event);
