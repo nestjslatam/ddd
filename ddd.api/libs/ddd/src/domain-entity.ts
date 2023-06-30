@@ -1,92 +1,108 @@
-import { DomainGuard, convertPropsToObject } from './helpers';
-import { DomainAuditValueObject, DomainUuidValueObject } from './valueobjects';
-
-export interface IDomainTrackingProps {
-  isDirty: boolean;
-  isNew: boolean;
-  isDeleted: boolean;
-}
-
-export interface IDomainEntityProps<T> {
-  id: DomainUuidValueObject;
-  props: T;
-  audit: DomainAuditValueObject;
-}
+import { DateTimeHelper, DomainGuard, convertPropsToObject } from './helpers';
+import { IDomainEntityProps, IDomainTrackingStatusProps } from './interfaces';
+import { DomainAuditValueObject, DomainIdValueObject } from './valueobjects';
+import { BrokenRule, BrokenRuleCollection } from './models';
+import { DomainException } from './exceptions';
 
 export abstract class DomainEntity<TDomainEntityProps> {
-  private _id: DomainUuidValueObject;
+  private _id: DomainIdValueObject;
   private _props: TDomainEntityProps;
-  private _trackingProps: IDomainTrackingProps;
-  private _isValid: boolean;
-  public audit: DomainAuditValueObject;
+  private _trackingStatus: IDomainTrackingStatusProps;
+  private _audit: DomainAuditValueObject;
+  private _brokenRules: BrokenRuleCollection;
 
   constructor({ id, props, audit }: IDomainEntityProps<TDomainEntityProps>) {
-    this._isValid = true;
+    this.guard(props);
+
+    if (this._brokenRules) throw new DomainException(this._brokenRules);
 
     this._id = id;
-    this.guard(props);
-    this.businessRules();
+    this._brokenRules = new BrokenRuleCollection();
     this._props = props;
-    this.audit = audit;
+    this._audit = audit;
 
-    this._trackingProps = { ...this._trackingProps, isNew: true };
+    this._trackingStatus = { ...this._trackingStatus, isNew: true };
+  }
+
+  getAudit(): DomainAuditValueObject {
+    return this._audit;
+  }
+
+  addBrokenRule(brokenRule: BrokenRule): void {
+    this._brokenRules.add(brokenRule);
+  }
+
+  removeBrokenRule(brokenRule: BrokenRule): void {
+    this._brokenRules.remove(brokenRule);
+  }
+
+  getBrokenRules(): Array<BrokenRule> {
+    return this._brokenRules.getItems();
   }
 
   markAsNew(entity: DomainEntity<TDomainEntityProps>) {
-    entity._trackingProps = {
-      ...this._trackingProps,
+    entity._trackingStatus = {
+      ...this._trackingStatus,
       isNew: true,
       isDirty: false,
       isDeleted: false,
     };
+
+    entity._audit = DomainAuditValueObject.create(
+      'TODO',
+      DateTimeHelper.getUtcDate(),
+    );
   }
 
   marAsDirty(entity: DomainEntity<TDomainEntityProps>) {
-    entity._trackingProps = {
-      ...this._trackingProps,
+    entity._trackingStatus = {
+      ...this._trackingStatus,
       isNew: true,
       isDirty: true,
       isDeleted: false,
     };
+
+    entity._audit.update('TODO', DateTimeHelper.getUtcDate());
   }
 
-  abstract businessRules(): void;
-
-  getPropsTracking(): IDomainTrackingProps {
-    return this._trackingProps;
+  getTrackingStatus(): IDomainTrackingStatusProps {
+    return this._trackingStatus;
   }
 
   getIsValid(): boolean {
-    return this._isValid;
+    return !this._brokenRules.hasBrokenRules();
   }
 
   equals(object?: DomainEntity<TDomainEntityProps>): boolean {
-    if (object === null || object === undefined) return false;
-
     if (this === object) return true;
 
-    if (!DomainEntity.isEntity(object)) return false;
+    if (
+      object === null ||
+      object === undefined ||
+      !DomainEntity.isEntity(object)
+    )
+      return false;
 
-    return true;
+    return this._id.equals(object._id);
   }
 
-  protected getProps(): TDomainEntityProps & IDomainTrackingProps {
+  protected getProps(): TDomainEntityProps & IDomainTrackingStatusProps {
     const propsCopy = {
       id: this._id,
       ...this._props,
-      audit: this.audit,
-      ...this._trackingProps,
+      audit: this._audit,
+      ...this._trackingStatus,
     };
 
     return propsCopy;
   }
 
-  getPropsCopy(): TDomainEntityProps & IDomainTrackingProps {
+  getPropsCopy(): TDomainEntityProps & IDomainTrackingStatusProps {
     const propsCopy = {
       id: this._id,
       ...this._props,
-      audit: this.audit,
-      ...this._trackingProps,
+      audit: this._audit,
+      ...this._trackingStatus,
     };
 
     return Object.freeze(propsCopy);
@@ -94,24 +110,16 @@ export abstract class DomainEntity<TDomainEntityProps> {
 
   toObject(): unknown {
     const props = convertPropsToObject(this._props);
-
     const obj = { ...props };
-
     return Object.freeze(obj);
   }
 
   private guard(props: TDomainEntityProps): void {
-    if (DomainGuard.isEmpty(props)) {
-      this._isValid = false;
-      return;
-    }
+    if (DomainGuard.isEmpty(props))
+      this._brokenRules.add(new BrokenRule('props', 'Props is required'));
 
-    if (typeof props !== 'object') {
-      this._isValid = false;
-      return;
-    }
-
-    this._isValid = false;
+    if (typeof props !== 'object')
+      this._brokenRules.add(new BrokenRule('props', 'Props is not an object'));
   }
 
   static isEntity(entity: unknown): entity is DomainEntity<unknown> {
@@ -119,7 +127,7 @@ export abstract class DomainEntity<TDomainEntityProps> {
   }
 
   setId(id: string): void {
-    this._id = DomainUuidValueObject.setId(id);
+    this._id = DomainIdValueObject.setValue(id);
   }
 
   getId(): string {

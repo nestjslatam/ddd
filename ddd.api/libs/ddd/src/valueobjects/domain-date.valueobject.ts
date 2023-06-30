@@ -1,6 +1,6 @@
-import { DomainInvalidArgumentException } from '../exceptions';
 import { DomainGuard } from '../helpers';
 import { IDomainPrimitive } from '../interfaces';
+import { BrokenRule } from '../models';
 import { DomainValueObject } from './domain-valueobject';
 
 export class DomainDateValueObject extends DomainValueObject<Date> {
@@ -8,7 +8,9 @@ export class DomainDateValueObject extends DomainValueObject<Date> {
     const { value } = props;
 
     if (DomainGuard.isEmpty(value) || !DomainGuard.isDate(value))
-      throw new DomainInvalidArgumentException('Value must be a date');
+      this.addBrokenRule(
+        new BrokenRule(this.constructor.name, 'Value must be a date'),
+      );
   }
 
   protected constructor(value: Date) {

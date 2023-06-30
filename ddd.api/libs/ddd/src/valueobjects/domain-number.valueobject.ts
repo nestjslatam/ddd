@@ -1,6 +1,6 @@
-import { DomainInvalidArgumentException } from '../exceptions';
 import { DomainGuard } from '../helpers';
 import { IDomainPrimitive } from '../interfaces';
+import { BrokenRule } from '../models';
 import { DomainValueObject } from './domain-valueobject';
 
 export class DomainNumberValueObject extends DomainValueObject<number> {
@@ -8,7 +8,9 @@ export class DomainNumberValueObject extends DomainValueObject<number> {
     const { value } = props;
 
     if (DomainGuard.isEmpty(value) || !DomainGuard.isNumber(value)) {
-      throw new DomainInvalidArgumentException('Value must be a number');
+      this.addBrokenRule(
+        new BrokenRule(this.constructor.name, 'Value must be a number'),
+      );
     }
   }
 

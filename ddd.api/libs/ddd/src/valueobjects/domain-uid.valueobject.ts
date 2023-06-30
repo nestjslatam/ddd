@@ -1,33 +1,32 @@
 import { v4 as uuidv4 } from 'uuid';
 
+import { BrokenRule } from './../models/broken-rule';
 import { DomainGuard } from '../helpers';
 import { DomainValueObject } from './domain-valueobject';
-import { DomainException } from '../exceptions';
 import { IDomainPrimitive } from '../interfaces';
 
-export class DomainUuidValueObject extends DomainValueObject<string> {
+export class DomainIdValueObject extends DomainValueObject<string> {
   protected validate(props: IDomainPrimitive<string>): void {
     const { value } = props;
 
-    if (DomainGuard.isEmpty(value) || !DomainGuard.lenghtIsEqual(value, 36))
-      throw new DomainException('Invalid lenght Guid');
+    if (!DomainGuard.lenghtIsEqual(value, 36))
+      this.addBrokenRule(
+        new BrokenRule(
+          this.constructor.name,
+          'Invalid Id lenght. The value should be a string Guid with 36 characters',
+        ),
+      );
   }
 
-  protected constructor(props: IDomainPrimitive<string>) {
-    super(props);
+  protected constructor(value: string) {
+    super({ value });
   }
 
-  public static create(): DomainUuidValueObject {
-    try {
-      const id = uuidv4();
-
-      return new DomainUuidValueObject({ value: id });
-    } catch (error) {
-      throw new DomainException(error.message);
-    }
+  public static create(): DomainIdValueObject {
+    return new DomainIdValueObject(uuidv4());
   }
 
-  public static setId(id: string) {
-    return new DomainUuidValueObject({ value: id });
+  public static setValue(value: string) {
+    return new DomainIdValueObject(value);
   }
 }

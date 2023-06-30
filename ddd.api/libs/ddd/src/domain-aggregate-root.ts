@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { getDomainEventHandler } from '@nestjslatam/ddd';
 import { DomainEntity } from './domain-entity';
 import { DomainEvent } from './domaint-event';
-import { DomainException } from './exceptions';
-import { DomainGuard, getDomainEventHandler } from './helpers';
 
 export abstract class DomainAggregateRoot<
   TAggregateProps,
@@ -11,9 +12,6 @@ export abstract class DomainAggregateRoot<
   private _version = -1;
 
   public setVersion(value: number): void {
-    if (DomainGuard.isEmpty(value) || !DomainGuard.isNumber(value))
-      throw new DomainException('The version number must be a number');
-
     this._version = value;
   }
 

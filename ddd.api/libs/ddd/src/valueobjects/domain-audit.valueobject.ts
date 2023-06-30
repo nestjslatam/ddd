@@ -1,5 +1,5 @@
-import { DomainException } from '../exceptions';
 import { DomainGuard } from '../helpers';
+import { BrokenRule } from '../models';
 import { DomainValueObject } from './domain-valueobject';
 
 export interface IDomainAuditProps {
@@ -67,22 +67,33 @@ export class DomainAuditValueObject extends DomainValueObject<IDomainAuditProps>
 
   private guard = (createdBy, createdAt, updatedBy, updatedAt) => {
     if (!DomainGuard.isString(createdBy) || !DomainGuard.isEmpty(createdBy))
-      throw new DomainException('CreatedBy should be a string');
+      this.addBrokenRule(
+        new BrokenRule(this.constructor.name, 'CreatedBy should be a string'),
+      );
 
     if (!DomainGuard.isDate(createdAt))
-      throw new DomainException('CreatedAt should be a Date');
+      this.addBrokenRule(
+        new BrokenRule(this.constructor.name, 'CreatedAt should be a Date'),
+      );
 
     if (updatedBy) {
       if (!DomainGuard.isString(updatedBy))
-        throw new DomainException('UpdatedBy should be a string');
+        this.addBrokenRule(
+          new BrokenRule(this.constructor.name, 'UpdatedBy should be a string'),
+        );
 
       if (!DomainGuard.isEmpty(updatedBy))
-        throw new DomainException('UpdatedBy should not be empty');
-    }
+        this.addBrokenRule(
+          new BrokenRule(
+            this.constructor.name,
+            'UpdatedBy should not be empty',
+          ),
+        );
 
-    if (updatedAt) {
       if (!DomainGuard.isDate(updatedAt))
-        throw new DomainException('UpdatedAt should be a Date');
+        this.addBrokenRule(
+          new BrokenRule(this.constructor.name, 'UpdatedAt should be a Date'),
+        );
     }
   };
 }
