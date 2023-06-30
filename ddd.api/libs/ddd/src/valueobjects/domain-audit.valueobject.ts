@@ -37,35 +37,9 @@ export class DomainAuditValueObject extends DomainValueObject<IDomainAuditProps>
     });
   }
 
-  load(plainProps: {
-    createdBy: string;
-    createdAt: Date;
-    updatedBy: string;
-    updatedAt: Date;
-  }): DomainAuditValueObject {
-    const { createdAt, createdBy, updatedBy, updatedAt } = plainProps;
-
-    this.validate({ createdAt, createdBy, updatedBy, updatedAt });
-
-    const audit = DomainAuditValueObject.create(plainProps.createdBy);
-    audit.props.createdAt = plainProps.createdAt;
-    audit.props.updatedBy = plainProps.updatedBy;
-    audit.props.updatedAt = plainProps.updatedAt;
-    return audit;
-  }
-
-  update(updatedBy: string, updatedAt: Date = new Date()) {
-    this.props.updatedBy = updatedBy;
-    this.props.updatedAt = updatedAt;
-  }
-
-  protected validate(props: IDomainAuditProps): void {
+  protected businessRules(props: IDomainAuditProps): void {
     const { createdAt, createdBy, updatedBy, updatedAt } = props;
 
-    this.guard(createdBy, createdAt, updatedBy, updatedAt);
-  }
-
-  private guard = (createdBy, createdAt, updatedBy, updatedAt) => {
     if (!DomainGuard.isString(createdBy) || !DomainGuard.isEmpty(createdBy))
       this.addBrokenRule(
         new BrokenRule(this.constructor.name, 'CreatedBy should be a string'),
@@ -95,5 +69,27 @@ export class DomainAuditValueObject extends DomainValueObject<IDomainAuditProps>
           new BrokenRule(this.constructor.name, 'UpdatedAt should be a Date'),
         );
     }
-  };
+  }
+
+  load(plainProps: {
+    createdBy: string;
+    createdAt: Date;
+    updatedBy: string;
+    updatedAt: Date;
+  }): DomainAuditValueObject {
+    const { createdAt, createdBy, updatedBy, updatedAt } = plainProps;
+
+    this.businessRules({ createdAt, createdBy, updatedBy, updatedAt });
+
+    const audit = DomainAuditValueObject.create(plainProps.createdBy);
+    audit.props.createdAt = plainProps.createdAt;
+    audit.props.updatedBy = plainProps.updatedBy;
+    audit.props.updatedAt = plainProps.updatedAt;
+    return audit;
+  }
+
+  update(updatedBy: string, updatedAt: Date = new Date()) {
+    this.props.updatedBy = updatedBy;
+    this.props.updatedAt = updatedAt;
+  }
 }

@@ -1,19 +1,16 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { DomainEntity } from './domain-entity';
 import { DomainEvent, DomainEventCollection } from './domaint-event';
 
-export class DomainAggregateRoot {
-  private _domainEvents: DomainEventCollection;
+export class DomainAggregateRoot<TProps> extends DomainEntity<TProps> {
+  private _domainEvents: DomainEventCollection = new DomainEventCollection();
 
   protected businessRules(): void {}
 
   publish(domainEvent: DomainEvent) {}
 
   publishAll(domainEvents: DomainEvent[]) {}
-
-  constructor() {
-    this._domainEvents = new DomainEventCollection();
-  }
 
   existsDomainEvent(domainEvent: DomainEvent): boolean {
     return this._domainEvents.exists(domainEvent);
@@ -28,6 +25,8 @@ export class DomainAggregateRoot {
   }
 
   addDomainEvent(domainEvent: DomainEvent): void {
+    if (!this._domainEvents) new DomainEventCollection();
+    
     this._domainEvents.add(domainEvent);
   }
 

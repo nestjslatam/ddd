@@ -1,24 +1,26 @@
-import {
-  DomainValueObjectProps,
-  IDomainPrimitive,
-  DomainPrimitiveType,
-} from '../interfaces';
 import { DomainGuard, convertPropsToObject } from '../helpers';
 import { BrokenRule, BrokenRuleCollection } from '../models';
 import { DomainException } from '../exceptions';
 
-export abstract class DomainValueObject<T> {
-  protected readonly props: DomainValueObjectProps<T>;
+type Primitives = string | number | boolean;
 
+type Props<T> = T extends Primitives | Date ? IDomainPrimitive<T> : T;
+
+export interface IDomainPrimitive<T extends Primitives | Date> {
+  value: T;
+}
+
+export abstract class DomainValueObject<T> {
+  protected readonly props: Props<T>;
   private _brokenRules: BrokenRuleCollection;
 
-  protected abstract validate(props: DomainValueObjectProps<T>): void;
+  protected abstract businessRules(props: Props<T>): void;
 
-  constructor(props: DomainValueObjectProps<T>) {
+  constructor(props: Props<T>) {
     this._brokenRules = new BrokenRuleCollection();
 
-    this.checkIfEmpty(props);
-    this.validate(props);
+    this.guard(props);
+    this.businessRules(props);
 
     if (this._brokenRules.hasBrokenRules)
       throw new DomainException(this._brokenRules.getItems());
@@ -42,6 +44,10 @@ export abstract class DomainValueObject<T> {
     this._brokenRules.remove(brokenRule);
   }
 
+  static isValueObject(obj: unknown): obj is DomainValueObject<unknown> {
+    return obj instanceof DomainValueObject;
+  }
+
   public equals(object?: DomainValueObject<T>): boolean {
     if (object === null || object === undefined) return false;
 
@@ -58,7 +64,7 @@ export abstract class DomainValueObject<T> {
     return Object.freeze(propsCopy);
   }
 
-  private checkIfEmpty(props: DomainValueObjectProps<T>): void {
+  private guard(props: Props<T>): void {
     if (
       DomainGuard.isEmpty(props) ||
       (this.isDomainPrimitive(props) && DomainGuard.isEmpty(props.value))
@@ -71,7 +77,7 @@ export abstract class DomainValueObject<T> {
 
   private isDomainPrimitive(
     obj: unknown,
-  ): obj is IDomainPrimitive<T & (DomainPrimitiveType | Date)> {
+  ): obj is IDomainPrimitive<T & (Primitives | Date)> {
     if (!obj)
       this._brokenRules.add(
         new BrokenRule(this.constructor.name, 'Object cannot be null'),
