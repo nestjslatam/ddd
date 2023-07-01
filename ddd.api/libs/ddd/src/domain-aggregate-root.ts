@@ -3,10 +3,10 @@
 import { DomainEntity } from './domain-entity';
 import { DomainEvent, DomainEventCollection } from './domaint-event';
 
-export class DomainAggregateRoot<TProps> extends DomainEntity<TProps> {
-  private _domainEvents: DomainEventCollection = new DomainEventCollection();
+export abstract class DomainAggregateRoot<TProps> extends DomainEntity<TProps> {
+  protected abstract businessRules(props: TProps): void;
 
-  protected businessRules(): void {}
+  private _domainEvents: DomainEventCollection = new DomainEventCollection();
 
   publish(domainEvent: DomainEvent) {}
 
@@ -26,7 +26,7 @@ export class DomainAggregateRoot<TProps> extends DomainEntity<TProps> {
 
   addDomainEvent(domainEvent: DomainEvent): void {
     if (!this._domainEvents) new DomainEventCollection();
-    
+
     this._domainEvents.add(domainEvent);
   }
 

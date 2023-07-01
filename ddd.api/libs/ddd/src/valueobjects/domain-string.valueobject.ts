@@ -2,16 +2,18 @@ import { DomainGuard } from '../helpers';
 import { DomainValueObject, IDomainPrimitive } from './domain-valueobject';
 import { BrokenRule } from '../models';
 
-export class DomainStringValueObject extends DomainValueObject<string> {
+export abstract class DomainStringValueObject extends DomainValueObject<string> {
+  protected abstract businessRules(props: IDomainPrimitive<string>): void;
+
   protected constructor(value: string) {
     super({ value });
+
+    this.basicBusinessRules({ value });
+
+    this.businessRules({ value });
   }
 
-  public static create(value: string) {
-    return new DomainStringValueObject(value);
-  }
-
-  protected businessRules(props: IDomainPrimitive<string>): void {
+  protected basicBusinessRules(props: IDomainPrimitive<string>): void {
     const { value } = props;
 
     if (DomainGuard.isEmpty(value) || !DomainGuard.isString(value)) {

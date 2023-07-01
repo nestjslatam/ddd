@@ -18,7 +18,6 @@ export abstract class DomainValueObject<T> {
 
   constructor(props: Props<T>) {
     this._brokenRules = new BrokenRuleCollection();
-
     this.guard(props);
     this.businessRules(props);
 

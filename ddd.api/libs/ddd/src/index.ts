@@ -1,6 +1,7 @@
 export * from './ddd.module';
 export * from './utils';
 export * from './helpers';
+export * from './models';
 export * from './valueobjects';
 export * from './services';
 export * from './operators';

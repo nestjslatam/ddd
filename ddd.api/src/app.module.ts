@@ -1,3 +1,4 @@
+import { ProjectController } from './application/project.controller';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -10,6 +11,7 @@ import {
   TeamMemberTable,
   TeamTable,
 } from './infrastructure';
+import { DevtoolsModule } from '@nestjs/devtools-integration';
 
 @Module({
   imports: [
@@ -33,10 +35,12 @@ import {
       TeamMemberTable,
       TeamTable,
     ]),
-    ,
-    DddModule,
+    DevtoolsModule.register({
+      http: process.env.NODE_ENV !== 'production',
+    }),
+    // DddModule,
   ],
-  controllers: [],
+  controllers: [ProjectController],
   providers: [],
 })
 export class AppModule {}

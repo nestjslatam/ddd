@@ -1,14 +1,28 @@
 version: '3'
-
 services:
-  db:
-    image: postgres:latest
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_DB: postgres
+  postgres:
+    image: postgres
+    hostname: postgres
     ports:
-      - 5432:5432
+      - '6543:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nestjslatam-ddd-demo
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - postgres
+    ports:
+      - '5555:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: beyondnet.peru@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

@@ -1,5 +1,5 @@
 import { IDomainEvent } from './interfaces';
-import { DomainIdValueObject } from './valueobjects';
+import { v4 } from 'uuid';
 
 export abstract class DomainEvent implements IDomainEvent {
   readonly id: string;
@@ -12,7 +12,12 @@ export abstract class DomainEvent implements IDomainEvent {
 
   constructor(params: { aggregateId: string; eventName: string }) {
     const { aggregateId, eventName } = params;
-    this.id = DomainIdValueObject.create().unpack();
+
+    try {
+      this.id = v4().toString();
+    } catch (error) {
+      throw new Error(`Error generating DomainEvent Id: ${error}`);
+    }
 
     this.aggregateId = aggregateId;
     this.occurredOn = new Date().toUTCString();

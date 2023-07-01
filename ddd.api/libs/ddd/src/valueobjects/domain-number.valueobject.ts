@@ -2,12 +2,18 @@ import { DomainGuard } from '../helpers';
 import { BrokenRule } from '../models';
 import { DomainValueObject, IDomainPrimitive } from './domain-valueobject';
 
-export class DomainNumberValueObject extends DomainValueObject<number> {
+export abstract class DomainNumberValueObject extends DomainValueObject<number> {
+  protected abstract businessRules(props: IDomainPrimitive<number>): void;
+
   protected constructor(value: number) {
     super({ value });
+
+    this.basicBusinessRules({ value });
+
+    this.businessRules({ value });
   }
 
-  protected businessRules(props: IDomainPrimitive<number>): void {
+  protected basicBusinessRules(props: IDomainPrimitive<number>): void {
     const { value } = props;
 
     if (DomainGuard.isEmpty(value) || !DomainGuard.isNumber(value)) {
@@ -15,9 +21,5 @@ export class DomainNumberValueObject extends DomainValueObject<number> {
         new BrokenRule(this.constructor.name, 'Value must be a number'),
       );
     }
-  }
-
-  public static create(value: number) {
-    return new DomainNumberValueObject(value);
   }
 }

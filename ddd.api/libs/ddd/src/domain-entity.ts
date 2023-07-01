@@ -1,5 +1,5 @@
 import { DomainGuard, convertPropsToObject } from './helpers';
-import { DomainAuditValueObject, DomainIdValueObject } from './valueobjects';
+import { DomainAuditValueObject, DomainUIdValueObject } from './valueobjects';
 import { BrokenRule, BrokenRuleCollection } from './models';
 import { DomainException } from './exceptions';
 
@@ -10,13 +10,13 @@ export interface ITrackingProps {
 }
 
 export interface IProps<T> {
-  id: DomainIdValueObject;
+  id: DomainUIdValueObject;
   props: T;
   audit: DomainAuditValueObject;
 }
 
 export abstract class DomainEntity<TProps> {
-  private _id: DomainIdValueObject;
+  private _id: DomainUIdValueObject;
   private _props: TProps;
   private _trackingStatus: ITrackingProps;
   private _audit: DomainAuditValueObject;
@@ -134,10 +134,6 @@ export abstract class DomainEntity<TProps> {
 
     if (typeof props !== 'object')
       this._brokenRules.add(new BrokenRule('props', 'Props is not an object'));
-  }
-
-  setId(id: string): void {
-    this._id = DomainIdValueObject.setValue(id);
   }
 
   getId(): string {
