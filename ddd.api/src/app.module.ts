@@ -1,3 +1,4 @@
+import { ProjectService } from './application/project.service';
 import { ProjectController } from './application/project.controller';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -41,6 +42,6 @@ import { DevtoolsModule } from '@nestjs/devtools-integration';
     // DddModule,
   ],
   controllers: [ProjectController],
-  providers: [],
+  providers: [ProjectService],
 })
 export class AppModule {}
