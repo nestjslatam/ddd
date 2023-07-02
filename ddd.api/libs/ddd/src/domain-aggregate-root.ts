@@ -1,40 +1,103 @@
-import { EventEmitter2 } from '@nestjs/event-emitter';
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { DomainEntity } from './domain-entity';
-import { DomainEvent, DomainEventCollection } from './domaint-event';
+import { DomainEventCollection } from './core';
+import { IDomainEventHandler } from './core/interfaces';
+import { Type } from './core/interfaces/type.interface';
+import { IDomainEvent } from '@nestjslatam/ddd';
 
-export abstract class DomainAggregateRoot<TProps> extends DomainEntity<TProps> {
+export abstract class DomainAggregateRoot<
+  TProps,
+  TDomainEventBase extends IDomainEvent = IDomainEvent,
+> extends DomainEntity<TProps> {
   protected abstract businessRules(props: TProps): void;
 
-  private _domainEvents: DomainEventCollection = new DomainEventCollection();
+  private _domainEvents: TDomainEventBase[] = [];
 
-  existsDomainEvent(domainEvent: DomainEvent): boolean {
-    return this._domainEvents.exists(domainEvent);
+  /**
+   * Publishes an event. Must be merged with the publisher context in order to work.
+   * @param event The event to publish.
+   */
+  publish<T extends TDomainEventBase = TDomainEventBase>(domainEvent: T) {}
+
+  /**
+   * Publishes multiple events. Must be merged with the publisher context in order to work.
+   * @param events The events to publish.
+   */
+  publishAll<T extends TDomainEventBase = TDomainEventBase>(
+    domainEvents: T[],
+  ) {}
+
+  /**
+   * Commits all uncommitted events.
+   */
+  commit() {
+    this.publishAll(this._domainEvents);
+    this.clearDomainEvents();
+  }
+
+  existsDomainEvent(domainEvent: TDomainEventBase): boolean {
+    return this._domainEvents.includes(domainEvent);
   }
 
   clearDomainEvents(): void {
-    this._domainEvents.clear();
+    this._domainEvents.length = 0;
   }
 
-  get getDomainEvents(): DomainEvent[] {
-    return this._domainEvents.getItems();
+  get getDomainEvents(): TDomainEventBase[] {
+    return this._domainEvents;
   }
 
-  addDomainEvent(domainEvent: DomainEvent): void {
+  addDomainEvent(domainEvent: TDomainEventBase): void {
     if (!this._domainEvents) new DomainEventCollection();
 
-    this._domainEvents.add(domainEvent);
+    this._domainEvents.push(domainEvent);
   }
 
-  removeDomainEvent(domainEvent: DomainEvent): void {
-    this._domainEvents.remove(domainEvent);
+  removeDomainEvent(domainEvent: TDomainEventBase): void {
+    const index = this._domainEvents.indexOf(domainEvent);
+    if (index > -1) {
+      this._domainEvents.splice(index, 1);
+    }
   }
 
-  public async publish(eventEmitter: EventEmitter2): Promise<void> {
-    await Promise.all(
-      this._domainEvents.getItems().map(async (event) => {
-        return eventEmitter.emitAsync(event.constructor.name, event);
-      }),
-    );
-    this.clearDomainEvents();
+  /**
+   * Loads events from history.
+   * @param history The history to load.
+   */
+  loadFromHistory(history: TDomainEventBase[]) {
+    history.forEach((event) => this.apply(event, true));
+  }
+
+  /**
+   * Applies an event.
+   * If auto commit is enabled, the event will be published immediately (note: must be merged with the publisher context in order to work).
+   * Otherwise, the event will be stored in the internal events array, and will be published when the commit method is called.
+   * Also, the corresponding event handler will be called (if exists).
+   * For example, if the event is called UserCreatedEvent, the "onUserCreatedEvent" method will be called.
+   *
+   * @param event The event to apply.
+   * @param isFromHistory Whether the event is from history.
+   */
+  apply(domainEvent: TDomainEventBase, isFromHistory = false) {
+    if (!isFromHistory) {
+      this._domainEvents.push(domainEvent);
+    }
+    this.publish(domainEvent);
+
+    const handler = this.getDomainEventHandler(domainEvent);
+    handler && handler.call(this, domainEvent);
+  }
+
+  protected getDomainEventHandler(
+    domainEvent: TDomainEventBase,
+  ): Type<IDomainEventHandler> | undefined {
+    const handler = `on${this.getDomainEventName(domainEvent)}`;
+    return this[handler];
+  }
+
+  protected getDomainEventName(domainEvent: any): string {
+    const { constructor } = Object.getPrototypeOf(domainEvent);
+    return constructor.name as string;
   }
 }

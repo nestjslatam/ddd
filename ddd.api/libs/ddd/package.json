@@ -1,6 +1,6 @@
 {
   "name": "@nestjslatam/ddd",
-  "version": "1.0.24",
+  "version": "1.0.28",
   "description": "A simple Domain-Driven Library for NESTJS",
   "main": "index.js",
   "private": false,
