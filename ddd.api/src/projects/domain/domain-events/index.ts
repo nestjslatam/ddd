@@ -1,1 +1,1 @@
-export * from './project-created.domain-event';
+export * from './created-project.domain-event';

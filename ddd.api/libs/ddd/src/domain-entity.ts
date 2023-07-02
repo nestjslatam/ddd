@@ -1,7 +1,7 @@
 import { DomainGuard, convertPropsToObject } from './helpers';
 import { DomainAuditValueObject, DomainUIdValueObject } from './valueobjects';
-import { BrokenRule, BrokenRuleCollection } from './models';
 import { DomainException } from './exceptions';
+import { BrokenRule, BrokenRuleCollection } from './core';
 
 export interface ITrackingProps {
   isDirty: boolean;

@@ -1,4 +1,4 @@
-import { BrokenRule } from '../models';
+import { BrokenRule } from '../core';
 
 export class DomainException extends Error {
   constructor(brokenRules: Array<BrokenRule>) {

@@ -1,6 +1,6 @@
 import { DomainGuard, convertPropsToObject } from '../helpers';
-import { BrokenRule, BrokenRuleCollection } from '../models';
 import { DomainException } from '../exceptions';
+import { BrokenRule, BrokenRuleCollection } from '../core';
 
 type Primitives = string | number | boolean;
 

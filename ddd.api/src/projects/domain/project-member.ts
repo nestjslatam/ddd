@@ -1,5 +1,4 @@
-import { BrokenRule } from '@nestjslatam/ddd';
-import { DomainValueObject } from '@nestjslatam/ddd';
+import { BrokenRule, DomainValueObject } from '@nestjslatam/ddd';
 
 export interface IProjectMemberProps {
   id: string;

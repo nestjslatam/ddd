@@ -4,6 +4,7 @@ import {
   DomainAggregateRoot,
   DomainAuditValueObject,
 } from '@nestjslatam/ddd';
+
 import { ProjectMember } from './project-member';
 import { ProjectId } from './project-id';
 import { Name } from './name';

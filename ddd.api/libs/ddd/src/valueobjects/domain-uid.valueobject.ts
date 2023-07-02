@@ -1,4 +1,4 @@
-import { BrokenRule } from './../models/broken-rule';
+import { BrokenRule } from '../core';
 import { DomainGuard } from '../helpers';
 import { DomainValueObject, IDomainPrimitive } from './domain-valueobject';
 

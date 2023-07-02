@@ -10,6 +10,10 @@ export class Name extends DomainStringValueObject {
     super(name);
   }
 
+  static create(name: string): Name {
+    return new Name(name);
+  }
+
   protected businessRules(props: IDomainPrimitive<string>): void {
     const { value } = props;
 

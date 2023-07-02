@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DomainEntity } from './domain-entity';
 import { DomainEvent, DomainEventCollection } from './domaint-event';
 
@@ -7,10 +6,6 @@ export abstract class DomainAggregateRoot<TProps> extends DomainEntity<TProps> {
   protected abstract businessRules(props: TProps): void;
 
   private _domainEvents: DomainEventCollection = new DomainEventCollection();
-
-  publish(domainEvent: DomainEvent) {}
-
-  publishAll(domainEvents: DomainEvent[]) {}
 
   existsDomainEvent(domainEvent: DomainEvent): boolean {
     return this._domainEvents.exists(domainEvent);
@@ -34,10 +29,12 @@ export abstract class DomainAggregateRoot<TProps> extends DomainEntity<TProps> {
     this._domainEvents.remove(domainEvent);
   }
 
-  commit(): void {
-    if (!this._domainEvents) return;
-
-    this.publishAll(this._domainEvents.getItems());
-    this._domainEvents.clear();
+  public async publish(eventEmitter: EventEmitter2): Promise<void> {
+    await Promise.all(
+      this._domainEvents.getItems().map(async (event) => {
+        return eventEmitter.emitAsync(event.constructor.name, event);
+      }),
+    );
+    this.clearDomainEvents();
   }
 }

@@ -1,5 +1,5 @@
+import { BrokenRule } from '../core';
 import { DomainGuard } from '../helpers';
-import { BrokenRule } from '../models';
 import { DomainValueObject, IDomainPrimitive } from './domain-valueobject';
 
 export abstract class DomainNumberValueObject extends DomainValueObject<number> {
@@ -7,9 +7,7 @@ export abstract class DomainNumberValueObject extends DomainValueObject<number> 
 
   protected constructor(value: number) {
     super({ value });
-
     this.basicBusinessRules({ value });
-
     this.businessRules({ value });
   }
 

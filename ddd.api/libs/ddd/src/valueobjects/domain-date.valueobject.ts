@@ -1,7 +1,7 @@
 import { IDomainPrimitive } from '@nestjslatam/ddd';
 import { DomainGuard } from '../helpers';
-import { BrokenRule } from '../models';
 import { DomainValueObject } from './domain-valueobject';
+import { BrokenRule } from '../core';
 
 export abstract class DomainDateValueObject extends DomainValueObject<Date> {
   protected abstract businessRules(props: IDomainPrimitive<Date>): void;

@@ -1,5 +1,5 @@
+import { BrokenRule } from '../core';
 import { DomainGuard } from '../helpers';
-import { BrokenRule } from '../models';
 import { DomainValueObject } from './domain-valueobject';
 
 export interface IDomainAuditProps {

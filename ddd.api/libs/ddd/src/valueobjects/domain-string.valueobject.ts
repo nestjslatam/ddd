@@ -1,6 +1,6 @@
+import { BrokenRule } from '../core';
 import { DomainGuard } from '../helpers';
 import { DomainValueObject, IDomainPrimitive } from './domain-valueobject';
-import { BrokenRule } from '../models';
 
 export abstract class DomainStringValueObject extends DomainValueObject<string> {
   protected abstract businessRules(props: IDomainPrimitive<string>): void;

@@ -1,7 +1,6 @@
-import { IDomainEvent } from './interfaces';
 import { v4 } from 'uuid';
 
-export abstract class DomainEvent implements IDomainEvent {
+export abstract class DomainEvent {
   readonly id: string;
   readonly eventType: 'DOMAIN_EVENT';
   readonly eventName: string;
