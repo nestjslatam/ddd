@@ -5,14 +5,13 @@ import {
   DomainAuditValueObject,
 } from '@nestjslatam/ddd';
 
-import { ProjectMember } from './project-member';
-import { ProjectId } from './project-id';
-import { Name } from './name';
+import { ProjectMember } from './project-member.domain';
+import { ProjectId } from './project-id.domain';
+import { ProjectName } from './project-name.domain';
 import { ProjectCreatedDomainEvent } from './domain-events';
 
 interface IProjectProps {
-  projectId: ProjectId;
-  name: Name;
+  name: ProjectName;
 }
 
 export class Project extends DomainAggregateRoot<IProjectProps> {
@@ -26,11 +25,10 @@ export class Project extends DomainAggregateRoot<IProjectProps> {
     });
   }
 
-  static create(name: Name): Project {
+  static create(name: ProjectName): Project {
     const id = ProjectId.create();
 
     const project = new Project({
-      projectId: id,
       name,
     });
 
@@ -54,15 +52,8 @@ export class Project extends DomainAggregateRoot<IProjectProps> {
     return this;
   }
 
-  updateMemberRole(member: ProjectMember, role: string): Project {
-    const index = this._projectMembers.indexOf(member);
-
-    if (index === -1)
-      this.addBrokenRule(new BrokenRule('Member', 'Member does not exists'));
-
-    this._projectMembers[index].unpack().role = role;
-
-    return this;
+  getMembers(): Array<ProjectMember> {
+    return [...this._projectMembers];
   }
 
   removeMember(member: ProjectMember): Project {

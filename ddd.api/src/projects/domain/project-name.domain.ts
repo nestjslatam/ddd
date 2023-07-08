@@ -5,13 +5,13 @@ import {
   IDomainPrimitive,
 } from '@nestjslatam/ddd';
 
-export class Name extends DomainStringValueObject {
+export class ProjectName extends DomainStringValueObject {
   constructor(name: string) {
     super(name);
   }
 
-  static create(name: string): Name {
-    return new Name(name);
+  static create(name: string): ProjectName {
+    return new ProjectName(name);
   }
 
   protected businessRules(props: IDomainPrimitive<string>): void {

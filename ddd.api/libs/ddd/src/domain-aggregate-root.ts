@@ -2,9 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { DomainEntity } from './domain-entity';
 import { DomainEventCollection } from './core';
-import { IDomainEventHandler } from './core/interfaces';
+import { IDomainEvent, IDomainEventHandler } from './core/interfaces';
 import { Type } from './core/interfaces/type.interface';
-import { IDomainEvent } from '@nestjslatam/ddd';
 
 export abstract class DomainAggregateRoot<
   TProps,

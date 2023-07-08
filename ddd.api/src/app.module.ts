@@ -1,18 +1,20 @@
-import { ProjectService } from './application/project.service';
-import { ProjectController } from './application/project.controller';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
 import { DddModule } from '@nestjslatam/ddd';
+
+import { DevtoolsModule } from '@nestjs/devtools-integration';
 import {
   MemberTable,
-  ProjectMemberTable,
+  ProjectRepository,
   ProjectTable,
-  TeamMemberTable,
-  TeamTable,
-} from './infrastructure';
-import { DevtoolsModule } from '@nestjs/devtools-integration';
+} from './projects/infrastructure';
+import {
+  CreateProjectController,
+  CreateProjectService,
+  ProjectSaga,
+} from './projects/application';
+import { DomainEventHandlers } from './projects/domain';
 
 @Module({
   imports: [
@@ -29,19 +31,16 @@ import { DevtoolsModule } from '@nestjs/devtools-integration';
         synchronize: true, // disabled in production
       }),
     }),
-    TypeOrmModule.forFeature([
-      ProjectTable,
-      ProjectMemberTable,
-      MemberTable,
-      TeamMemberTable,
-      TeamTable,
-    ]),
+    TypeOrmModule.forFeature([ProjectTable, MemberTable]),
     DevtoolsModule.register({
       http: process.env.NODE_ENV !== 'production',
     }),
-    // DddModule,
+    DddModule,
+    ProjectRepository,
+    ...DomainEventHandlers,
+    ProjectSaga,
   ],
-  controllers: [ProjectController],
-  providers: [ProjectService],
+  controllers: [CreateProjectController],
+  providers: [CreateProjectService],
 })
 export class AppModule {}

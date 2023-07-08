@@ -8,3 +8,6 @@ export * from './domain-aggregate-root';
 export * from './core';
 export * from './domain-event-bus';
 export * from './command-bus';
+export * from './domain-event-publisher';
+export * from './domain-event-bus';
+export * from './command-bus';

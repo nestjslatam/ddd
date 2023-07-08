@@ -9,9 +9,9 @@ export class CreateProjectController {
 
   @Post()
   @HttpCode(201)
-  async create(@Body() createProject: CreateProjectDto): Promise<string> {
+  async create(@Body() createProject: CreateProjectDto): Promise<void> {
     const { name } = createProject;
 
-    return this.projectService.create(name);
+    this.projectService.create(name);
   }
 }

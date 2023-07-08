@@ -1,6 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
-import { ProjectMemberTable } from './project-member.table';
+import { Column, Entity, JoinTable, ManyToMany, PrimaryColumn } from 'typeorm';
 import { Audit } from './audit.entity';
+import { MemberTable } from './member.table';
 
 @Entity({ name: 'projects' })
 export class ProjectTable {
@@ -10,8 +10,9 @@ export class ProjectTable {
   @Column()
   name: string;
 
-  @OneToMany(() => ProjectMemberTable, (member) => member.project)
-  members: ProjectMemberTable[];
+  @ManyToMany(() => MemberTable)
+  @JoinTable()
+  members: MemberTable[];
 
   @Column()
   status: string;

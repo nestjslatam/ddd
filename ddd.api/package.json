@@ -29,7 +29,7 @@
     "@nestjs/event-emitter": "^2.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/typeorm": "^10.0.0",
-    "@nestjslatam/ddd": "^1.0.28",
+    "@nestjslatam/ddd": "^1.0.29",
     "pg": "^8.11.1",
     "reflect-metadata": "^0.1.13",
     "release-it": "^15.11.0",

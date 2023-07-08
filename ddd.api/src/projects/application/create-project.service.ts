@@ -1,19 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { Project } from '../domain/project';
-import { Name } from '../domain/name';
+import { DomainEventPublisher } from '@nestjslatam/ddd';
+
+import { Project } from '../domain/project.domain';
 import { ProjectRepository } from '../infrastructure';
+import { ProjectName } from '../domain';
 
 @Injectable()
 export class CreateProjectService {
-  constructor(private readonly repository: ProjectRepository) {}
+  constructor(
+    private readonly repository: ProjectRepository,
+    private readonly eventPublisher: DomainEventPublisher,
+  ) {}
 
-  async create(name: string): string {
-    const project = Project.create(Name.create(name));
+  async create(name: string): Promise<void> {
+    const project = Project.create(ProjectName.create(name));
 
-    await this.repository.save(project);
+    if (!project.getIsValid())
+      throw new Error(project.getBrokenRules().join('\n'));
 
-    project.commit();
+    this.repository.save(project);
 
-    return name;
+    const projectMerged = this.eventPublisher.mergeObjectContext(project);
+
+    projectMerged.commit();
   }
 }

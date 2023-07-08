@@ -2,8 +2,8 @@ import { BrokenRule, DomainValueObject } from '@nestjslatam/ddd';
 
 export interface IProjectMemberProps {
   id: string;
-  fullName: string;
-  role: string;
+  firstName: string;
+  lastName: string;
 }
 
 export class ProjectMember extends DomainValueObject<IProjectMemberProps> {
@@ -12,24 +12,26 @@ export class ProjectMember extends DomainValueObject<IProjectMemberProps> {
   }
 
   protected businessRules(props: IProjectMemberProps): void {
-    const { role, fullName } = props;
+    const { firstName, lastName } = props;
 
-    if (!role === null || role === undefined)
-      this.addBrokenRule(new BrokenRule('Role', 'Rol is required'));
-
-    if (!fullName === null || fullName === undefined)
-      this.addBrokenRule(new BrokenRule('FullName', 'FullName is required'));
+    if (firstName + ', ' + lastName === 'John, Doe')
+      this.addBrokenRule(
+        new BrokenRule(
+          'ProjectMember',
+          'John Doe is not a valid project member',
+        ),
+      );
   }
 
   static create(
     memberId: string,
-    fullName: string,
-    role: string,
+    firstName: string,
+    lastName: string,
   ): ProjectMember {
     return new ProjectMember({
       id: memberId,
-      fullName,
-      role,
+      firstName,
+      lastName,
     });
   }
 }
