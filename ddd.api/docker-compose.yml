@@ -13,16 +13,5 @@ services:
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
 
-  pgadmin:
-    image: dpage/pgadmin4
-    depends_on:
-      - postgres
-    ports:
-      - '5555:80'
-    environment:
-      PGADMIN_DEFAULT_EMAIL: beyondnet.peru@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: root
-    restart: unless-stopped
-
 volumes:
   postgres-data:
