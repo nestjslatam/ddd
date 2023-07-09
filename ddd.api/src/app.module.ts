@@ -12,7 +12,6 @@ import {
 import {
   CreateProjectController,
   CreateProjectService,
-  ProjectSaga,
 } from './projects/application';
 import { DomainEventHandlers } from './projects/domain';
 
@@ -36,11 +35,9 @@ import { DomainEventHandlers } from './projects/domain';
       http: process.env.NODE_ENV !== 'production',
     }),
     DddModule,
-    ProjectRepository,
     ...DomainEventHandlers,
-    ProjectSaga,
   ],
   controllers: [CreateProjectController],
-  providers: [CreateProjectService],
+  providers: [CreateProjectService, ProjectRepository],
 })
 export class AppModule {}

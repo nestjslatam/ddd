@@ -28,7 +28,7 @@ import {
 } from './decorators';
 import { InvalidSagaException } from './exceptions';
 import { UnhandledExceptionBus } from './unhandled-exception-bus';
-import { CommandBus } from './command-bus';
+import { DomainCommandBus } from './domain-command-bus';
 
 export type DomainEventHandlerType<
   DomainEventBase extends IDomainEvent = IDomainEvent,
@@ -45,7 +45,7 @@ export class DomainEventBus<DomainEventBase extends IDomainEvent = IDomainEvent>
   private readonly _logger = new Logger(DomainEventBus.name);
 
   constructor(
-    private readonly commandBus: CommandBus,
+    private readonly commandBus: DomainCommandBus,
     private readonly moduleRef: ModuleRef,
     private readonly unhandledExceptionBus: UnhandledExceptionBus,
   ) {

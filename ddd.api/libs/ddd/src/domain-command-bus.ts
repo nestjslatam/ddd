@@ -20,7 +20,7 @@ import { ObservableBus } from './utils/observable-bus';
 export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
 
 @Injectable()
-export class CommandBus<CommandBase extends ICommand = ICommand>
+export class DomainCommandBus<CommandBase extends ICommand = ICommand>
   extends ObservableBus<CommandBase>
   implements ICommandBus<CommandBase>
 {

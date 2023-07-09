@@ -4,10 +4,27 @@ import { DomainGuard } from './helpers';
 import { IDomainEvent } from './core';
 import { ExplorerService } from './services';
 import { DomainEventBus } from './domain-event-bus';
-import { CommandBus } from './command-bus';
+import { DomainCommandBus } from './domain-command-bus';
+import { DomainEventPublisher } from './domain-event-publisher';
+import { UnhandledExceptionBus } from './unhandled-exception-bus';
 
 @Module({
-  exports: [DomainGuard],
+  providers: [
+    ExplorerService,
+    DomainGuard,
+    DomainCommandBus,
+    DomainEventBus,
+    UnhandledExceptionBus,
+    DomainEventPublisher,
+    DomainGuard,
+  ],
+  exports: [
+    DomainCommandBus,
+    DomainEventBus,
+    DomainEventPublisher,
+    DomainGuard,
+    UnhandledExceptionBus,
+  ],
 })
 export class DddModule<DomainEventBase extends IDomainEvent = IDomainEvent>
   implements OnApplicationBootstrap
@@ -15,7 +32,7 @@ export class DddModule<DomainEventBase extends IDomainEvent = IDomainEvent>
   constructor(
     private readonly explorerService: ExplorerService<DomainEventBase>,
     private readonly eventBus: DomainEventBus<DomainEventBase>,
-    private readonly commandBus: CommandBus,
+    private readonly commandBus: DomainCommandBus,
   ) {}
 
   onApplicationBootstrap() {
