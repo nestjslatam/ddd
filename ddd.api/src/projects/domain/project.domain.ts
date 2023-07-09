@@ -10,8 +10,14 @@ import { ProjectId } from './project-id.domain';
 import { ProjectName } from './project-name.domain';
 import { ProjectCreatedDomainEvent } from './domain-events';
 
-interface IProjectProps {
+export interface IProjectProps {
   name: ProjectName;
+  status: ProjectStatus;
+}
+
+export enum ProjectStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
 }
 
 export class Project extends DomainAggregateRoot<IProjectProps> {
@@ -30,6 +36,7 @@ export class Project extends DomainAggregateRoot<IProjectProps> {
 
     const project = new Project({
       name,
+      status: ProjectStatus.ACTIVE,
     });
 
     if (project.getIsValid()) {
@@ -55,7 +62,7 @@ export class Project extends DomainAggregateRoot<IProjectProps> {
   }
 
   getMembers(): Array<ProjectMember> {
-    return [...this._projectMembers];
+    return this._projectMembers;
   }
 
   removeMember(member: ProjectMember): Project {

@@ -16,9 +16,10 @@ export class CreateProjectService {
   async create(name: string): Promise<Result> {
     const project = Project.create(ProjectName.create(name));
 
-    if (!project.getIsValid()) return Result.fail(project.getBrokenAsString());
+    if (!project.getIsValid())
+      return Result.fail(project.getBrokenRulesAsString());
 
-    this.repository.save(project);
+    await this.repository.save(project);
 
     const projectMerged = this.eventPublisher.mergeObjectContext(project);
 

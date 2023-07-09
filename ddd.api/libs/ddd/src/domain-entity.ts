@@ -59,7 +59,7 @@ export abstract class DomainEntity<TProps> {
     return this._brokenRules.getItems();
   }
 
-  getBrokenAsString(): string {
+  getBrokenRulesAsString(): string {
     let result = '';
 
     this._brokenRules.getItems().map((brokenRule) => {

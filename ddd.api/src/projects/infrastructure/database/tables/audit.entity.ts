@@ -1,21 +1,14 @@
-import {
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  VersionColumn,
-} from 'typeorm';
+import { Column } from 'typeorm';
 
 export class Audit {
   @Column()
   createdBy: string;
-  @CreateDateColumn()
-  createdDate: Date;
   @Column()
+  createdAt: Date;
+  @Column({ nullable: true })
   updatedBy: string;
-  @UpdateDateColumn()
-  updatedDate: Date;
-  @Column()
-  timestamp: number;
-  @VersionColumn()
-  version: number;
+  @Column({ nullable: true })
+  updatedAt: Date;
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  timestamp: Date;
 }
