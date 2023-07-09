@@ -4,6 +4,7 @@ import { DomainEventPublisher } from '@nestjslatam/ddd';
 import { Project } from '../domain/project.domain';
 import { ProjectRepository } from '../infrastructure';
 import { ProjectName } from '../domain';
+import { Result } from '../../shared/application';
 
 @Injectable()
 export class CreateProjectService {
@@ -12,16 +13,17 @@ export class CreateProjectService {
     private readonly eventPublisher: DomainEventPublisher,
   ) {}
 
-  async create(name: string): Promise<void> {
+  async create(name: string): Promise<Result> {
     const project = Project.create(ProjectName.create(name));
 
-    if (!project.getIsValid())
-      throw new Error(project.getBrokenRules().join('\n'));
+    if (!project.getIsValid()) return Result.fail(project.getBrokenAsString());
 
     this.repository.save(project);
 
     const projectMerged = this.eventPublisher.mergeObjectContext(project);
 
     projectMerged.commit();
+
+    return Result.ok(JSON.stringify(project));
   }
 }

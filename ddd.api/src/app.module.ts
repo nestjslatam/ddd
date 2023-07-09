@@ -14,6 +14,7 @@ import {
   CreateProjectService,
 } from './projects/application';
 import { DomainEventHandlers } from './projects/domain';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { DomainEventHandlers } from './projects/domain';
     }),
     DddModule,
     ...DomainEventHandlers,
+    SharedModule,
   ],
   controllers: [CreateProjectController],
   providers: [CreateProjectService, ProjectRepository],

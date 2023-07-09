@@ -59,6 +59,16 @@ export abstract class DomainEntity<TProps> {
     return this._brokenRules.getItems();
   }
 
+  getBrokenAsString(): string {
+    let result = '';
+
+    this._brokenRules.getItems().map((brokenRule) => {
+      result += `${brokenRule.code}-${brokenRule.description}`;
+    });
+
+    return result;
+  }
+
   markAsNew(entity: DomainEntity<TProps>) {
     entity._trackingStatus = {
       ...this._trackingStatus,
