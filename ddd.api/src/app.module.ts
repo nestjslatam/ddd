@@ -12,6 +12,7 @@ import {
 import {
   CreateProjectController,
   CreateProjectService,
+  ProjectSaga,
 } from './projects/application';
 import { DomainEventHandlers } from './projects/domain';
 import { SharedModule } from './shared/shared.module';
@@ -19,6 +20,7 @@ import { SharedModule } from './shared/shared.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    DddModule,
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
         type: 'postgres',
@@ -35,11 +37,14 @@ import { SharedModule } from './shared/shared.module';
     DevtoolsModule.register({
       http: process.env.NODE_ENV !== 'production',
     }),
-    DddModule,
-    ...DomainEventHandlers,
     SharedModule,
   ],
   controllers: [CreateProjectController],
-  providers: [CreateProjectService, ProjectRepository],
+  providers: [
+    CreateProjectService,
+    ProjectRepository,
+    ...DomainEventHandlers,
+    ProjectSaga,
+  ],
 })
 export class AppModule {}

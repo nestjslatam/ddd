@@ -1,5 +1,6 @@
 export * from './ddd.module';
 export * from './helpers';
+export * from './decorators';
 export * from './valueobjects';
 export * from './core/interfaces';
 export * from './exceptions';
