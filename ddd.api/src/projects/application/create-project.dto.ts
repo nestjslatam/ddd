@@ -1,3 +1,6 @@
+import { IsNotEmpty } from 'class-validator';
+
 export class CreateProjectDto {
-  constructor(public readonly name: string) {}
+  @IsNotEmpty()
+  name: string;
 }

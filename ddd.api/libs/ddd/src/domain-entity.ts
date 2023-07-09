@@ -1,6 +1,5 @@
 import { DomainGuard, convertPropsToObject } from './helpers';
 import { DomainAuditValueObject, DomainUIdValueObject } from './valueobjects';
-import { DomainException } from './exceptions';
 import { BrokenRule, BrokenRuleCollection } from './core';
 
 export interface ITrackingProps {
@@ -18,25 +17,30 @@ export interface IProps<T> {
 export abstract class DomainEntity<TProps> {
   private _id: DomainUIdValueObject;
   private _props: TProps;
+  private _isValid: boolean;
   private _trackingStatus: ITrackingProps;
   private _audit: DomainAuditValueObject;
-  private _brokenRules: BrokenRuleCollection;
+  private _brokenRules: BrokenRuleCollection = new BrokenRuleCollection();
 
   protected abstract businessRules(props: TProps): void;
 
   constructor({ id, props, audit }: IProps<TProps>) {
+    this._isValid = true;
+
     this.guard(props);
     this.businessRules(props);
 
-    if (this._brokenRules.hasBrokenRules())
-      throw new DomainException(this._brokenRules.getItems());
+    if (this._brokenRules.getItems().length) this._isValid = false;
 
     this._id = id;
-    this._brokenRules = new BrokenRuleCollection();
     this._props = props;
     this._audit = audit;
 
     this.markAsNew(this);
+  }
+
+  getIsValid(): boolean {
+    return this._isValid;
   }
 
   getAudit(): DomainAuditValueObject {
@@ -75,10 +79,6 @@ export abstract class DomainEntity<TProps> {
 
   getTrackingStatus(): ITrackingProps {
     return this._trackingStatus;
-  }
-
-  getIsValid(): boolean {
-    return !this._brokenRules.hasBrokenRules();
   }
 
   static isEntity(entity: unknown): entity is DomainEntity<unknown> {

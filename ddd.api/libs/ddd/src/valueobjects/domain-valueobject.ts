@@ -1,5 +1,4 @@
 import { DomainGuard, convertPropsToObject } from '../helpers';
-import { DomainException } from '../exceptions';
 import { BrokenRule, BrokenRuleCollection } from '../core';
 
 type Primitives = string | number | boolean;
@@ -12,23 +11,24 @@ export interface IDomainPrimitive<T extends Primitives | Date> {
 
 export abstract class DomainValueObject<T> {
   protected readonly props: Props<T>;
-  private _brokenRules: BrokenRuleCollection;
+  private _brokenRules: BrokenRuleCollection = new BrokenRuleCollection();
+  private _isValid: boolean;
 
   protected abstract businessRules(props: Props<T>): void;
 
   constructor(props: Props<T>) {
-    this._brokenRules = new BrokenRuleCollection();
+    this._isValid = true;
+
     this.guard(props);
     this.businessRules(props);
 
-    if (this._brokenRules.hasBrokenRules)
-      throw new DomainException(this._brokenRules.getItems());
+    if (this._brokenRules.hasBrokenRules) this._isValid = false;
 
     this.props = props;
   }
 
   isValid(): boolean {
-    return this._brokenRules.hasBrokenRules();
+    return this._isValid;
   }
 
   getBrokenRules(): Array<BrokenRule> {

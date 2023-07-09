@@ -32,9 +32,11 @@ export class Project extends DomainAggregateRoot<IProjectProps> {
       name,
     });
 
-    project.addDomainEvent(
-      new ProjectCreatedDomainEvent(id.unpack(), name.unpack()),
-    );
+    if (project.getIsValid()) {
+      project.addDomainEvent(
+        new ProjectCreatedDomainEvent(id.unpack(), name.unpack()),
+      );
+    }
 
     return project;
   }
