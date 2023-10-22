@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class UpdateNameSongDto {
+export class UpdateFullNameSingerDto {
   @IsNotEmpty()
-  newName: string;
+  newFullName: string;
 }

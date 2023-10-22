@@ -1,6 +1,4 @@
-import { CreateSongDto } from './create-song.dto';
-import { UpdateSongDto } from './update-song.dto';
-import { UpdateNameSongDto } from './update-name-song';
-import { UpdateLyricSongDto } from './update-lyric-song';
+import { CreateSingerDto } from './create-singer.dto';
+import { UpdateFullNameSingerDto } from './update-fullname-singer.dto';
 
-export { CreateSongDto, UpdateSongDto, UpdateNameSongDto, UpdateLyricSongDto };
+export { CreateSingerDto, UpdateFullNameSingerDto };
