@@ -1,14 +1,8 @@
 import { DomainGuard, convertPropsToObject } from './helpers';
 import { DomainAuditValueObject, DomainUIdValueObject } from './valueobjects';
-import { BrokenRule, BrokenRuleCollection } from './core';
+import { BrokenRule, BrokenRuleCollection, ITrackingProps } from './core';
 
-export interface ITrackingProps {
-  isDirty: boolean;
-  isNew: boolean;
-  isDeleted: boolean;
-}
-
-export interface IProps<T> {
+export interface IDomainEntityProps<T> {
   id: DomainUIdValueObject;
   props: T;
   audit: DomainAuditValueObject;
@@ -16,7 +10,6 @@ export interface IProps<T> {
 
 export abstract class DomainEntity<TProps> {
   private _id: DomainUIdValueObject;
-  private _props: TProps;
   private _isValid: boolean;
   private _trackingStatus: ITrackingProps;
   private _audit: DomainAuditValueObject;
@@ -24,7 +17,7 @@ export abstract class DomainEntity<TProps> {
 
   protected abstract businessRules(props: TProps): void;
 
-  constructor({ id, props, audit }: IProps<TProps>) {
+  constructor({ id, props, audit }: IDomainEntityProps<TProps>) {
     this._isValid = true;
 
     this.guard(props);
@@ -33,11 +26,13 @@ export abstract class DomainEntity<TProps> {
     if (this._brokenRules.getItems().length) this._isValid = false;
 
     this._id = id;
-    this._props = props;
+    this.props = props;
     this._audit = audit;
 
     this.markAsNew(this);
   }
+
+  protected readonly props: TProps;
 
   getIsValid(): boolean {
     return this._isValid;
@@ -111,12 +106,12 @@ export abstract class DomainEntity<TProps> {
   protected getProps(): TProps & ITrackingProps {
     const propsCopy = {
       id: this._id,
-      ...this._props,
+      ...this.props,
       audit: this._audit,
       ...this._trackingStatus,
     };
 
-    return propsCopy;
+    return Object.freeze(propsCopy);
   }
 
   getPropsCopy(): TProps & ITrackingProps {
@@ -126,7 +121,7 @@ export abstract class DomainEntity<TProps> {
   }
 
   toObject(): unknown {
-    const plainProps = convertPropsToObject(this._props);
+    const plainProps = convertPropsToObject(this.props);
 
     const result = {
       id: this._id,

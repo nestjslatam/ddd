@@ -14,20 +14,7 @@ export class SongRepository implements ISongRepository {
     private readonly repository: Repository<SongTable>,
   ) {}
 
-  async findAllByAlbumId(albumId: string): Promise<SongTable[]> {
-    try {
-      return await this.repository
-        .createQueryBuilder('song')
-        .innerJoin('song.album', 'album', 'album.id = :albumId', {
-          albumId,
-        })
-        .getMany();
-    } catch (error) {
-      throw new DatabaseException(error);
-    }
-  }
-
-  async findAllByArtistId(artistId: string): Promise<SongTable[]> {
+  async findAllBySingerId(artistId: string): Promise<SongTable[]> {
     try {
       return await this.repository
         .createQueryBuilder('song')

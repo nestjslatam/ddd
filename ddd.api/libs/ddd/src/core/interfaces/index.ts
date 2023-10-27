@@ -15,3 +15,4 @@ export * from './command-publisher.interface';
 export * from './unhandled-exception-info.interface';
 export * from './saga.interface';
 export * from './unhandled-exception-publisher.interface';
+export * from './tracking.interface';

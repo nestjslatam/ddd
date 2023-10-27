@@ -7,26 +7,27 @@ import { CreateSingerDto } from './dto/create-singer.dto';
 import { Id, RegisterDate } from '../../shared/domain';
 import { FullName } from '../domain/fullname';
 import { PicturePath } from '../domain/picture-path';
+import { SingerInfoDto } from './dto';
 
 @Injectable()
 export class SingerService {
   constructor(private readonly repository: SingerRepository) {}
 
-  async findAll(): Promise<Singer[]> {
+  async findAll(): Promise<SingerInfoDto[]> {
     const singerTable = await this.repository.findAll();
 
-    return this.mapFromTable(singerTable);
+    return this.mapInfoFromTable(singerTable);
   }
 
-  async findOneById(id: string): Promise<Singer> {
-    const singerTables: SingerTable[] = [];
+  async findOneById(id: string): Promise<SingerInfoDto> {
+    const songTable = await this.repository.findOneById(id);
 
-    singerTables.push(await this.repository.findOneById(id));
+    const singers = await this.mapInfoFromTable([songTable]);
 
-    return await this.mapFromTable(singerTables)[0];
+    return singers[0];
   }
 
-  async create(createSingerDto: CreateSingerDto) {
+  async create(createSingerDto: CreateSingerDto): Promise<void> {
     const { fullName, picture } = createSingerDto;
 
     const singer = Singer.create({
@@ -36,34 +37,35 @@ export class SingerService {
       registerDate: RegisterDate.create(new Date()),
       isSubscribed: false,
       status: eSingerStatus.REGISTERED,
-      subscribedDate: null,
     });
 
     return await this.repository.create(singer);
   }
 
-  async changeFullName(singerId: string, newFName: string): Promise<void> {
-    const singer = await this.findOneById(singerId);
+  async changeFullName(singerId: string, newFullName: string): Promise<void> {
+    const singerEntity = await this.mapEntityFromTable(singerId);
 
-    singer.getPropsCopy().fullName = FullName.create(newFName);
+    const newFullNameParsed = FullName.create(newFullName);
 
-    await this.repository.update(singerId, singer);
+    singerEntity.changeName(newFullNameParsed);
+
+    await this.repository.update(singerId, singerEntity);
   }
 
   async uploadPicture(singerId: string, newPicturePath: string): Promise<void> {
-    const singer = await this.findOneById(singerId);
+    const singerEntity = await this.mapEntityFromTable(singerId);
 
-    singer.getPropsCopy().picture = PicturePath.create(newPicturePath);
+    singerEntity.uploadPicture(PicturePath.create(newPicturePath));
 
-    await this.repository.update(singerId, singer);
+    await this.repository.update(singerId, singerEntity);
   }
 
   async subscribe(singerId: string): Promise<void> {
-    const singer = await this.findOneById(singerId);
+    const singerEntity = await this.mapEntityFromTable(singerId);
 
-    singer.subscribe();
+    singerEntity.subscribe();
 
-    await this.repository.update(singerId, singer);
+    await this.repository.update(singerId, singerEntity);
   }
 
   async delete(singerId: string): Promise<void> {
@@ -74,10 +76,12 @@ export class SingerService {
     await this.repository.delete(singerId);
   }
 
-  private async mapFromTable(singerTables: SingerTable[]): Promise<Singer[]> {
-    const singerEntities: Singer[] = [];
+  private async mapInfoFromTable(
+    singerTables: SingerTable[],
+  ): Promise<SingerInfoDto[]> {
+    const singerEntities: SingerInfoDto[] = [];
 
-    singerTables.map((sigerEntities) => {
+    singerTables.map((singer) => {
       const {
         id,
         fullName,
@@ -86,10 +90,10 @@ export class SingerService {
         isSubscribed,
         subscribedDate,
         status,
-      } = sigerEntities;
+      } = singer;
 
       singerEntities.push(
-        Singer.load({
+        new SingerInfoDto(
           id,
           fullName,
           picture,
@@ -97,10 +101,39 @@ export class SingerService {
           isSubscribed,
           subscribedDate,
           status,
-        }),
+        ),
       );
     });
 
     return singerEntities;
+  }
+
+  async mapEntityFromTable(singerId: string): Promise<Singer> {
+    const singer = await this.findOneById(singerId);
+
+    if (!singer) throw new Error('Singer not found');
+
+    const {
+      id,
+      fullName,
+      picture,
+      registerDate,
+      isSubscribed,
+      subscribedDate,
+      status,
+    } = singer;
+
+    const registerDateParsed = new Date(registerDate);
+    const subscribedDateParsed = new Date(subscribedDate);
+
+    return Singer.load({
+      id,
+      fullName,
+      picture,
+      registerDate: registerDateParsed,
+      isSubscribed,
+      subscribedDate: subscribedDateParsed,
+      status,
+    });
   }
 }

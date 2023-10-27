@@ -11,28 +11,30 @@ import {
 import { SingerService } from './singer.service';
 import { CreateSingerDto } from './dto/create-singer.dto';
 import { UpdateFullNameSingerDto } from './dto/update-fullname-singer.dto';
-import { Singer } from '../domain/singer';
+import { SingerInfoDto } from './dto';
 
 @Controller('singers')
 export class SingerController {
   constructor(private readonly singerService: SingerService) {}
 
   @Get()
-  async GetAll(): Promise<Singer[]> {
+  async GetAll(): Promise<SingerInfoDto[]> {
     return await this.singerService.findAll();
   }
 
   @Get(':id')
-  async FindOneById(@Param('id') id: string): Promise<Singer> {
+  async FindOneById(@Param('id') id: string): Promise<SingerInfoDto> {
     return await this.singerService.findOneById(id);
   }
 
   @Post()
   async Create(@Body() createSingerDto: CreateSingerDto): Promise<void> {
+    if (createSingerDto === null || createSingerDto === undefined) return;
+
     return await this.singerService.create(createSingerDto);
   }
 
-  @Patch(':id')
+  @Patch('changefullname/:id')
   async ChangeFullName(
     @Param('id') id: string,
     @Body() updateFullNameDto: UpdateFullNameSingerDto,

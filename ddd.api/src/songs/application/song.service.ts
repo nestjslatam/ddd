@@ -1,6 +1,6 @@
-import { Lyric } from './../domain/lyrics';
 import { Injectable } from '@nestjs/common';
 
+import { Lyric } from './../domain/lyrics';
 import { SongRepository } from '../infraestructure/db';
 import { Song, eSongStatus } from '../domain/song';
 import { CreateSongDto } from './dto/create-song.dto';
@@ -8,29 +8,22 @@ import { Description } from '../domain/description';
 import { Id, Name, Url } from '../../shared/domain';
 import { SongTable } from 'src/database/tables';
 import { SongSinger } from '../domain/song-singer';
+import { SongInfoDto } from './dto/song-info.dto';
 
 @Injectable()
 export class SongService {
   constructor(private readonly repository: SongRepository) {}
 
-  async findOneById(id: string): Promise<Song> {
-    const songTables: SongTable[] = [];
+  async findOneById(id: string): Promise<SongInfoDto> {
+    const songTable = await this.repository.findOneById(id);
 
-    songTables.push(await this.repository.findOneById(id));
-
-    return await this.mapFromTable(songTables)[0];
+    return await this.mapInfoFromTable([songTable])[0];
   }
 
-  async findAllByAlbumId(albumId: string): Promise<Song[]> {
-    const songTables = await this.repository.findAllByAlbumId(albumId);
+  async findAllBySingerId(artistId: string): Promise<SongInfoDto[]> {
+    const songTables = await this.repository.findAllBySingerId(artistId);
 
-    return await this.mapFromTable(songTables);
-  }
-
-  async findAllByArtistId(artistId: string): Promise<Song[]> {
-    const songTables = await this.repository.findAllByArtistId(artistId);
-
-    return await this.mapFromTable(songTables);
+    return await this.mapInfoFromTable(songTables);
   }
 
   async create(createSongDto: CreateSongDto) {
@@ -50,71 +43,88 @@ export class SongService {
   }
 
   async changeName(songId: string, newName: string): Promise<void> {
-    const song = await this.findOneById(songId);
+    const songEntity = await this.mapEntityFromTable(songId);
 
-    song.getPropsCopy().name = Name.create(newName);
+    songEntity.changeName(Name.create(newName));
 
-    await this.repository.update(songId, song);
+    await this.repository.update(songId, songEntity);
   }
 
   async uploadLyric(songId: string, newLyric: string): Promise<void> {
-    const song = await this.findOneById(songId);
+    const songEntity = await this.mapEntityFromTable(songId);
 
-    song.getPropsCopy().lyric = Lyric.create(newLyric);
+    songEntity.uploadLyric(Lyric.create(newLyric));
 
-    await this.repository.update(songId, song);
+    await this.repository.update(songId, songEntity);
   }
 
   async setDraft(songId: string): Promise<void> {
-    const song = await this.findOneById(songId);
+    const songEntity = await this.mapEntityFromTable(songId);
 
-    song.setDraft();
+    songEntity.setDraft();
 
-    await this.repository.update(songId, song);
+    await this.repository.update(songId, songEntity);
   }
 
   async setPublish(songId: string): Promise<void> {
-    const song = await this.findOneById(songId);
+    const songEntity = await this.mapEntityFromTable(songId);
 
-    song.setPublish();
+    songEntity.setPublish();
 
-    await this.repository.update(songId, song);
+    await this.repository.update(songId, songEntity);
   }
 
   async update(
-    id: string,
+    songId: string,
     { url, description }: { url: string; description: string },
   ): Promise<void> {
-    const song = await this.findOneById(id);
+    const songEntity = await this.mapEntityFromTable(songId);
 
-    song.update(Description.create(description), Url.create(url));
+    songEntity.update(Description.create(description), Url.create(url));
 
-    return await this.repository.update(id, song);
+    return await this.repository.update(songId, songEntity);
   }
 
   async delete(id: string) {
     return this.repository.delete(id);
   }
 
-  private async mapFromTable(songTables: SongTable[]): Promise<Song[]> {
-    const songEntities: Song[] = [];
+  private async mapInfoFromTable(
+    songTables: SongTable[],
+  ): Promise<SongInfoDto[]> {
+    const songInfos: SongInfoDto[] = [];
 
-    songTables.map((songTable) => {
-      const { id, singer, name, description, url, lyric, status } = songTable;
+    songTables.map((song) => {
+      const { id, singer, name, description, url, lyric, status } = song;
 
-      songEntities.push(
-        Song.load({
+      songInfos.push(
+        new SongInfoDto(
           id,
-          singer: { id: singer.id, name: singer.fullName },
           name,
           description,
+          { id: singer.id, name: singer.fullName },
           url,
           lyric,
           status,
-        }),
+        ),
       );
     });
 
-    return songEntities;
+    return songInfos;
+  }
+
+  async mapEntityFromTable(songId: string): Promise<Song> {
+    const { id, name, description, url, lyric, status, singer } =
+      await this.findOneById(songId);
+
+    return Song.load({
+      id,
+      singer: { id: singer.id, name: singer.name },
+      name,
+      description,
+      url,
+      lyric,
+      status,
+    });
   }
 }

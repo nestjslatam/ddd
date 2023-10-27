@@ -26,7 +26,7 @@ export class Singer {
   @Column({ default: false })
   isSubscribed: boolean;
 
-  @Column()
+  @Column({ nullable: true })
   subscribedDate?: Date;
 
   @OneToMany(() => Song, (song) => song.singer, { nullable: true })

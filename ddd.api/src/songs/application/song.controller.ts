@@ -13,24 +13,19 @@ import { CreateSongDto } from './dto/create-song.dto';
 import { UpdateNameSongDto } from './dto/update-name-song';
 import { UpdateLyricSongDto } from './dto/update-lyric-song';
 import { UpdateSongDto } from './dto/update-song.dto';
-import { Song } from '../domain/song';
+import { SongInfoDto } from './dto/song-info.dto';
 
 @Controller('songs')
 export class SongController {
   constructor(private readonly songService: SongService) {}
 
-  @Get(':albumId')
-  async GetAllByAlbumId(@Param() albumId: string): Promise<Song[]> {
-    return await this.songService.findAllByAlbumId(albumId);
-  }
-
   @Get(':artistId')
-  async GetAllByArtistId(@Param() artistId: string): Promise<Song[]> {
-    return await this.songService.findAllByArtistId(artistId);
+  async GetAllBySingerId(@Param() singerId: string): Promise<SongInfoDto[]> {
+    return await this.songService.findAllBySingerId(singerId);
   }
 
   @Get(':id')
-  async FindOneById(@Param('id') id: string): Promise<Song> {
+  async FindOneById(@Param('id') id: string): Promise<SongInfoDto> {
     return await this.songService.findOneById(id);
   }
 

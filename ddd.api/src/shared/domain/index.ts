@@ -1,4 +1,4 @@
-import { Id } from './Id';
+import { Id } from './id';
 import { Url } from './url';
 import { IRepository } from './repository.interface';
 import { RegisterDate } from './register-date';

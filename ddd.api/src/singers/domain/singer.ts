@@ -123,8 +123,8 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     );
   }
 
-  changeName(fullName: FullName): void {
-    this.getProps().fullName = fullName;
+  changeName(newfullName: FullName): void {
+    this.props.fullName = newfullName;
     this.updateAudit();
   }
 

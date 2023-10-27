@@ -27,6 +27,9 @@ export class SingerRepository implements ISingerRepository {
   }
 
   async create(item: Singer): Promise<void> {
+    if (item === null || item === undefined)
+      throw new DatabaseException("item can't be null or undefined");
+
     const {
       fullName,
       picture,
@@ -40,10 +43,10 @@ export class SingerRepository implements ISingerRepository {
 
     songTable.id = item.getId();
     songTable.fullName = fullName.unpack();
-    songTable.picture = picture.unpack();
-    songTable.registerDate = registerDate.unpack();
+    songTable.picture = picture ? picture.unpack() : 'default';
+    songTable.registerDate = registerDate ? registerDate.unpack() : null;
     songTable.isSubscribed = isSubscribed;
-    songTable.subscribedDate = subscribedDate.unpack();
+    songTable.subscribedDate = subscribedDate ? subscribedDate.unpack() : null;
     songTable.status = status;
     songTable.audit = { ...item.getAudit().unpack() };
 
