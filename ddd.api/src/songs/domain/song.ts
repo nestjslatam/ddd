@@ -91,23 +91,23 @@ export class Song extends DomainAggregateRoot<ISongProps> {
   }
 
   update(description: Description, url: Url): void {
-    this.getProps().description = description;
-    this.getProps().url = url;
+    this.props.description = description;
+    this.props.url = url;
     this.updateAudit();
   }
 
   assignArtist(singer: SongSinger): void {
-    this.getProps().singer = singer;
+    this.props.singer = singer;
     this.updateAudit();
   }
 
   changeName(name: Name): void {
-    this.getProps().name = name;
+    this.props.name = name;
     this.updateAudit();
   }
 
   uploadLyric(lyric: Lyric): void {
-    this.getProps().lyric = lyric;
+    this.props.lyric = lyric;
     this.updateAudit();
   }
 
@@ -117,7 +117,7 @@ export class Song extends DomainAggregateRoot<ISongProps> {
         new BrokenRule('status', 'song must be created before to be drafted'),
       );
 
-    this.getProps().status = eSongStatus.DRAFTED;
+    this.props.status = eSongStatus.DRAFTED;
     this.updateAudit();
 
     const { id, name } = this.getPropsCopy();
@@ -131,7 +131,7 @@ export class Song extends DomainAggregateRoot<ISongProps> {
         new BrokenRule('status', 'song must be drafted before to be published'),
       );
 
-    this.getProps().status = eSongStatus.PUBLISHED;
+    this.props.status = eSongStatus.PUBLISHED;
     this.updateAudit();
 
     const { id, name } = this.getPropsCopy();

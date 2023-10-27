@@ -8,7 +8,7 @@ import {
 import { CommandHandlerNotFoundException } from './exceptions';
 import { DefaultCommandPubSubHelper } from './helpers';
 import { InvalidCommandHandlerException } from './index';
-import { CommandMetadata } from './core/interfaces';
+import { ICommandMetadata } from './core/interfaces';
 import {
   ICommand,
   ICommandBus,
@@ -72,7 +72,7 @@ export class DomainCommandBus<CommandBase extends ICommand = ICommand>
 
   private getCommandId(command: CommandBase): string {
     const { constructor: commandType } = Object.getPrototypeOf(command);
-    const commandMetadata: CommandMetadata = Reflect.getMetadata(
+    const commandMetadata: ICommandMetadata = Reflect.getMetadata(
       DOMAIN_COMMAND_METADATA,
       commandType,
     );
@@ -88,7 +88,7 @@ export class DomainCommandBus<CommandBase extends ICommand = ICommand>
       DOMAIN_COMMAND_HANDLER_METADATA,
       handler,
     );
-    const commandMetadata: CommandMetadata = Reflect.getMetadata(
+    const commandMetadata: ICommandMetadata = Reflect.getMetadata(
       DOMAIN_COMMAND_METADATA,
       command,
     );

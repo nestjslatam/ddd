@@ -103,20 +103,20 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
   }
 
   uploadPicture(picture: PicturePath): void {
-    this.getProps().picture = picture;
+    this.props.picture = picture;
     this.updateAudit();
   }
 
   subscribe(): void {
-    if (this.getProps().isSubscribed)
+    if (this.props.isSubscribed)
       this.addBrokenRule(new BrokenRule('singer', 'singer already subscribed'));
 
-    this.getProps().isSubscribed = true;
-    this.getProps().subscribedDate = SubscribedDate.create(new Date());
-    this.getProps().status = eSingerStatus.SUBSCRIBED;
+    this.props.isSubscribed = true;
+    this.props.subscribedDate = SubscribedDate.create(new Date());
+    this.props.status = eSingerStatus.SUBSCRIBED;
     this.updateAudit();
 
-    const { id, fullName } = this.getProps();
+    const { id, fullName } = this.props;
 
     this.addDomainEvent(
       new SubscribedSingerEvent(id.unpack(), fullName.unpack()),

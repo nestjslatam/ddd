@@ -7,6 +7,7 @@ import { DomainEventBus } from './domain-event-bus';
 import { DomainCommandBus } from './domain-command-bus';
 import { DomainEventPublisher } from './domain-event-publisher';
 import { UnhandledExceptionBus } from './unhandled-exception-bus';
+import { ContextTrackingInterceptor, TrackingContextService } from './context';
 
 @Module({
   providers: [
@@ -17,6 +18,8 @@ import { UnhandledExceptionBus } from './unhandled-exception-bus';
     UnhandledExceptionBus,
     DomainEventPublisher,
     DomainGuard,
+    TrackingContextService,
+    ContextTrackingInterceptor,
   ],
   exports: [
     DomainCommandBus,
