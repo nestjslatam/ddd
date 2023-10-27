@@ -3,13 +3,15 @@ import { DomainAuditValueObject, DomainUIdValueObject } from './valueobjects';
 import { BrokenRule, BrokenRuleCollection, ITrackingProps } from './core';
 
 export interface IDomainEntityProps<T> {
-  id: DomainUIdValueObject;
+  id: DomainEntityId;
   props: T;
   audit: DomainAuditValueObject;
 }
 
+export type DomainEntityId = DomainUIdValueObject;
+
 export abstract class DomainEntity<TProps> {
-  private _id: DomainUIdValueObject;
+  private _id: DomainEntityId;
   private _isValid: boolean;
   private _trackingStatus: ITrackingProps;
   private _audit: DomainAuditValueObject;
@@ -18,18 +20,19 @@ export abstract class DomainEntity<TProps> {
   protected abstract businessRules(props: TProps): void;
 
   constructor({ id, props, audit }: IDomainEntityProps<TProps>) {
-    this._isValid = true;
-
     this.guard(props);
     this.businessRules(props);
-
-    if (this._brokenRules.getItems().length) this._isValid = false;
+    this._isValid = this._brokenRules.getItems().length ? true : false;
 
     this._id = id;
     this.props = props;
     this._audit = audit;
 
     this.markAsNew(this);
+  }
+
+  getId(): string {
+    return this._id.unpack();
   }
 
   protected readonly props: TProps;
@@ -43,10 +46,14 @@ export abstract class DomainEntity<TProps> {
   }
 
   addBrokenRule(brokenRule: BrokenRule): void {
+    if (!brokenRule) return;
+
     this._brokenRules.add(brokenRule);
   }
 
   removeBrokenRule(brokenRule: BrokenRule): void {
+    if (!brokenRule) return;
+
     this._brokenRules.remove(brokenRule);
   }
 
@@ -100,22 +107,16 @@ export abstract class DomainEntity<TProps> {
     )
       return false;
 
-    return this._id.equals(object._id);
+    return this._id ? this._id.equals(object._id) : false;
   }
 
-  protected getProps(): TProps & ITrackingProps {
+  getPropsCopy(): TProps & ITrackingProps {
     const propsCopy = {
       id: this._id,
       ...this.props,
       audit: this._audit,
       ...this._trackingStatus,
     };
-
-    return Object.freeze(propsCopy);
-  }
-
-  getPropsCopy(): TProps & ITrackingProps {
-    const propsCopy = this.getProps();
 
     return Object.freeze(propsCopy);
   }
@@ -139,9 +140,5 @@ export abstract class DomainEntity<TProps> {
 
     if (typeof props !== 'object')
       this._brokenRules.add(new BrokenRule('props', 'Props is not an object'));
-  }
-
-  getId(): string {
-    return this._id.unpack();
   }
 }
