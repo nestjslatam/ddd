@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { DomainEntity } from './domain-entity';
-import { DomainEventCollection } from './core';
 import { IDomainEvent } from './core/interfaces';
+import { DomainEventCollection } from './domain-event-collection';
 
 export abstract class DomainAggregateRoot<
   TProps,

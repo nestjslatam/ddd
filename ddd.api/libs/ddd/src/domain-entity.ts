@@ -22,6 +22,7 @@ export abstract class DomainEntity<TProps> {
   constructor({ id, props, audit }: IDomainEntityProps<TProps>) {
     this.guard(props);
     this.businessRules(props);
+
     this._isValid = this._brokenRules.getItems().length ? true : false;
 
     this._id = id;
@@ -31,11 +32,12 @@ export abstract class DomainEntity<TProps> {
     this.markAsNew(this);
   }
 
+  // Let's edit the props with new values
+  protected readonly props: TProps;
+
   getId(): string {
     return this._id.unpack();
   }
-
-  protected readonly props: TProps;
 
   getIsValid(): boolean {
     return this._isValid;

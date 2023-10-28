@@ -4,7 +4,8 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { nanoid } from 'nanoid';
+
+import { v4 as uuidv4 } from 'uuid';
 import { Observable, tap } from 'rxjs';
 
 import { TrackingContextService } from './app-tracking.service';
@@ -18,7 +19,7 @@ export class ContextTrackingInterceptor implements NestInterceptor {
      * Setting an ID in the global context for each request.
      * This ID can be used as correlation id shown in logs
      */
-    const trackingId = request?.body?.trackingId ?? nanoid(8);
+    const trackingId = request?.body?.trackingId ?? uuidv4();
 
     TrackingContextService.setTrackingId(trackingId);
 

@@ -18,12 +18,12 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@nestjslatam/ddd": [
-        "libs/ddd/src"
-      ],
-      "@nestjslatam/ddd/*": [
-        "libs/ddd/src/*"
-      ]
+      "@nestjslatam/ddd": ["libs/ddd/src"],
+      "@nestjslatam/ddd/*": ["libs/ddd/src/*"],
+      "@nestjslatam/ddd-bus": ["libs/ddd/src"],
+      "@nestjslatam/ddd-bus/*": ["libs/ddd/src/*"],
+      "@nestjslatam/ddd-shared": ["libs/ddd/src"],
+      "@nestjslatam/ddd-shared/*": ["libs/ddd/src/*"]
     }
   }
 }

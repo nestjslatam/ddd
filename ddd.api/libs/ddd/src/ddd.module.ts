@@ -1,39 +1,34 @@
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
-
-import { DomainGuard } from './helpers';
+import {
+  DomainCommandBus,
+  DomainEventBus,
+  DomainEventPublisher,
+  UnhandledExceptionBus,
+} from './bus';
 import { IDomainEvent } from './core';
-import { ExplorerService } from './services';
-import { DomainEventBus } from './domain-event-bus';
-import { DomainCommandBus } from './domain-command-bus';
-import { DomainEventPublisher } from './domain-event-publisher';
-import { UnhandledExceptionBus } from './unhandled-exception-bus';
-import { ContextTrackingInterceptor, TrackingContextService } from './context';
+import { DddService } from './ddd.service';
 
 @Module({
   providers: [
-    ExplorerService,
-    DomainGuard,
+    DddService,
     DomainCommandBus,
     DomainEventBus,
-    UnhandledExceptionBus,
     DomainEventPublisher,
-    DomainGuard,
-    TrackingContextService,
-    ContextTrackingInterceptor,
+    UnhandledExceptionBus,
   ],
   exports: [
+    DddService,
     DomainCommandBus,
     DomainEventBus,
     DomainEventPublisher,
-    DomainGuard,
     UnhandledExceptionBus,
   ],
 })
-export class DddModule<DomainEventBase extends IDomainEvent = IDomainEvent>
+export class DddModule<DomainEventBase extends IDomainEvent>
   implements OnApplicationBootstrap
 {
   constructor(
-    private readonly explorerService: ExplorerService<DomainEventBase>,
+    private readonly explorerService: DddService<DomainEventBase>,
     private readonly eventBus: DomainEventBus<DomainEventBase>,
     private readonly commandBus: DomainCommandBus,
   ) {}

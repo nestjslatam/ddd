@@ -22,7 +22,7 @@ export abstract class DomainValueObject<T> {
     this.guard(props);
     this.businessRules(props);
 
-    if (this._brokenRules.hasBrokenRules) this._isValid = false;
+    this._isValid = this._brokenRules.getItems().length ? true : false;
 
     this.props = props;
   }

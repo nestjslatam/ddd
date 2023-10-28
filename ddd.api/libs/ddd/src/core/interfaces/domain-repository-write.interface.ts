@@ -1,4 +1,4 @@
-export interface IDomainWriteRepository<TKey, TTable> {
-  save(item: TTable): Promise<void>;
-  delete(id: TKey): Promise<void>;
+export interface IDomainWriteRepository<TTable> {
+  insert(entity: TTable | TTable[]): Promise<void>;
+  delete(entity: TTable): Promise<void>;
 }
