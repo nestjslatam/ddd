@@ -1,4 +1,4 @@
-import { DomainEvent } from '@nestjslatam/ddd';
+import { DomainEvent } from '@nestjslatam/ddd-lib';
 
 export class SongDraftedEvent extends DomainEvent {
   constructor(readonly songId, readonly songName) {

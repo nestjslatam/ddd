@@ -3,7 +3,7 @@ import {
   BrokenRule,
   DomainAggregateRoot,
   DomainAuditValueObject,
-} from '@nestjslatam/ddd';
+} from '@nestjslatam/ddd-lib';
 
 import { Id, SubscribedDate, RegisterDate } from '../../shared/domain';
 import { FullName } from './fullname';

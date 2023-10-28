@@ -3,7 +3,7 @@ import {
   DomainGuard,
   DomainStringValueObject,
   IDomainPrimitive,
-} from '@nestjslatam/ddd';
+} from '@nestjslatam/ddd-lib';
 
 export class Lyric extends DomainStringValueObject {
   protected businessRules(props: IDomainPrimitive<string>): void {

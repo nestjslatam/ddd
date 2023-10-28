@@ -4,7 +4,7 @@ import {
   IUnhandledExceptionPublisher,
   UnhandledExceptionInfo,
 } from '../core/interfaces';
-import { IDomainEvent } from '@nestjslatam/ddd';
+import { IDomainEvent } from '@nestjslatam/ddd-lib';
 
 export class DefaultUnhandledExceptionPubSub<Cause = IDomainEvent | ICommand>
   implements IUnhandledExceptionPublisher<Cause>

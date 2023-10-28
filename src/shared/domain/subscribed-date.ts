@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { DomainDateValueObject, IDomainPrimitive } from '@nestjslatam/ddd';
+import { DomainDateValueObject, IDomainPrimitive } from '@nestjslatam/ddd-lib';
 
 export class SubscribedDate extends DomainDateValueObject {
   protected businessRules(props: IDomainPrimitive<Date>): void {

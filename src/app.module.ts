@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RequestContextModule } from 'nestjs-request-context';
-import { DddModule } from '@nestjslatam/ddd';
+import { DddModule } from '@nestjslatam/ddd-lib';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 
 import { SharedModule } from './shared/shared.module';

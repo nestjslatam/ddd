@@ -1,5 +1,5 @@
 import { v4 } from 'uuid';
-import { DomainUIdValueObject, IDomainPrimitive } from '@nestjslatam/ddd';
+import { DomainUIdValueObject, IDomainPrimitive } from '@nestjslatam/ddd-lib';
 
 export class Id extends DomainUIdValueObject {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

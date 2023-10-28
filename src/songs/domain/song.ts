@@ -3,7 +3,7 @@ import {
   DomainAggregateRoot,
   DomainAuditValueObject,
   DomainGuard,
-} from '@nestjslatam/ddd';
+} from '@nestjslatam/ddd-lib';
 
 import { Id, Name, Url } from '../../shared/domain';
 import { Lyric } from './lyrics';

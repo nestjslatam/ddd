@@ -1,4 +1,4 @@
-import { DomainEvent } from '@nestjslatam/ddd';
+import { DomainEvent } from '@nestjslatam/ddd-lib';
 
 import { TrackingContextService } from '../../../context/app-tracking.context';
 

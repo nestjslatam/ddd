@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { IDomainEvent } from '@nestjslatam/ddd';
+import { IDomainEvent } from '@nestjslatam/ddd-lib';
 import { v4 } from 'uuid';
 
 import {

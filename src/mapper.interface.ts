@@ -1,4 +1,4 @@
-import { DomainEntity } from '@nestjslatam/ddd';
+import { DomainEntity } from '@nestjslatam/ddd-lib';
 
 export interface Mapper<
   Entity extends DomainEntity<any>,
