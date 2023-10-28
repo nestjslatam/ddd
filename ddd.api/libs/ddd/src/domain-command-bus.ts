@@ -5,7 +5,7 @@ import 'reflect-metadata';
 import {
   DomainCommandHandlerNotFoundException,
   DomainInvalidCommandHandlerException,
-} from '../exceptions';
+} from './exceptions';
 import {
   ICommand,
   ICommandBus,

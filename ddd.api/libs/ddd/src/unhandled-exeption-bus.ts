@@ -1,7 +1,7 @@
 import { Injectable, Type } from '@nestjs/common';
 import 'reflect-metadata';
 import { Observable, filter } from 'rxjs';
-import { IDomainEvent } from '@nestjslatam/ddd';
+import { IDomainEvent } from './core';
 
 import { DefaultUnhandledExceptionPubSub } from './helpers';
 import {

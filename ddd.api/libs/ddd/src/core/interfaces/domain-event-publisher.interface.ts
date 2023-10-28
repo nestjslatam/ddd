@@ -1,4 +1,4 @@
-import { IDomainEvent } from '@nestjslatam/ddd';
+import { IDomainEvent } from './domain-event.interface';
 
 export interface IDomainEventPublisher<
   DomainEventBase extends IDomainEvent = IDomainEvent,

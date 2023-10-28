@@ -4,11 +4,10 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-
 import { v4 as uuidv4 } from 'uuid';
 import { Observable, tap } from 'rxjs';
 
-import { TrackingContextService } from './app-tracking.service';
+import { TrackingContextService } from './app-tracking.context';
 
 @Injectable()
 export class ContextTrackingInterceptor implements NestInterceptor {

@@ -1,5 +1,3 @@
-import { TrackingContextService } from '../context';
-
 export interface ISerializedException {
   message: string;
   code: string;
@@ -20,9 +18,6 @@ export abstract class DomainExceptionBase extends Error {
     readonly metadata?: unknown,
   ) {
     super(message);
-    Error.captureStackTrace(this, this.constructor);
-    const ctx = TrackingContextService.getContext();
-    this.trackingId = ctx.trackingId;
   }
 
   /**

@@ -1,6 +1,6 @@
 {
   "name": "@nestjslatam/ddd",
-  "version": "1.2.7",
+  "version": "1.2.15",
   "description": "A simple Domain-Driven Library for NESTJS",
   "main": "index.js",
   "private": false,
@@ -15,7 +15,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@nestjslatam/ddd-shared": "^1.0.2",
+    "@nestjs/common": "^10.2.7",
+    "@nestjs/core": "^10.2.7",
     "rxjs": "^7.8.1",
     "uuid": "^9.0.0"
   }

@@ -29,7 +29,7 @@ export abstract class DomainEntity<TProps> {
     this.props = props;
     this._audit = audit;
 
-    this.markAsNew(this);
+    this.markAsNew();
   }
 
   // Let's edit the props with new values
@@ -73,8 +73,8 @@ export abstract class DomainEntity<TProps> {
     return result;
   }
 
-  markAsNew(entity: DomainEntity<TProps>) {
-    entity._trackingStatus = {
+  markAsNew() {
+    this._trackingStatus = {
       ...this._trackingStatus,
       isNew: true,
       isDirty: false,
@@ -82,8 +82,8 @@ export abstract class DomainEntity<TProps> {
     };
   }
 
-  marAsDirty(entity: DomainEntity<TProps>) {
-    entity._trackingStatus = {
+  marAsDirty() {
+    this._trackingStatus = {
       ...this._trackingStatus,
       isNew: true,
       isDirty: true,

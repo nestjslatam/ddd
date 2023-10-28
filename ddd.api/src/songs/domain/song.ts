@@ -73,7 +73,7 @@ export class Song extends DomainAggregateRoot<ISongProps> {
       status: eSongStatus[status],
     });
 
-    song.marAsDirty(song);
+    song.marAsDirty();
 
     return song;
   }
@@ -141,6 +141,6 @@ export class Song extends DomainAggregateRoot<ISongProps> {
 
   private updateAudit(): void {
     this.getAudit().update('admin', new Date());
-    this.marAsDirty(this);
+    this.marAsDirty();
   }
 }

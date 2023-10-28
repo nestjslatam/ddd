@@ -1,4 +1,4 @@
-import { IDomainEvent } from '@nestjslatam/ddd';
+import { IDomainEvent } from '../../core/interfaces';
 
 export interface IDomainEventBus<
   TDomainEvent extends IDomainEvent = IDomainEvent,

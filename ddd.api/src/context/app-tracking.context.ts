@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { RequestContext } from 'nestjs-request-context';
 
-import { AppTrackingContext } from './app-tracking.context';
+// TODO: Add database transaction connection
+export class AppTrackingContext extends RequestContext {
+  trackingId: string;
+  //transactionConnection?: DatabaseTransactionConnection; // For global transactions
+}
 
 @Injectable()
 export class TrackingContextService {

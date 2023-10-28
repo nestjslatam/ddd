@@ -2,16 +2,14 @@ import { Injectable, Type } from '@nestjs/common';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
 import { ModulesContainer } from '@nestjs/core/injector/modules-container';
-import { IDomainEvent } from '@nestjslatam/ddd';
 
+import { ICommandHandler, IDomainEvent, IDomainEventHandler } from './core';
+import { IDddBusOptions } from './ddd.options';
 import {
   DOMAIN_COMMAND_HANDLER_METADATA,
   DOMAIN_EVENTS_HANDLER_METADATA,
   DOMAIN_SAGA_METADATA,
-  ICommandHandler,
-  IDddBusOptions,
-  IDomainEventHandler,
-} from './bus';
+} from './decorators';
 
 @Injectable()
 export class DddService<EventBase extends IDomainEvent = IDomainEvent> {

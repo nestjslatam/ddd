@@ -1,7 +1,8 @@
 import { Observable } from 'rxjs';
 
 import { ICommand } from './command.interface';
-import { IDomainEvent } from '@nestjslatam/ddd';
+import { IDomainEvent } from './domain-event.interface';
+
 
 export type ISaga<
   EventBase extends IDomainEvent = IDomainEvent,

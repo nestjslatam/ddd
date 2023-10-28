@@ -27,6 +27,7 @@ export abstract class DomainAggregateRoot<
   /**
    * Commits all uncommitted events.
    */
+
   commit() {
     this.publishAll(this._domainEvents);
     this.clearDomainEvents();
@@ -37,7 +38,7 @@ export abstract class DomainAggregateRoot<
   }
 
   clearDomainEvents(): void {
-    this._domainEvents.length = 0;
+    this._domainEvents = [];
   }
 
   get getDomainEvents(): TDomainEventBase[] {

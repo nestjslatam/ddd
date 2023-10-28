@@ -1,5 +1,6 @@
-import { IDomainEvent } from '@nestjslatam/ddd';
 import { Subject } from 'rxjs';
+
+import { IDomainEvent } from './domain-event.interface';
 
 export interface IMessageSource<
   DomainEventBase extends IDomainEvent = IDomainEvent,

@@ -1,10 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { DomainArgumentInvalidException } from '../exceptions';
-
 import { ICommandMetadata, ICommand } from './core/interfaces';
-import { DomainGuard } from '../helpers';
-import { TrackingContextService } from '../context';
+import { DomainGuard } from './helpers';
+import { DomainArgumentInvalidException } from './exceptions';
 
 export type CommandProps<T> = Omit<T, 'id' | 'metadata'> & Partial<ICommand>;
 
@@ -23,11 +21,10 @@ export class CommandBase implements ICommand {
         'Command props should not be empty',
       );
     }
-    const ctx = TrackingContextService.getContext();
     this.id = props.id || uuidv4();
     this.metadata = {
       id: props?.metadata?.id || this.id,
-      trackingId: props?.metadata?.trackingId || ctx.trackingId,
+      trackingId: props?.metadata?.trackingId,
       timestamp: props?.metadata?.timestamp || Date.now(),
     };
   }

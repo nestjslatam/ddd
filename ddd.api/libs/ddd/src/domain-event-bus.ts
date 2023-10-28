@@ -1,6 +1,7 @@
 import { OnModuleDestroy, Injectable, Logger } from '@nestjs/common';
 import {
   ICommand,
+  IDomainEvent,
   IDomainEventBus,
   IDomainEventHandler,
   IDomainEventPublisher,
@@ -19,8 +20,8 @@ import {
 } from 'rxjs';
 
 import { ModuleRef } from '@nestjs/core';
+
 import { DefaultPubSubHelper, defaultGetDomainEventIdHelper } from './helpers';
-import { IDomainEvent } from '@nestjslatam/ddd';
 import { ObservableBus } from './core';
 import { DomainCommandBus } from './domain-command-bus';
 import { UnhandledExceptionBus } from './unhandled-exeption-bus';
@@ -28,8 +29,8 @@ import {
   DOMAIN_EVENTS_HANDLER_METADATA,
   DOMAIN_SAGA_METADATA,
 } from './decorators';
-import { DomainInvalidSagaException } from '../exceptions';
-import { Type } from '../type.interface';
+import { Type } from './type.interface';
+import { DomainInvalidSagaException } from './exceptions';
 
 export type DomainEventHandlerType<
   DomainEventBase extends IDomainEvent = IDomainEvent,

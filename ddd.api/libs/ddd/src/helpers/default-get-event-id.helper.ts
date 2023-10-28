@@ -1,6 +1,6 @@
-import { IDomainEvent } from '@nestjslatam/ddd';
 import { Type } from '@nestjs/common';
 
+import { IDomainEvent } from '../core';
 import { DOMAIN_EVENT_METADATA } from '../decorators';
 
 export const defaultGetDomainEventIdHelper = <

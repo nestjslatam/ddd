@@ -1,6 +1,9 @@
 import { Subject } from 'rxjs';
-import { IDomainEventPublisher, IMessageSource } from '../core/interfaces';
-import { IDomainEvent } from '@nestjslatam/ddd';
+import {
+  IDomainEvent,
+  IDomainEventPublisher,
+  IMessageSource,
+} from '../core/interfaces';
 
 export class DefaultPubSubHelper<DomainEventBase extends IDomainEvent>
   implements

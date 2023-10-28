@@ -1,6 +1,4 @@
-import { IDomainEvent } from '@nestjslatam/ddd';
-
-import { ICommand } from '.';
+import { ICommand, IDomainEvent } from '.';
 import { UnhandledExceptionInfo } from './unhandled-exception-info.interface';
 
 export interface IUnhandledExceptionPublisher<

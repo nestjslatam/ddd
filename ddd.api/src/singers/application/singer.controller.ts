@@ -12,6 +12,7 @@ import { SingerService } from './singer.service';
 import { CreateSingerDto } from './dto/create-singer.dto';
 import { UpdateFullNameSingerDto } from './dto/update-fullname-singer.dto';
 import { SingerInfoDto } from './dto';
+import { UploadPictureDto } from './dto/upload-picture';
 
 @Controller('singers')
 export class SingerController {
@@ -42,12 +43,12 @@ export class SingerController {
     return this.singerService.changeFullName(id, updateFullNameDto.newFullName);
   }
 
-  @Patch(':id')
+  @Patch('uploadpicture/:id')
   async UploadPicture(
     @Param('id') id: string,
-    @Param('urlPicture') urlPicture: string,
+    @Body() uploadPictureDto: UploadPictureDto,
   ): Promise<void> {
-    return this.singerService.uploadPicture(id, urlPicture);
+    return this.singerService.uploadPicture(id, uploadPictureDto);
   }
 
   @Delete(':id')

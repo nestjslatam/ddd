@@ -1,7 +1,6 @@
 import { v4 } from 'uuid';
 import { IDomainEvent, IDomainEventMetadata } from './core';
 import { DomainGuard } from '.';
-import { TrackingContextService } from './context';
 import { DateTimeHelper } from './helpers';
 
 export type DomainEventProps<T> = Omit<T, 'id' | 'metadata'> & {
@@ -28,8 +27,7 @@ export abstract class DomainEvent implements IDomainEvent {
       this.data = props?.data || JSON.stringify(this);
       this.metadata = {
         aggregateId: props?.aggregateId || '',
-        trackingId:
-          this.metadata?.trackingId || TrackingContextService.getTrackingId(),
+        trackingId: this.metadata?.trackingId,
         timestamp: Date.now(),
         ocurredOn: DateTimeHelper.getUtcDate(),
       };

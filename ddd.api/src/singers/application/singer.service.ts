@@ -8,6 +8,7 @@ import { Id, RegisterDate } from '../../shared/domain';
 import { FullName } from '../domain/fullname';
 import { PicturePath } from '../domain/picture-path';
 import { SingerInfoDto } from './dto';
+import { UploadPictureDto } from './dto/upload-picture';
 
 @Injectable()
 export class SingerService {
@@ -49,15 +50,18 @@ export class SingerService {
 
     singerEntity.changeName(newFullNameParsed);
 
-    await this.repository.update(singerId, singerEntity);
+    await this.repository.update(singerId, singerEntity as Singer);
   }
 
-  async uploadPicture(singerId: string, newPicturePath: string): Promise<void> {
+  async uploadPicture(
+    singerId: string,
+    uploadPicture: UploadPictureDto,
+  ): Promise<void> {
     const singerEntity = await this.mapEntityFromTable(singerId);
 
-    singerEntity.uploadPicture(PicturePath.create(newPicturePath));
+    singerEntity.uploadPicture(PicturePath.create(uploadPicture.newUrlPath));
 
-    await this.repository.update(singerId, singerEntity);
+    await this.repository.update(singerId, singerEntity as Singer);
   }
 
   async subscribe(singerId: string): Promise<void> {
@@ -65,7 +69,7 @@ export class SingerService {
 
     singerEntity.subscribe();
 
-    await this.repository.update(singerId, singerEntity);
+    await this.repository.update(singerId, singerEntity as Singer);
   }
 
   async delete(singerId: string): Promise<void> {
@@ -108,7 +112,7 @@ export class SingerService {
     return singerEntities;
   }
 
-  async mapEntityFromTable(singerId: string): Promise<Singer> {
+  async mapEntityFromTable(singerId: string): Promise<Partial<Singer>> {
     const singer = await this.findOneById(singerId);
 
     if (!singer) throw new Error('Singer not found');

@@ -10,6 +10,7 @@ import { FullName } from './fullname';
 import { PicturePath } from './picture-path';
 import { SingerSong } from './singer-song';
 import { RegisteredSingerEvent, SubscribedSingerEvent } from './domain-events';
+import { UploadedPictureEvent } from './domain-events/uploaded-picture';
 
 interface ISingerProps {
   id: Id;
@@ -46,7 +47,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
       audit: DomainAuditValueObject.create('admin', new Date()),
     });
 
-    if (this.getTrackingStatus().isNew && !this.getAudit().unpack().updatedAt) {
+    if (this.getTrackingStatus().isNew) {
       this.addDomainEvent(
         new RegisteredSingerEvent(props.id.unpack(), props.fullName.unpack()),
       );
@@ -63,7 +64,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
       subscribedDate,
     } = props;
 
-    return new Singer({
+    const singer = new Singer({
       id,
       fullName,
       picture,
@@ -72,9 +73,11 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
       subscribedDate,
       status: eSingerStatus.REGISTERED,
     });
+
+    return singer;
   }
 
-  static load(props: ISongLoadProps): Singer {
+  static load(props: ISongLoadProps): Partial<Singer> {
     const {
       id,
       fullName,
@@ -85,7 +88,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
       status,
     } = props;
 
-    const singer = new Singer({
+    const singer = {
       id: Id.load(id),
       fullName: FullName.load(fullName),
       picture: PicturePath.create(picture),
@@ -95,9 +98,9 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
         ? SubscribedDate.create(subscribedDate)
         : null,
       status: eSingerStatus[status],
-    });
+    } as Partial<Singer>;
 
-    singer.marAsDirty(singer);
+    singer.marAsDirty();
 
     return singer;
   }
@@ -105,6 +108,10 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
   uploadPicture(picture: PicturePath): void {
     this.props.picture = picture;
     this.updateAudit();
+
+    this.addDomainEvent(
+      new UploadedPictureEvent(this.props.id.unpack(), picture.unpack()),
+    );
   }
 
   subscribe(): void {
@@ -134,6 +141,6 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
 
   private updateAudit(): void {
     this.getAudit().update('admin', new Date());
-    this.marAsDirty(this);
+    this.marAsDirty();
   }
 }

@@ -1,10 +1,10 @@
 import 'reflect-metadata';
+import { v4 } from 'uuid';
 
 import {
   DOMAIN_COMMAND_HANDLER_METADATA,
   DOMAIN_COMMAND_METADATA,
 } from './constants';
-import { v4 } from 'uuid';
 import { ICommand } from '../core/interfaces';
 
 export const CommandHandler = (

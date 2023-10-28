@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import { IDomainEvent } from '@nestjslatam/ddd';
+import { v4 } from 'uuid';
 
 import {
   DOMAIN_EVENT_METADATA,
   DOMAIN_EVENTS_HANDLER_METADATA,
 } from './constants';
-import { v4 } from 'uuid';
 
 export const DomainEventsHandler = (
   ...events: (IDomainEvent | (new (...args: any[]) => IDomainEvent))[]

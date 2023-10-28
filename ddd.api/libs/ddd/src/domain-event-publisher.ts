@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { DomainAggregateRoot, IDomainEvent } from '@nestjslatam/ddd';
 
 import { DomainEventBus } from './domain-event-bus';
+import { IDomainEvent } from './core';
+import { DomainAggregateRoot } from './domain-aggregate-root';
 
 export interface Constructor<T> {
   new (...args: any[]): T;
