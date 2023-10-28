@@ -7,4 +7,6 @@ export class CreateSingerDto {
   @IsNotEmpty()
   @IsString()
   picture: string;
+  @IsString()
+  trackingId?: string;
 }

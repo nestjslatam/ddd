@@ -1,8 +1,8 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UploadPictureDto {
   @IsNotEmpty()
   newUrlPath: string;
-  @IsNotEmpty()
-  trackingId: string;
+  @IsString()
+  trackingId?: string;
 }

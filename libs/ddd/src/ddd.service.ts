@@ -4,7 +4,7 @@ import { Module } from '@nestjs/core/injector/module';
 import { ModulesContainer } from '@nestjs/core/injector/modules-container';
 
 import { ICommandHandler, IDomainEvent, IDomainEventHandler } from './core';
-import { IDddBusOptions } from './ddd.options';
+import { IDddOptions } from './ddd.options';
 import {
   DOMAIN_COMMAND_HANDLER_METADATA,
   DOMAIN_EVENTS_HANDLER_METADATA,
@@ -15,7 +15,7 @@ import {
 export class DddService<EventBase extends IDomainEvent = IDomainEvent> {
   constructor(private readonly modulesContainer: ModulesContainer) {}
 
-  explore(): IDddBusOptions {
+  explore(): IDddOptions {
     const modules = [...this.modulesContainer.values()];
 
     const commands = this.flatMap<ICommandHandler>(modules, (instance) =>

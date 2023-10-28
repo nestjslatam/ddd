@@ -9,6 +9,7 @@ import { FullName } from '../domain/fullname';
 import { PicturePath } from '../domain/picture-path';
 import { SingerInfoDto } from './dto';
 import { UploadPictureDto } from './dto/upload-picture';
+import { SubscribeSingerDto } from './dto/subscribe-singer.dto';
 
 @Injectable()
 export class SingerService {
@@ -64,7 +65,9 @@ export class SingerService {
     await this.repository.update(singerId, singerEntity as Singer);
   }
 
-  async subscribe(singerId: string): Promise<void> {
+  async subscribe(subscribeSingerDto: SubscribeSingerDto): Promise<void> {
+    const { singerId } = subscribeSingerDto;
+
     const singerEntity = await this.mapEntityFromTable(singerId);
 
     singerEntity.subscribe();

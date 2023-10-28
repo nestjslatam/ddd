@@ -14,7 +14,13 @@ import { UnhandledExceptionBus } from './unhandled-exeption-bus';
     DomainEventPublisher,
     UnhandledExceptionBus,
   ],
-  exports: [],
+  exports: [
+    DddService,
+    DomainCommandBus,
+    DomainEventBus,
+    DomainEventPublisher,
+    UnhandledExceptionBus,
+  ],
 })
 export class DddModule<DomainEventBase extends IDomainEvent>
   implements OnApplicationBootstrap
