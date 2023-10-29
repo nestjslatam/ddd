@@ -6,7 +6,6 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 
 import { SharedModule } from './shared/shared.module';
 import { DatabaseModule } from './database/database.module';
-import { SongsModule } from './songs/songs.module';
 import { SingersModule } from './singers/singers.module';
 import { ContextTrackingInterceptor } from './context';
 
@@ -24,7 +23,6 @@ const interceptors = [
     DddModule,
     SharedModule,
     DatabaseModule,
-    SongsModule,
     SingersModule,
   ],
   providers: [...interceptors],

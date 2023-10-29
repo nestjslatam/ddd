@@ -1,13 +1,6 @@
-import {
-  PrimaryColumn,
-  Column,
-  Entity,
-  CreateDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { PrimaryColumn, Column, Entity, CreateDateColumn } from 'typeorm';
 
 import { Audit } from './audit.table';
-import { Song } from './song.table';
 
 @Entity('singers')
 export class Singer {
@@ -28,9 +21,6 @@ export class Singer {
 
   @Column({ nullable: true })
   subscribedDate?: Date;
-
-  @OneToMany(() => Song, (song) => song.singer, { nullable: true })
-  songs: Song[];
 
   @Column()
   status: string;

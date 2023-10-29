@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 
-import { SingerTable, SongTable } from './tables';
+import { SingerTable } from './tables';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([SingerTable, SongTable]),
+    TypeOrmModule.forFeature([SingerTable]),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
