@@ -1,10 +1,16 @@
 import { DomainGuard, convertPropsToObject } from './helpers';
 import { DomainAuditValueObject, DomainUIdValueObject } from './valueobjects';
-import { BrokenRule, BrokenRuleCollection, ITrackingProps } from './core';
+import {
+  BrokenRule,
+  BrokenRuleCollection,
+  ITrackingProps,
+  TrackingProps,
+} from './core';
 
 export interface IDomainEntityProps<T> {
   id: DomainEntityId;
   props: T;
+  trackingProps: TrackingProps;
   audit: DomainAuditValueObject;
 }
 
@@ -13,13 +19,13 @@ export type DomainEntityId = DomainUIdValueObject;
 export abstract class DomainEntity<TProps> {
   private _id: DomainEntityId;
   private _isValid: boolean;
-  private _trackingStatus: ITrackingProps;
+  private _trackingProps: ITrackingProps;
   private _audit: DomainAuditValueObject;
   private _brokenRules: BrokenRuleCollection = new BrokenRuleCollection();
 
   protected abstract businessRules(props: TProps): void;
 
-  constructor({ id, props, audit }: IDomainEntityProps<TProps>) {
+  constructor({ id, props, trackingProps, audit }: IDomainEntityProps<TProps>) {
     this.guard(props);
     this.businessRules(props);
 
@@ -27,9 +33,10 @@ export abstract class DomainEntity<TProps> {
 
     this._id = id;
     this.props = props;
-    this._audit = audit;
 
-    this.markAsNew();
+    this.setAudit(audit);
+
+    this.setTrackingProps(trackingProps);
   }
 
   // Let's edit the props with new values
@@ -39,12 +46,24 @@ export abstract class DomainEntity<TProps> {
     return this._id.unpack();
   }
 
-  getIsValid(): boolean {
-    return this._isValid;
+  setAudit(audit: DomainAuditValueObject): void {
+    this._audit = audit;
   }
 
   getAudit(): DomainAuditValueObject {
     return this._audit;
+  }
+
+  setTrackingProps(trackingProps: ITrackingProps): void {
+    this._trackingProps = trackingProps;
+  }
+
+  getTrackingProps(): ITrackingProps {
+    return this._trackingProps;
+  }
+
+  getIsValid(): boolean {
+    return this._isValid;
   }
 
   addBrokenRule(brokenRule: BrokenRule): void {
@@ -73,28 +92,6 @@ export abstract class DomainEntity<TProps> {
     return result;
   }
 
-  markAsNew() {
-    this._trackingStatus = {
-      ...this._trackingStatus,
-      isNew: true,
-      isDirty: false,
-      isDeleted: false,
-    };
-  }
-
-  marAsDirty() {
-    this._trackingStatus = {
-      ...this._trackingStatus,
-      isNew: true,
-      isDirty: true,
-      isDeleted: false,
-    };
-  }
-
-  getTrackingStatus(): ITrackingProps {
-    return this._trackingStatus;
-  }
-
   static isEntity(entity: unknown): entity is DomainEntity<unknown> {
     return entity instanceof DomainEntity;
   }
@@ -117,7 +114,7 @@ export abstract class DomainEntity<TProps> {
       id: this._id,
       ...this.props,
       audit: this._audit,
-      ...this._trackingStatus,
+      ...this.getTrackingProps(),
     };
 
     return Object.freeze(propsCopy);
@@ -129,7 +126,7 @@ export abstract class DomainEntity<TProps> {
     const result = {
       id: this._id,
       audit: this._audit,
-      ...this._trackingStatus,
+      ...this.getTrackingProps(),
       ...plainProps,
     };
 

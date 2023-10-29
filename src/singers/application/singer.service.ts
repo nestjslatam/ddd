@@ -33,7 +33,6 @@ export class SingerService {
     const { fullName, picture } = createSingerDto;
 
     const singer = Singer.create({
-      id: Id.create(),
       fullName: FullName.create(fullName),
       picture: PicturePath.create(picture),
       registerDate: RegisterDate.create(new Date()),
@@ -115,7 +114,7 @@ export class SingerService {
     return singerEntities;
   }
 
-  async mapEntityFromTable(singerId: string): Promise<Partial<Singer>> {
+  async mapEntityFromTable(singerId: string): Promise<Singer> {
     const singer = await this.findOneById(singerId);
 
     if (!singer) throw new Error('Singer not found');

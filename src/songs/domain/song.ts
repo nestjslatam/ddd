@@ -4,6 +4,11 @@ import {
   DomainAuditValueObject,
   DomainGuard,
 } from '@nestjslatam/ddd-lib';
+import {
+  DateTimeHelper,
+  ITrackingProps,
+  TrackingProps,
+} from '@nestjslatam/ddd';
 
 import { Id, Name, Url } from '../../shared/domain';
 import { Lyric } from './lyrics';
@@ -12,7 +17,6 @@ import { Description } from './description';
 import { SongDraftedEvent } from './domain-events/song-drafted-event';
 
 interface ISongProps {
-  id: Id;
   singer: SongSinger;
   name: Name;
   description: Description;
@@ -38,42 +42,45 @@ export enum eSongStatus {
 }
 
 export class Song extends DomainAggregateRoot<ISongProps> {
-  constructor(props: ISongProps) {
+  constructor(
+    id: Id,
+    props: ISongProps,
+    trackingProps: ITrackingProps,
+    audit: DomainAuditValueObject,
+  ) {
     super({
-      id: props.id,
+      id,
       props,
-      audit: DomainAuditValueObject.create('admin', new Date()),
+      trackingProps: trackingProps,
+      audit,
     });
   }
 
   static create(props: ISongProps): Song {
-    const { id, singer, name, description, lyric, url } = props;
-
-    return new Song({
-      id,
-      singer,
-      name,
-      description,
-      url,
-      lyric,
-      status: eSongStatus.CREATED,
-    });
+    return new Song(
+      Id.create(),
+      { ...props },
+      TrackingProps.setNew(),
+      DomainAuditValueObject.create('admin', DateTimeHelper.getUtcDate()),
+    );
   }
 
   static load(props: ISongLoadProps): Song {
     const { id, name, description, lyric, url, status } = props;
 
-    const song = new Song({
-      id: Id.load(id),
-      singer: SongSinger.load(props.singer.id, props.singer.name),
-      name: Name.create(name),
-      description: Description.create(description),
-      lyric: Lyric.create(lyric),
-      url: Url.create(url),
-      status: eSongStatus[status],
-    });
-
-    song.marAsDirty();
+    const song = new Song(
+      Id.load(id),
+      {
+        singer: SongSinger.load(props.singer.id, props.singer.name),
+        name: Name.create(name),
+        description: Description.create(description),
+        lyric: Lyric.create(lyric),
+        url: Url.create(url),
+        status: eSongStatus[status],
+      },
+      TrackingProps.setDirty(),
+      DomainAuditValueObject.create('admin', DateTimeHelper.getUtcDate()),
+    );
 
     return song;
   }
@@ -83,7 +90,7 @@ export class Song extends DomainAggregateRoot<ISongProps> {
       this.addBrokenRule(new BrokenRule('name', 'name or url is required'));
     }
 
-    const { isNew } = this.getTrackingStatus();
+    const { isNew } = this.getTrackingProps();
 
     if (!isNew && DomainGuard.isEmpty(props.singer)) {
       this.addBrokenRule(new BrokenRule('artist', 'artist is required'));
@@ -120,9 +127,9 @@ export class Song extends DomainAggregateRoot<ISongProps> {
     this.props.status = eSongStatus.DRAFTED;
     this.updateAudit();
 
-    const { id, name } = this.getPropsCopy();
+    const { name } = this.getPropsCopy();
 
-    this.addDomainEvent(new SongDraftedEvent(id, name));
+    this.addDomainEvent(new SongDraftedEvent(this.getId(), name));
   }
 
   setPublish(): void {
@@ -134,13 +141,12 @@ export class Song extends DomainAggregateRoot<ISongProps> {
     this.props.status = eSongStatus.PUBLISHED;
     this.updateAudit();
 
-    const { id, name } = this.getPropsCopy();
+    const { name } = this.getPropsCopy();
 
-    this.addDomainEvent(new SongDraftedEvent(id, name));
+    this.addDomainEvent(new SongDraftedEvent(this.getId(), name));
   }
 
   private updateAudit(): void {
-    this.getAudit().update('admin', new Date());
-    this.marAsDirty();
+    this.getAudit().update('admin', DateTimeHelper.getUtcDate());
   }
 }

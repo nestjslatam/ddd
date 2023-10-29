@@ -30,7 +30,6 @@ export class SongService {
     const { name, artist, description, lyric, url } = createSongDto;
 
     const song = Song.create({
-      id: Id.create(),
       singer: SongSinger.create(Id.load(artist.id), Name.create(artist.name)),
       name: Name.create(name),
       description: Description.create(description),

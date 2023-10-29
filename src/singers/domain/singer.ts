@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   BrokenRule,
   DomainAggregateRoot,
   DomainAuditValueObject,
+  TrackingProps,
 } from '@nestjslatam/ddd-lib';
 
 import { Id, SubscribedDate, RegisterDate } from '../../shared/domain';
@@ -13,7 +13,6 @@ import { RegisteredSingerEvent, SubscribedSingerEvent } from './domain-events';
 import { UploadedPictureEvent } from './domain-events/uploaded-picture';
 
 interface ISingerProps {
-  id: Id;
   fullName: FullName;
   picture?: PicturePath;
   registerDate: RegisterDate;
@@ -40,44 +39,47 @@ export enum eSingerStatus {
 }
 
 export class Singer extends DomainAggregateRoot<ISingerProps> {
-  constructor(props: ISingerProps) {
+  constructor(
+    id,
+    props: ISingerProps,
+    trackingProps: TrackingProps,
+    audit: DomainAuditValueObject,
+  ) {
     super({
-      id: props.id,
+      id,
       props,
-      audit: DomainAuditValueObject.create('admin', new Date()),
+      trackingProps,
+      audit,
     });
 
-    if (this.getTrackingStatus().isNew) {
+    if (this.getTrackingProps().isNew) {
       this.addDomainEvent(
-        new RegisteredSingerEvent(props.id.unpack(), props.fullName.unpack()),
+        new RegisteredSingerEvent(this.getId(), props.fullName.unpack()),
       );
     }
   }
 
   static create(props: ISingerProps): Singer {
-    const {
-      id,
-      fullName,
-      picture,
-      registerDate,
-      isSubscribed,
-      subscribedDate,
-    } = props;
+    const { fullName, picture, registerDate, isSubscribed, subscribedDate } =
+      props;
 
-    const singer = new Singer({
-      id,
-      fullName,
-      picture,
-      registerDate,
-      isSubscribed,
-      subscribedDate,
-      status: eSingerStatus.REGISTERED,
-    });
+    return new Singer(
+      Id.create(),
+      {
+        fullName,
+        picture,
+        registerDate,
+        isSubscribed,
+        subscribedDate,
 
-    return singer;
+        status: eSingerStatus.REGISTERED,
+      },
+      TrackingProps.setNew(),
+      DomainAuditValueObject.create('admin', new Date()),
+    );
   }
 
-  static load(props: ISongLoadProps): Partial<Singer> {
+  static load(props: ISongLoadProps): Singer {
     const {
       id,
       fullName,
@@ -88,19 +90,21 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
       status,
     } = props;
 
-    const singer = {
-      id: Id.load(id),
-      fullName: FullName.load(fullName),
-      picture: PicturePath.create(picture),
-      registerDate: RegisterDate.create(registerDate),
-      isSubscribed: isSubscribed,
-      subscribedDate: subscribedDate
-        ? SubscribedDate.create(subscribedDate)
-        : null,
-      status: eSingerStatus[status],
-    } as Partial<Singer>;
-
-    singer.marAsDirty();
+    const singer = new Singer(
+      Id.load(id),
+      {
+        fullName: FullName.load(fullName),
+        picture: PicturePath.create(picture),
+        registerDate: RegisterDate.create(registerDate),
+        isSubscribed: isSubscribed,
+        subscribedDate: subscribedDate
+          ? SubscribedDate.create(subscribedDate)
+          : null,
+        status: eSingerStatus[status],
+      },
+      TrackingProps.setDirty(),
+      DomainAuditValueObject.create('admin', new Date()),
+    );
 
     return singer;
   }
@@ -110,7 +114,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     this.updateAudit();
 
     this.addDomainEvent(
-      new UploadedPictureEvent(this.props.id.unpack(), picture.unpack()),
+      new UploadedPictureEvent(this.getId(), picture.unpack()),
     );
   }
 
@@ -123,10 +127,10 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     this.props.status = eSingerStatus.SUBSCRIBED;
     this.updateAudit();
 
-    const { id, fullName } = this.props;
+    const { fullName } = this.props;
 
     this.addDomainEvent(
-      new SubscribedSingerEvent(id.unpack(), fullName.unpack()),
+      new SubscribedSingerEvent(this.getId(), fullName.unpack()),
     );
   }
 
@@ -141,6 +145,5 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
 
   private updateAudit(): void {
     this.getAudit().update('admin', new Date());
-    this.marAsDirty();
   }
 }
