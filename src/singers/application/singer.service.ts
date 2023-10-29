@@ -4,7 +4,7 @@ import { SingerRepository } from '../infrastructure/db';
 import { Singer, eSingerStatus } from '../domain/singer';
 import { SingerTable } from '../../database/tables';
 import { CreateSingerDto } from './dto/create-singer.dto';
-import { Id, RegisterDate } from '../../shared/domain';
+import { RegisterDate } from '../../shared/domain';
 import { FullName } from '../domain/fullname';
 import { PicturePath } from '../domain/picture-path';
 import { SingerInfoDto } from './dto';
