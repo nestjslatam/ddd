@@ -65,6 +65,13 @@ export class SingerRepository implements ISingerRepository {
 
     if (!songToUpdate) throw new DatabaseException('song not found');
 
+    songToUpdate.fullName = entity.getPropsCopy().fullName.unpack();
+    songToUpdate.picture = entity.getPropsCopy().picture.unpack();
+    songToUpdate.registerDate = entity.getPropsCopy().registerDate.unpack();
+    songToUpdate.isSubscribed = entity.getPropsCopy().isSubscribed;
+    songToUpdate.subscribedDate = entity.getPropsCopy().subscribedDate.unpack();
+    songToUpdate.status = entity.getPropsCopy().status;
+
     const { updatedAt, updatedBy } = entity.getAudit().unpack();
 
     songToUpdate.audit.updatedBy = updatedBy;

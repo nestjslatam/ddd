@@ -1,3 +1,4 @@
+import { Name } from './../../../shared/domain/name';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -62,6 +63,17 @@ export class SongRepository implements ISongRepository {
     });
 
     if (!songToUpdate) throw new DatabaseException('song not found');
+
+    songToUpdate.name = entity.getPropsCopy().name.unpack();
+    songToUpdate.description = entity.getPropsCopy().description.unpack();
+    songToUpdate.url = entity.getPropsCopy().url.unpack();
+    songToUpdate.lyric = entity.getPropsCopy().lyric.unpack();
+    songToUpdate.singer.id = entity.getPropsCopy().singer.unpack().id.unpack();
+    songToUpdate.singer.fullName = entity
+      .getPropsCopy()
+      .singer.unpack()
+      .name.unpack();
+    songToUpdate.status = entity.getPropsCopy().status;
 
     const { updatedAt, updatedBy } = entity.getAudit().unpack();
 

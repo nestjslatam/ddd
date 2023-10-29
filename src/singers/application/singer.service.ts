@@ -61,7 +61,7 @@ export class SingerService {
 
     singerEntity.uploadPicture(PicturePath.create(uploadPicture.newUrlPath));
 
-    await this.repository.update(singerId, singerEntity as Singer);
+    await this.repository.update(singerId, singerEntity);
   }
 
   async subscribe(subscribeSingerDto: SubscribeSingerDto): Promise<void> {
@@ -71,7 +71,7 @@ export class SingerService {
 
     singerEntity.subscribe();
 
-    await this.repository.update(singerId, singerEntity as Singer);
+    await this.repository.update(singerId, singerEntity);
   }
 
   async delete(singerId: string): Promise<void> {
