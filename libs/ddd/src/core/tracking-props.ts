@@ -20,4 +20,12 @@ export class TrackingProps implements ITrackingProps {
       isDeleted: false,
     };
   }
+
+  static setDeleted(): TrackingProps {
+    return {
+      isDirty: false,
+      isNew: false,
+      isDeleted: true,
+    };
+  }
 }

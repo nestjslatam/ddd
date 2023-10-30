@@ -133,6 +133,18 @@ export abstract class DomainEntity<TProps> {
     return Object.freeze(result);
   }
 
+  markAsNew() {
+    this._trackingProps = TrackingProps.setNew();
+  }
+
+  markAsDirty() {
+    this._trackingProps = TrackingProps.setDirty();
+  }
+
+  markAsDeleted() {
+    this._trackingProps = TrackingProps.setDeleted();
+  }
+
   private guard(props: TProps): void {
     if (DomainGuard.isEmpty(props))
       this._brokenRules.add(new BrokenRule('props', 'Props is required'));
