@@ -1,9 +1,5 @@
 {
-  "moduleFileExtensions": [
-    "js",
-    "json",
-    "ts"
-  ],
+  "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
@@ -12,12 +8,6 @@
   },
   "moduleNameMapper": {
     "@nestjslatam/ddd/(.*)": "<rootDir>/../libs/ddd/src/$1",
-    "@nestjslatam/ddd": "<rootDir>/../libs/ddd/src",
-    "@app/bus/(.*)": "<rootDir>/../libs/bus/src/$1",
-    "@app/bus": "<rootDir>/../libs/bus/src",
-    "@app/ddd-shared/(.*)": "<rootDir>/../libs/ddd-shared/src/$1",
-    "@app/ddd-shared": "<rootDir>/../libs/ddd-shared/src",
-    "@app/ddd-bus/(.*)": "<rootDir>/../libs/ddd-bus/src/$1",
-    "@app/ddd-bus": "<rootDir>/../libs/ddd-bus/src"
+    "@nestjslatam/ddd": "<rootDir>/../libs/ddd/src"
   }
 }

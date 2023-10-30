@@ -1,5 +1,7 @@
 import { DomainValueObject } from '../valueobjects';
 
+const URL_REGEX_PATTERN = /^(ftp|http|https):\/\/[^ "]+$/;
+
 const ERROR_MESSAGE_LENGTH =
   'Cannot check length of a value. Provided value is empty';
 
@@ -76,6 +78,11 @@ export class DomainGuard {
 
   static isDate(value: unknown) {
     return value instanceof Date;
+  }
+
+  static isUrlValid(value: string): boolean {
+    const urlRegex = URL_REGEX_PATTERN;
+    return urlRegex.test(value);
   }
 
   private static getValueLength = (value: number | string | Array<unknown>) =>
