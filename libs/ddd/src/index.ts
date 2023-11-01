@@ -13,3 +13,4 @@ export * from './domain-command-bus';
 export * from './domain-event-bus';
 export * from './domain-event-publisher';
 export * from './unhandled-exeption-bus';
+export * from './decorators';
