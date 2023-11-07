@@ -1,4 +1,4 @@
 export interface ICommandMetadata {
-  id: string;
+  id?: string;
   trackingId: string;
 }
