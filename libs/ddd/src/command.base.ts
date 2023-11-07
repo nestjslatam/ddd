@@ -25,7 +25,6 @@ export class CommandBase implements ICommand {
     this.metadata = {
       id: props?.metadata?.id || this.id,
       trackingId: props?.metadata?.trackingId,
-      timestamp: props?.metadata?.timestamp || Date.now(),
     };
   }
 }
