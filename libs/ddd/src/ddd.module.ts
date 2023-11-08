@@ -31,6 +31,13 @@ export class DddModule<DomainEventBase extends IDomainEvent>
     private readonly commandBus: DomainCommandBus,
   ) {}
 
+  static forRoot() {
+    return {
+      module: DddModule,
+      global: true,
+    };
+  }
+
   onApplicationBootstrap() {
     const { domainEvents, sagas, commands } = this.explorerService.explore();
 
