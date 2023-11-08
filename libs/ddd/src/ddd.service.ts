@@ -1,7 +1,7 @@
 import { Injectable, Type } from '@nestjs/common';
-import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+import { ModulesContainer } from '@nestjs/core';
 import { Module } from '@nestjs/core/injector/module';
-import { ModulesContainer } from '@nestjs/core/injector/modules-container';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
 import { ICommandHandler, IDomainEvent, IDomainEventHandler } from './core';
 import { IDddOptions } from './ddd.options';
