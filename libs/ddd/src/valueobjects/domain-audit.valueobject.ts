@@ -7,6 +7,7 @@ export interface IDomainAuditProps {
   createdAt: Date;
   updatedBy?: string;
   updatedAt?: Date;
+  timestamp?: number;
 }
 
 export class DomainAuditValueObject extends DomainValueObject<IDomainAuditProps> {
@@ -25,15 +26,23 @@ export class DomainAuditValueObject extends DomainValueObject<IDomainAuditProps>
   protected getUpdatedAt() {
     return this.props.updatedAt;
   }
+  protected getTimeStamp() {
+    return this.props.timestamp;
+  }
 
   constructor(props: IDomainAuditProps) {
     super(props);
   }
 
-  static create(createdBy: string, createdAt: Date = new Date()) {
+  static create(
+    createdBy: string,
+    createdAt: Date = new Date(),
+    timestamp: number = +new Date(),
+  ) {
     return new DomainAuditValueObject({
       createdBy,
       createdAt,
+      timestamp,
     });
   }
 
@@ -76,6 +85,7 @@ export class DomainAuditValueObject extends DomainValueObject<IDomainAuditProps>
     createdAt: Date;
     updatedBy: string;
     updatedAt: Date;
+    timestamp: number;
   }): DomainAuditValueObject {
     const { createdAt, createdBy, updatedBy, updatedAt } = plainProps;
 
@@ -85,11 +95,17 @@ export class DomainAuditValueObject extends DomainValueObject<IDomainAuditProps>
     audit.props.createdAt = plainProps.createdAt;
     audit.props.updatedBy = plainProps.updatedBy;
     audit.props.updatedAt = plainProps.updatedAt;
+    audit.props.timestamp = plainProps.timestamp;
     return audit;
   }
 
-  update(updatedBy: string, updatedAt: Date = new Date()) {
+  update(
+    updatedBy: string,
+    updatedAt: Date = new Date(),
+    timestamp: number = +new Date(),
+  ) {
     this.props.updatedBy = updatedBy;
     this.props.updatedAt = updatedAt;
+    this.props.timestamp = timestamp;
   }
 }
