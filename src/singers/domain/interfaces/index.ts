@@ -1,3 +1,1 @@
-import { ISingerRepository } from './singer.repository';
-
-export { ISingerRepository };
+export * from './singer.repository';

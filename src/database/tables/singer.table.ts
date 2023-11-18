@@ -25,6 +25,6 @@ export class Singer {
   @Column()
   status: string;
 
-  @Column(() => Audit)
+  @Column(() => Audit, { prefix: false })
   audit: Audit;
 }

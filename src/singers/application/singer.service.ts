@@ -16,13 +16,13 @@ export class SingerService {
   constructor(private readonly repository: SingerRepository) {}
 
   async findAll(): Promise<SingerInfoDto[]> {
-    const singerTable = await this.repository.findAll();
+    const singerTable = await this.repository.fetchAll();
 
     return this.mapInfoFromTable(singerTable);
   }
 
   async findOneById(id: string): Promise<SingerInfoDto> {
-    const songTable = await this.repository.findOneById(id);
+    const songTable = await this.repository.fetchById(id);
 
     const singers = await this.mapInfoFromTable([songTable]);
 
@@ -32,15 +32,15 @@ export class SingerService {
   async create(createSingerDto: CreateSingerDto): Promise<void> {
     const { fullName, picture } = createSingerDto;
 
-    const singer = Singer.create({
-      fullName: FullName.create(fullName),
-      picture: PicturePath.create(picture),
-      registerDate: RegisterDate.create(new Date()),
-      isSubscribed: false,
-      status: eSingerStatus.REGISTERED,
-    });
+    // const singer = Singer.create({
+    //   fullName: FullName.create(fullName),
+    //   picture: PicturePath.create(picture),
+    //   registerDate: RegisterDate.create(new Date()),
+    //   isSubscribed: false,
+    //   status: eSingerStatus.REGISTERED,
+    // });
 
-    return await this.repository.create(singer);
+    return await this.repository.add(new SingerTable());
   }
 
   async changeFullName(singerId: string, newFullName: string): Promise<void> {
@@ -50,7 +50,7 @@ export class SingerService {
 
     singerEntity.changeName(newFullNameParsed);
 
-    await this.repository.update(singerId, singerEntity as Singer);
+    await this.repository.update(singerId, new SingerTable());
   }
 
   async uploadPicture(
@@ -61,7 +61,7 @@ export class SingerService {
 
     singerEntity.uploadPicture(PicturePath.create(uploadPicture.newUrlPath));
 
-    await this.repository.update(singerId, singerEntity);
+    await this.repository.update(singerId, new SingerTable());
   }
 
   async subscribe(subscribeSingerDto: SubscribeSingerDto): Promise<void> {
@@ -71,7 +71,7 @@ export class SingerService {
 
     singerEntity.subscribe();
 
-    await this.repository.update(singerId, singerEntity);
+    await this.repository.update(singerId, new SingerTable());
   }
 
   async delete(singerId: string): Promise<void> {

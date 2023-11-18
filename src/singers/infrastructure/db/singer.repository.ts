@@ -3,22 +3,27 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { DatabaseException } from '../../../shared/exceptions';
-import { ISingerRepository } from '../../domain/interfaces';
 import { SingerTable } from '../../../database/tables';
-import { Singer } from '../../domain/singer';
+
+import {
+  ISingerReadRepository,
+  ISingerWriteRepository,
+} from 'src/singers/domain/interfaces/singer.repository';
 
 @Injectable()
-export class SingerRepository implements ISingerRepository {
+export class SingerRepository
+  implements ISingerReadRepository, ISingerWriteRepository
+{
   constructor(
     @InjectRepository(SingerTable)
     private readonly repository: Repository<SingerTable>,
   ) {}
 
-  async findAll(): Promise<SingerTable[]> {
+  async fetchAll(): Promise<SingerTable[]> {
     return await this.repository.find();
   }
 
-  async findOneById(id: string): Promise<SingerTable> {
+  async fetchById(id: string): Promise<SingerTable> {
     try {
       return this.repository.findOneBy({ id });
     } catch (error) {
@@ -26,59 +31,36 @@ export class SingerRepository implements ISingerRepository {
     }
   }
 
-  async create(item: Singer): Promise<void> {
-    if (item === null || item === undefined)
-      throw new DatabaseException("item can't be null or undefined");
-
-    const {
-      fullName,
-      picture,
-      registerDate,
-      isSubscribed,
-      subscribedDate,
-      status,
-    } = item.getPropsCopy();
-
-    const songTable = new SingerTable();
-
-    songTable.id = item.getId();
-    songTable.fullName = fullName.unpack();
-    songTable.picture = picture ? picture.unpack() : 'default';
-    songTable.registerDate = registerDate ? registerDate.unpack() : null;
-    songTable.isSubscribed = isSubscribed;
-    songTable.subscribedDate = subscribedDate ? subscribedDate.unpack() : null;
-    songTable.status = status;
-    songTable.audit = { ...item.getAudit().unpack() };
+  async add(entity: SingerTable): Promise<void> {
+    if (entity === null || entity === undefined)
+      throw new DatabaseException("entity can't be null or undefined");
 
     try {
-      await this.repository.save(songTable);
+      await this.repository.save(entity);
     } catch (error) {
       throw new DatabaseException(error);
     }
   }
 
-  async update(id: string, entity: Singer): Promise<void> {
-    const songToUpdate = await this.repository.preload({
-      id,
-      ...entity,
-    });
+  async addBatch(entities: SingerTable[]): Promise<void> {
+    if (!entities && entities.length > 0)
+      throw new DatabaseException("entity can't be null or undefined");
+
+    try {
+      await this.repository.save(entities);
+    } catch (error) {
+      throw new DatabaseException(error);
+    }
+  }
+
+  async update(id: string, entity: SingerTable): Promise<void> {
+    const songToUpdate = await this.fetchById(id);
 
     if (!songToUpdate) throw new DatabaseException('song not found');
 
-    songToUpdate.fullName = entity.getPropsCopy().fullName.unpack();
-    songToUpdate.picture = entity.getPropsCopy().picture.unpack();
-    songToUpdate.registerDate = entity.getPropsCopy().registerDate.unpack();
-    songToUpdate.isSubscribed = entity.getPropsCopy().isSubscribed;
-    songToUpdate.subscribedDate = entity.getPropsCopy().subscribedDate.unpack();
-    songToUpdate.status = entity.getPropsCopy().status;
-
-    const { updatedAt, updatedBy } = entity.getAudit().unpack();
-
-    songToUpdate.audit.updatedBy = updatedBy;
-    songToUpdate.audit.updatedAt = updatedAt;
-
     try {
-      await this.repository.save(songToUpdate);
+      const updatedSong = { ...songToUpdate, ...entity };
+      await this.repository.save(updatedSong);
     } catch (error) {
       throw new DatabaseException(error);
     }

@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { IRepository } from '../../../shared/domain';
-
+/* eslint-disable prettier/prettier */
+import { IDomainReadRepository, IDomainTransationRepository, IDomainWriteRepository } from './../../../../libs/ddd/src';
 import { SingerTable } from '../../../database/tables';
 import { Singer } from '../singer';
 
-export interface ISingerRepository extends IRepository<Singer, SingerTable> {
-  findAll(): Promise<SingerTable[]>;
-}
+
+export interface ISingerReadRepository extends IDomainReadRepository<string, SingerTable>{}
+
+export interface ISingerWriteRepository extends IDomainWriteRepository<string, SingerTable>{}
+
+export interface ISingerTransactionRepository extends IDomainTransationRepository<Singer>{}
