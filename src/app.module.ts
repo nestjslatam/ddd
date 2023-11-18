@@ -1,30 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { RequestContextModule } from 'nestjs-request-context';
-import { DddModule } from '@nestjslatam/ddd-lib';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 
 import { SharedModule } from './shared/shared.module';
 import { DatabaseModule } from './database/database.module';
 import { SingersModule } from './singers/singers.module';
-import { ContextTrackingInterceptor } from './context';
 
-const interceptors = [
-  {
-    provide: APP_INTERCEPTOR,
-    useClass: ContextTrackingInterceptor,
-  },
-];
+import { DddModule } from './../libs/ddd/src/ddd.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    RequestContextModule, // Important to get request context for each request
     DddModule,
     SharedModule,
     DatabaseModule,
     SingersModule,
   ],
-  providers: [...interceptors],
 })
 export class AppModule {}

@@ -2,7 +2,7 @@ import {
   BrokenRule,
   DomainGuard,
   DomainStringValueObject,
-} from '@nestjslatam/ddd-lib';
+} from '../../../libs/ddd/src';
 
 export class Url extends DomainStringValueObject {
   constructor(value: string) {

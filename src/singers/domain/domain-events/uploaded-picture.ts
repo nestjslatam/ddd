@@ -1,7 +1,4 @@
-import { DomainEvent } from '@nestjslatam/ddd-lib';
-
-import { TrackingContextService } from '../../../context/app-tracking.context';
-
+import { DomainEvent } from '../../../../libs/ddd/src';
 export class UploadedPictureEvent extends DomainEvent {
   constructor(readonly singerId: string, readonly newUrlPath: string) {
     super({
@@ -10,7 +7,6 @@ export class UploadedPictureEvent extends DomainEvent {
       data: JSON.stringify({ singerId, newUrlPath }),
       metadata: {
         aggregateId: singerId,
-        trackingId: TrackingContextService.getTrackingId(),
         timestamp: Date.now(),
         ocurredOn: new Date(),
       },

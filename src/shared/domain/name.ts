@@ -3,7 +3,7 @@ import {
   DomainGuard,
   DomainStringValueObject,
   IDomainPrimitive,
-} from '@nestjslatam/ddd-lib';
+} from '../../../libs/ddd/src';
 
 export class Name extends DomainStringValueObject {
   constructor(value: string) {

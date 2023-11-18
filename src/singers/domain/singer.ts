@@ -3,7 +3,7 @@ import {
   DomainAggregateRoot,
   DomainAuditValueObject,
   TrackingProps,
-} from '@nestjslatam/ddd-lib';
+} from '../../../libs/ddd/src';
 
 import { Id, SubscribedDate, RegisterDate } from '../../shared/domain';
 import { FullName } from './fullname';

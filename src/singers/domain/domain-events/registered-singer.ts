@@ -1,4 +1,4 @@
-import { DomainEvent } from '@nestjslatam/ddd-lib';
+import { DomainEvent } from '../../../../libs/ddd/src';
 
 export class RegisteredSingerEvent extends DomainEvent {
   constructor(readonly singerId: string, readonly singerName: string) {

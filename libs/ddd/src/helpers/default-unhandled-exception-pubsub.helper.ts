@@ -1,10 +1,10 @@
 import { Subject } from 'rxjs';
 import {
   ICommand,
+  IDomainEvent,
   IUnhandledExceptionPublisher,
   UnhandledExceptionInfo,
 } from '../core/interfaces';
-import { IDomainEvent } from '@nestjslatam/ddd-lib';
 
 export class DefaultUnhandledExceptionPubSub<Cause = IDomainEvent | ICommand>
   implements IUnhandledExceptionPublisher<Cause>
