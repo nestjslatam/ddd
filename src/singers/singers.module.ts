@@ -10,6 +10,7 @@ import {
   singerControllers,
   singerDomainEventHandlers,
 } from './application/use-cases';
+import { SystemSagas } from './application/sagas';
 
 @Module({
   imports: [TypeOrmModule.forFeature([SingerTable]), DddModule],
@@ -17,6 +18,7 @@ import {
   providers: [
     ...singerCommandHandlers,
     ...singerDomainEventHandlers,
+    SystemSagas,
     SingerRepository,
   ],
 })
