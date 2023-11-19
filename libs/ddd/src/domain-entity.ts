@@ -83,7 +83,7 @@ export abstract class DomainEntity<TProps> {
     let result = '';
 
     this._brokenRules.getItems().map((brokenRule) => {
-      result += `${brokenRule.code}-${brokenRule.description}`;
+      result += `${brokenRule.code}-${brokenRule.description}` + '\n';
     });
 
     return result;

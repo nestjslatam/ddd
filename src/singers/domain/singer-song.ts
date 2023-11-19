@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { DomainValueObject } from '@nestjslatam/ddd-lib';
+
 import { Id, Name } from '../../shared/domain';
 
 interface ISingerSongProps {

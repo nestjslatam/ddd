@@ -1,0 +1,1805 @@
+{
+  "nodes": {
+    "29525167": {
+      "id": "29525167",
+      "label": "CreateSingerController",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "controller",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "CreateSingerController"
+      }
+    },
+    "203550704": {
+      "id": "203550704",
+      "label": "ExternalContextCreator",
+      "parent": "555176277",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "InternalCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": true,
+        "token": "ExternalContextCreator"
+      }
+    },
+    "211572259": {
+      "id": "211572259",
+      "label": "ConfigHostModule",
+      "metadata": {
+        "type": "module",
+        "global": true,
+        "dynamic": false,
+        "internal": false
+      }
+    },
+    "225063248": {
+      "id": "225063248",
+      "label": "InternalCoreModule",
+      "parent": "555176277",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "InternalCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "InternalCoreModule",
+        "initTime": 76.93969999998808
+      }
+    },
+    "256260345": {
+      "id": "256260345",
+      "label": "ApplicationConfig",
+      "parent": "1528017428",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DatabaseModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "266839889": {
+      "id": "266839889",
+      "label": "EntityManager",
+      "parent": "-1026304274",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "TypeOrmCoreModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "EntityManager"
+      }
+    },
+    "281329233": {
+      "id": "281329233",
+      "label": "ApplicationConfig",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "303302557": {
+      "id": "303302557",
+      "label": "ModuleRef",
+      "parent": "211572259",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "ConfigHostModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ModuleRef"
+      }
+    },
+    "373235992": {
+      "id": "373235992",
+      "label": "SandboxedCodeExecutor",
+      "parent": "-1033621697",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DevtoolsModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "SandboxedCodeExecutor"
+      }
+    },
+    "400681591": {
+      "id": "400681591",
+      "label": "DiscoveryService",
+      "parent": "-643397745",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DiscoveryModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "DiscoveryService",
+        "initTime": 75.80409999936819
+      }
+    },
+    "450929464": {
+      "id": "450929464",
+      "label": "ModuleRef",
+      "parent": "472982718",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "SharedModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ModuleRef"
+      }
+    },
+    "472982718": {
+      "id": "472982718",
+      "label": "SharedModule",
+      "metadata": {
+        "type": "module",
+        "global": false,
+        "dynamic": false,
+        "internal": false
+      }
+    },
+    "545846241": {
+      "id": "545846241",
+      "label": "TypeOrmModule",
+      "metadata": {
+        "type": "module",
+        "global": false,
+        "dynamic": true,
+        "internal": false
+      }
+    },
+    "555176277": {
+      "id": "555176277",
+      "label": "InternalCoreModule",
+      "metadata": {
+        "type": "module",
+        "global": true,
+        "dynamic": true,
+        "internal": true
+      }
+    },
+    "671882984": {
+      "id": "671882984",
+      "label": "Reflector",
+      "parent": "555176277",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "InternalCoreModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "Reflector",
+        "initTime": 76.85649999976158
+      }
+    },
+    "687352615": {
+      "id": "687352615",
+      "label": "ModuleRef",
+      "parent": "545846241",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "TypeOrmModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ModuleRef"
+      }
+    },
+    "731684192": {
+      "id": "731684192",
+      "label": "TypeOrmCoreModule",
+      "parent": "-1026304274",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "TypeOrmCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "TypeOrmCoreModule",
+        "initTime": 72.01020000129938
+      }
+    },
+    "805316524": {
+      "id": "805316524",
+      "label": "CreateSingerCommandHandler",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "CreateSingerCommandHandler"
+      }
+    },
+    "899416288": {
+      "id": "899416288",
+      "label": "SingersModule",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "SingersModule",
+        "initTime": 69.82709999755025
+      }
+    },
+    "914432006": {
+      "id": "914432006",
+      "label": "DomainEventBus",
+      "parent": "1649461507",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DddModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "DomainEventBus"
+      }
+    },
+    "915774976": {
+      "id": "915774976",
+      "label": "ApplicationConfig",
+      "parent": "1712628187",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "ConfigModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "930519593": {
+      "id": "930519593",
+      "label": "ConfigService",
+      "parent": "211572259",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "ConfigHostModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "Symbol(CONFIG_SERVICE)",
+        "initTime": 79.91699999943376
+      }
+    },
+    "1063746662": {
+      "id": "1063746662",
+      "label": "CONFIGURATION_TOKEN",
+      "parent": "211572259",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "ConfigHostModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "CONFIGURATION_TOKEN",
+        "initTime": 75.3323999978602
+      }
+    },
+    "1233853495": {
+      "id": "1233853495",
+      "label": "DomainCommandBus",
+      "parent": "1649461507",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DddModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "DomainCommandBus"
+      }
+    },
+    "1319630879": {
+      "id": "1319630879",
+      "label": "DddService",
+      "parent": "1649461507",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DddModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "DddService"
+      }
+    },
+    "1419776374": {
+      "id": "1419776374",
+      "label": "SingerRepository",
+      "parent": "-2135742481",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "TypeOrmModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "SingerRepository"
+      }
+    },
+    "1434456218": {
+      "id": "1434456218",
+      "label": "Reflector",
+      "parent": "555176277",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "InternalCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": true,
+        "token": "Reflector",
+        "initTime": 81.03409999981523
+      }
+    },
+    "1475573941": {
+      "id": "1475573941",
+      "label": "ModuleRef",
+      "parent": "-2135742481",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "TypeOrmModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ModuleRef"
+      }
+    },
+    "1528017428": {
+      "id": "1528017428",
+      "label": "DatabaseModule",
+      "metadata": {
+        "type": "module",
+        "global": false,
+        "dynamic": false,
+        "internal": false
+      }
+    },
+    "1529900285": {
+      "id": "1529900285",
+      "label": "Connection",
+      "parent": "-1026304274",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "TypeOrmCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": true,
+        "token": "Connection"
+      }
+    },
+    "1597271241": {
+      "id": "1597271241",
+      "label": "ModuleRef",
+      "parent": "1649461507",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DddModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ModuleRef"
+      }
+    },
+    "1649461507": {
+      "id": "1649461507",
+      "label": "DddModule",
+      "metadata": {
+        "type": "module",
+        "global": false,
+        "dynamic": false,
+        "internal": false
+      }
+    },
+    "1688619051": {
+      "id": "1688619051",
+      "label": "DevtoolsHttpServerHost",
+      "parent": "-1033621697",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DevtoolsModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "DevtoolsHttpServerHost"
+      }
+    },
+    "1690574933": {
+      "id": "1690574933",
+      "label": "ModuleRef",
+      "parent": "1712628187",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "ConfigModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ModuleRef"
+      }
+    },
+    "1712628187": {
+      "id": "1712628187",
+      "label": "ConfigModule",
+      "metadata": {
+        "type": "module",
+        "global": false,
+        "dynamic": true,
+        "internal": false
+      }
+    },
+    "1769319388": {
+      "id": "1769319388",
+      "label": "ConfigModule",
+      "parent": "1712628187",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "ConfigModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ConfigModule",
+        "initTime": 76.10709999874234
+      }
+    },
+    "1787828844": {
+      "id": "1787828844",
+      "label": "ConfigHostModule",
+      "parent": "211572259",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "ConfigHostModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ConfigHostModule",
+        "initTime": 75.43719999864697
+      }
+    },
+    "1809676814": {
+      "id": "1809676814",
+      "label": "ModuleRef",
+      "parent": "1528017428",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DatabaseModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ModuleRef"
+      }
+    },
+    "1817334964": {
+      "id": "1817334964",
+      "label": "ModuleRef",
+      "parent": "-1026304274",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "TypeOrmCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ModuleRef"
+      }
+    },
+    "1919157847": {
+      "id": "1919157847",
+      "label": "REQUEST",
+      "parent": "555176277",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "InternalCoreModule",
+        "durable": false,
+        "static": false,
+        "scope": 2,
+        "transient": false,
+        "exported": true,
+        "token": "REQUEST",
+        "initTime": 68.67559999972582
+      }
+    },
+    "1989588516": {
+      "id": "1989588516",
+      "label": "ApplicationConfig",
+      "parent": "-1033621697",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DevtoolsModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "2075644217": {
+      "id": "2075644217",
+      "label": "TypeOrmModuleOptions",
+      "parent": "-1026304274",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "TypeOrmCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "TypeOrmModuleOptions"
+      }
+    },
+    "2118694856": {
+      "id": "2118694856",
+      "label": "ApplicationConfig",
+      "parent": "211572259",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "ConfigHostModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "-1486320561": {
+      "id": "-1486320561",
+      "label": "ModuleRef",
+      "parent": "555176277",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "InternalCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ModuleRef"
+      }
+    },
+    "-651043398": {
+      "id": "-651043398",
+      "label": "ApplicationConfig",
+      "parent": "555176277",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "InternalCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "-255469305": {
+      "id": "-255469305",
+      "label": "INQUIRER",
+      "parent": "555176277",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "InternalCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 1,
+        "transient": true,
+        "exported": true,
+        "token": "INQUIRER",
+        "initTime": 68.64180000126362
+      }
+    },
+    "-26938366": {
+      "id": "-26938366",
+      "label": "ModulesContainer",
+      "parent": "555176277",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "InternalCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": true,
+        "token": "ModulesContainer"
+      }
+    },
+    "-326832201": {
+      "id": "-326832201",
+      "label": "HttpAdapterHost",
+      "parent": "555176277",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "InternalCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": true,
+        "token": "HttpAdapterHost"
+      }
+    },
+    "-702581189": {
+      "id": "-702581189",
+      "label": "LazyModuleLoader",
+      "parent": "555176277",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "InternalCoreModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "LazyModuleLoader",
+        "initTime": 76.3745999969542
+      }
+    },
+    "-1904419534": {
+      "id": "-1904419534",
+      "label": "SerializedGraph",
+      "parent": "555176277",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "InternalCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": true,
+        "token": "SerializedGraph"
+      }
+    },
+    "-19112576": {
+      "id": "-19112576",
+      "label": "AppModule",
+      "metadata": {
+        "type": "module",
+        "global": false,
+        "dynamic": false,
+        "internal": false
+      }
+    },
+    "-2139588960": {
+      "id": "-2139588960",
+      "label": "AppModule",
+      "parent": "-19112576",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "AppModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "AppModule",
+        "initTime": 76.22039999812841
+      }
+    },
+    "-71302842": {
+      "id": "-71302842",
+      "label": "ModuleRef",
+      "parent": "-19112576",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "AppModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ModuleRef"
+      }
+    },
+    "-2064622725": {
+      "id": "-2064622725",
+      "label": "ApplicationConfig",
+      "parent": "-19112576",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "AppModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "-503631789": {
+      "id": "-503631789",
+      "label": "ConfigService",
+      "parent": "1712628187",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "ConfigModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "ConfigService"
+      }
+    },
+    "-1033621697": {
+      "id": "-1033621697",
+      "label": "DevtoolsModule",
+      "metadata": {
+        "type": "module",
+        "global": false,
+        "dynamic": true,
+        "internal": false
+      }
+    },
+    "-1142553948": {
+      "id": "-1142553948",
+      "label": "DevtoolsModule",
+      "parent": "-1033621697",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DevtoolsModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "DevtoolsModule",
+        "initTime": 74.80420000106096
+      }
+    },
+    "-751962311": {
+      "id": "-751962311",
+      "label": "ModuleRef",
+      "parent": "-1033621697",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DevtoolsModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ModuleRef"
+      }
+    },
+    "-894028882": {
+      "id": "-894028882",
+      "label": "CONFIGURABLE_MODULE_OPTIONS[64a0411923f100200118a]",
+      "parent": "-1033621697",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DevtoolsModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "CONFIGURABLE_MODULE_OPTIONS[64a0411923f100200118a]"
+      }
+    },
+    "-643397745": {
+      "id": "-643397745",
+      "label": "DiscoveryModule",
+      "metadata": {
+        "type": "module",
+        "global": false,
+        "dynamic": false,
+        "internal": false
+      }
+    },
+    "-1048394624": {
+      "id": "-1048394624",
+      "label": "DiscoveryModule",
+      "parent": "-643397745",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DiscoveryModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "DiscoveryModule",
+        "initTime": 73.57830000296235
+      }
+    },
+    "-501891371": {
+      "id": "-501891371",
+      "label": "ModuleRef",
+      "parent": "-643397745",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DiscoveryModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ModuleRef"
+      }
+    },
+    "-1413161654": {
+      "id": "-1413161654",
+      "label": "ApplicationConfig",
+      "parent": "-643397745",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DiscoveryModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "-438112115": {
+      "id": "-438112115",
+      "label": "MetadataScanner",
+      "parent": "-643397745",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DiscoveryModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "MetadataScanner",
+        "initTime": 73.99770000204444
+      }
+    },
+    "-690636288": {
+      "id": "-690636288",
+      "label": "DddModule",
+      "parent": "1649461507",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DddModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "DddModule"
+      }
+    },
+    "-396048642": {
+      "id": "-396048642",
+      "label": "ApplicationConfig",
+      "parent": "1649461507",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DddModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "-660772982": {
+      "id": "-660772982",
+      "label": "DomainEventPublisher",
+      "parent": "1649461507",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DddModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "DomainEventPublisher"
+      }
+    },
+    "-595790820": {
+      "id": "-595790820",
+      "label": "UnhandledExceptionBus",
+      "parent": "1649461507",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DddModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "UnhandledExceptionBus",
+        "initTime": 71.71289999783039
+      }
+    },
+    "-1825934046": {
+      "id": "-1825934046",
+      "label": "SharedModule",
+      "parent": "472982718",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "SharedModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "SharedModule",
+        "initTime": 71.56699999794364
+      }
+    },
+    "-323870493": {
+      "id": "-323870493",
+      "label": "ApplicationConfig",
+      "parent": "472982718",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "SharedModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "-1098322034": {
+      "id": "-1098322034",
+      "label": "DatabaseModule",
+      "parent": "1528017428",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DatabaseModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "DatabaseModule",
+        "initTime": 71.1841000020504
+      }
+    },
+    "-2135742481": {
+      "id": "-2135742481",
+      "label": "TypeOrmModule",
+      "metadata": {
+        "type": "module",
+        "global": false,
+        "dynamic": true,
+        "internal": false
+      }
+    },
+    "-1872891520": {
+      "id": "-1872891520",
+      "label": "TypeOrmModule",
+      "parent": "-2135742481",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "TypeOrmModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "TypeOrmModule",
+        "initTime": 71.0038000009954
+      }
+    },
+    "-1068388246": {
+      "id": "-1068388246",
+      "label": "ApplicationConfig",
+      "parent": "-2135742481",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "TypeOrmModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "-257450702": {
+      "id": "-257450702",
+      "label": "TypeOrmModule",
+      "parent": "545846241",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "TypeOrmModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "TypeOrmModule",
+        "initTime": 70.69400000199676
+      }
+    },
+    "-223917668": {
+      "id": "-223917668",
+      "label": "ApplicationConfig",
+      "parent": "545846241",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "TypeOrmModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "-1026304274": {
+      "id": "-1026304274",
+      "label": "TypeOrmCoreModule",
+      "metadata": {
+        "type": "module",
+        "global": true,
+        "dynamic": true,
+        "internal": false
+      }
+    },
+    "-2035045911": {
+      "id": "-2035045911",
+      "label": "ApplicationConfig",
+      "parent": "-1026304274",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "TypeOrmCoreModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "-2103415210": {
+      "id": "-2103415210",
+      "label": "DataSource",
+      "parent": "-1026304274",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "TypeOrmCoreModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "DataSource"
+      }
+    },
+    "-786025002": {
+      "id": "-786025002",
+      "label": "SingersModule",
+      "metadata": {
+        "type": "module",
+        "global": false,
+        "dynamic": false,
+        "internal": false
+      }
+    },
+    "-1469675876": {
+      "id": "-1469675876",
+      "label": "ModuleRef",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ModuleRef"
+      }
+    },
+    "-1525473443": {
+      "id": "-1525473443",
+      "label": "SingerRepository",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "SingerRepository"
+      }
+    }
+  },
+  "edges": {
+    "84614934": {
+      "source": "-786025002",
+      "target": "-2135742481",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "SingersModule",
+        "targetModuleName": "TypeOrmModule"
+      },
+      "id": "84614934"
+    },
+    "175763745": {
+      "source": "545846241",
+      "target": "211572259",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "TypeOrmModule",
+        "targetModuleName": "ConfigHostModule"
+      },
+      "id": "175763745"
+    },
+    "184060730": {
+      "source": "-643397745",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DiscoveryModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "184060730"
+    },
+    "189694679": {
+      "source": "1434456218",
+      "target": "671882984",
+      "metadata": {
+        "type": "class-to-class",
+        "sourceModuleName": "InternalCoreModule",
+        "sourceClassName": "Reflector",
+        "targetClassName": "Reflector",
+        "sourceClassToken": "Reflector",
+        "targetClassToken": "Reflector",
+        "targetModuleName": "InternalCoreModule",
+        "keyOrIndex": 0,
+        "injectionType": "constructor",
+        "internal": true
+      },
+      "id": "189694679"
+    },
+    "353572985": {
+      "source": "1712628187",
+      "target": "211572259",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "ConfigModule",
+        "targetModuleName": "ConfigHostModule"
+      },
+      "id": "353572985"
+    },
+    "525256965": {
+      "source": "472982718",
+      "target": "211572259",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "SharedModule",
+        "targetModuleName": "ConfigHostModule"
+      },
+      "id": "525256965"
+    },
+    "561408245": {
+      "source": "-1033621697",
+      "target": "211572259",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DevtoolsModule",
+        "targetModuleName": "ConfigHostModule"
+      },
+      "id": "561408245"
+    },
+    "584653416": {
+      "source": "1712628187",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "ConfigModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "584653416"
+    },
+    "807697929": {
+      "source": "-19112576",
+      "target": "1528017428",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "AppModule",
+        "targetModuleName": "DatabaseModule"
+      },
+      "id": "807697929"
+    },
+    "883197643": {
+      "source": "-19112576",
+      "target": "472982718",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "AppModule",
+        "targetModuleName": "SharedModule"
+      },
+      "id": "883197643"
+    },
+    "1010561902": {
+      "source": "545846241",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "TypeOrmModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "1010561902"
+    },
+    "1056428433": {
+      "source": "-19112576",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "AppModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "1056428433"
+    },
+    "1240855953": {
+      "source": "-786025002",
+      "target": "1649461507",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "SingersModule",
+        "targetModuleName": "DddModule"
+      },
+      "id": "1240855953"
+    },
+    "1262696338": {
+      "source": "1649461507",
+      "target": "-1026304274",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DddModule",
+        "targetModuleName": "TypeOrmCoreModule"
+      },
+      "id": "1262696338"
+    },
+    "1454288893": {
+      "source": "-2135742481",
+      "target": "-1026304274",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "TypeOrmModule",
+        "targetModuleName": "TypeOrmCoreModule"
+      },
+      "id": "1454288893"
+    },
+    "1488040101": {
+      "source": "211572259",
+      "target": "-1026304274",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "ConfigHostModule",
+        "targetModuleName": "TypeOrmCoreModule"
+      },
+      "id": "1488040101"
+    },
+    "1635338963": {
+      "source": "-2135742481",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "TypeOrmModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "1635338963"
+    },
+    "1744123909": {
+      "source": "-1026304274",
+      "target": "211572259",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "TypeOrmCoreModule",
+        "targetModuleName": "ConfigHostModule"
+      },
+      "id": "1744123909"
+    },
+    "1748142643": {
+      "source": "1528017428",
+      "target": "211572259",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DatabaseModule",
+        "targetModuleName": "ConfigHostModule"
+      },
+      "id": "1748142643"
+    },
+    "1759398378": {
+      "source": "1528017428",
+      "target": "1712628187",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DatabaseModule",
+        "targetModuleName": "ConfigModule"
+      },
+      "id": "1759398378"
+    },
+    "1801916176": {
+      "source": "1528017428",
+      "target": "-1026304274",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DatabaseModule",
+        "targetModuleName": "TypeOrmCoreModule"
+      },
+      "id": "1801916176"
+    },
+    "1976848738": {
+      "source": "1528017428",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DatabaseModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "1976848738"
+    },
+    "2107559886": {
+      "source": "-1033621697",
+      "target": "-1026304274",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DevtoolsModule",
+        "targetModuleName": "TypeOrmCoreModule"
+      },
+      "id": "2107559886"
+    },
+    "-1537161641": {
+      "source": "731684192",
+      "target": "2075644217",
+      "metadata": {
+        "type": "class-to-class",
+        "sourceModuleName": "TypeOrmCoreModule",
+        "sourceClassName": "TypeOrmCoreModule",
+        "targetClassName": "TypeOrmModuleOptions",
+        "sourceClassToken": "TypeOrmCoreModule",
+        "targetClassToken": "TypeOrmModuleOptions",
+        "targetModuleName": "TypeOrmCoreModule",
+        "keyOrIndex": 0,
+        "injectionType": "constructor"
+      },
+      "id": "-1537161641"
+    },
+    "-1463782886": {
+      "source": "731684192",
+      "target": "1817334964",
+      "metadata": {
+        "type": "class-to-class",
+        "sourceModuleName": "TypeOrmCoreModule",
+        "sourceClassName": "TypeOrmCoreModule",
+        "targetClassName": "ModuleRef",
+        "sourceClassToken": "TypeOrmCoreModule",
+        "targetClassToken": "ModuleRef",
+        "targetModuleName": "TypeOrmCoreModule",
+        "keyOrIndex": 1,
+        "injectionType": "constructor",
+        "internal": true
+      },
+      "id": "-1463782886"
+    },
+    "-844262897": {
+      "source": "-19112576",
+      "target": "1712628187",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "AppModule",
+        "targetModuleName": "ConfigModule"
+      },
+      "id": "-844262897"
+    },
+    "-692061701": {
+      "source": "-19112576",
+      "target": "-1033621697",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "AppModule",
+        "targetModuleName": "DevtoolsModule"
+      },
+      "id": "-692061701"
+    },
+    "-2030387269": {
+      "source": "-19112576",
+      "target": "1649461507",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "AppModule",
+        "targetModuleName": "DddModule"
+      },
+      "id": "-2030387269"
+    },
+    "-1165172840": {
+      "source": "-19112576",
+      "target": "-786025002",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "AppModule",
+        "targetModuleName": "SingersModule"
+      },
+      "id": "-1165172840"
+    },
+    "-815553404": {
+      "source": "-19112576",
+      "target": "211572259",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "AppModule",
+        "targetModuleName": "ConfigHostModule"
+      },
+      "id": "-815553404"
+    },
+    "-495517505": {
+      "source": "-19112576",
+      "target": "-1026304274",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "AppModule",
+        "targetModuleName": "TypeOrmCoreModule"
+      },
+      "id": "-495517505"
+    },
+    "-1766726454": {
+      "source": "1712628187",
+      "target": "-1026304274",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "ConfigModule",
+        "targetModuleName": "TypeOrmCoreModule"
+      },
+      "id": "-1766726454"
+    },
+    "-1995183955": {
+      "source": "211572259",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "ConfigHostModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "-1995183955"
+    },
+    "-1926621316": {
+      "source": "-1033621697",
+      "target": "-643397745",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DevtoolsModule",
+        "targetModuleName": "DiscoveryModule"
+      },
+      "id": "-1926621316"
+    },
+    "-308574300": {
+      "source": "-1033621697",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DevtoolsModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "-308574300"
+    },
+    "-1107570771": {
+      "source": "-643397745",
+      "target": "211572259",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DiscoveryModule",
+        "targetModuleName": "ConfigHostModule"
+      },
+      "id": "-1107570771"
+    },
+    "-1777027914": {
+      "source": "-643397745",
+      "target": "-1026304274",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DiscoveryModule",
+        "targetModuleName": "TypeOrmCoreModule"
+      },
+      "id": "-1777027914"
+    },
+    "-2093584098": {
+      "source": "1649461507",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DddModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "-2093584098"
+    },
+    "-1980841135": {
+      "source": "1649461507",
+      "target": "211572259",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DddModule",
+        "targetModuleName": "ConfigHostModule"
+      },
+      "id": "-1980841135"
+    },
+    "-1930766348": {
+      "source": "472982718",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "SharedModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "-1930766348"
+    },
+    "-1983310466": {
+      "source": "472982718",
+      "target": "-1026304274",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "SharedModule",
+        "targetModuleName": "TypeOrmCoreModule"
+      },
+      "id": "-1983310466"
+    },
+    "-1122599539": {
+      "source": "1528017428",
+      "target": "-2135742481",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DatabaseModule",
+        "targetModuleName": "TypeOrmModule"
+      },
+      "id": "-1122599539"
+    },
+    "-1374202670": {
+      "source": "1528017428",
+      "target": "545846241",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DatabaseModule",
+        "targetModuleName": "TypeOrmModule"
+      },
+      "id": "-1374202670"
+    },
+    "-645931578": {
+      "source": "-2135742481",
+      "target": "211572259",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "TypeOrmModule",
+        "targetModuleName": "ConfigHostModule"
+      },
+      "id": "-645931578"
+    },
+    "-733930814": {
+      "source": "545846241",
+      "target": "-1026304274",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "TypeOrmModule",
+        "targetModuleName": "TypeOrmCoreModule"
+      },
+      "id": "-733930814"
+    },
+    "-485008942": {
+      "source": "-1026304274",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "TypeOrmCoreModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "-485008942"
+    },
+    "-1496161925": {
+      "source": "-786025002",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "SingersModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "-1496161925"
+    },
+    "-1006731666": {
+      "source": "-786025002",
+      "target": "211572259",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "SingersModule",
+        "targetModuleName": "ConfigHostModule"
+      },
+      "id": "-1006731666"
+    },
+    "-1661789163": {
+      "source": "-786025002",
+      "target": "-1026304274",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "SingersModule",
+        "targetModuleName": "TypeOrmCoreModule"
+      },
+      "id": "-1661789163"
+    },
+    "-221187751": {
+      "source": "400681591",
+      "target": "-26938366",
+      "metadata": {
+        "type": "class-to-class",
+        "sourceModuleName": "DiscoveryModule",
+        "sourceClassName": "DiscoveryService",
+        "targetClassName": "ModulesContainer",
+        "sourceClassToken": "DiscoveryService",
+        "targetClassToken": "ModulesContainer",
+        "targetModuleName": "InternalCoreModule",
+        "keyOrIndex": 0,
+        "injectionType": "constructor",
+        "internal": true
+      },
+      "id": "-221187751"
+    },
+    "-951393523": {
+      "source": "930519593",
+      "target": "1063746662",
+      "metadata": {
+        "type": "class-to-class",
+        "sourceModuleName": "ConfigHostModule",
+        "sourceClassName": "ConfigService",
+        "targetClassName": "CONFIGURATION_TOKEN",
+        "sourceClassToken": "Symbol(CONFIG_SERVICE)",
+        "targetClassToken": "CONFIGURATION_TOKEN",
+        "targetModuleName": "ConfigHostModule",
+        "keyOrIndex": 0,
+        "injectionType": "constructor"
+      },
+      "id": "-951393523"
+    }
+  },
+  "entrypoints": {},
+  "extras": {
+    "orphanedEnhancers": [],
+    "attachedEnhancers": []
+  },
+  "status": "partial",
+  "metadata": {
+    "cause": {
+      "type": "unknown-dependencies",
+      "context": {
+        "index": 0,
+        "dependencies": [
+          "ModulesContainer"
+        ],
+        "name": "ModulesContainer"
+      },
+      "moduleId": "1649461507",
+      "nodeId": "1319630879"
+    }
+  }
+}

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   BrokenRule,
   DomainAggregateRoot,
@@ -139,9 +140,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     this.updateAudit();
   }
 
-  protected businessRules(props: ISingerProps): void {
-    this.childGuard(props);
-  }
+  protected businessRules(props: ISingerProps): void {}
 
   private updateAudit(): void {
     this.getAudit().update('admin', new Date());

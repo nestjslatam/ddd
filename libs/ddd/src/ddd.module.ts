@@ -1,5 +1,4 @@
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
-import { ModulesContainer } from '@nestjs/core';
 
 import { IDomainEvent } from './core';
 import { DddService } from './ddd.service';
