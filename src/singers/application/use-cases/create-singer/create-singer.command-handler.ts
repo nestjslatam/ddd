@@ -31,7 +31,7 @@ export class CreateSingerCommandHandler
         picture: PicturePath.create(picture),
         registerDate: RegisterDate.create(new Date()),
         isSubscribed: false,
-        status: eSingerStatus.REGISTERED,
+        status: eSingerStatus.Registered,
       }),
     );
 

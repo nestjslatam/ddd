@@ -37,8 +37,8 @@ interface ISongLoadProps {
 }
 
 export enum eSingerStatus {
-  REGISTERED = 'registered',
-  SUBSCRIBED = 'subscribed',
+  Registered = 'registered',
+  Subscribed = 'subscribed',
 }
 
 export class Singer extends DomainAggregateRoot<ISingerProps> {
@@ -75,7 +75,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
         isSubscribed,
         subscribedDate,
 
-        status: eSingerStatus.REGISTERED,
+        status: eSingerStatus.Registered,
       },
       TrackingProps.setNew(),
       DomainAuditValueObject.create('admin', new Date()),
@@ -118,7 +118,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
 
     this.props.isSubscribed = true;
     this.props.subscribedDate = SubscribedDate.create(new Date());
-    this.props.status = eSingerStatus.SUBSCRIBED;
+    this.props.status = eSingerStatus.Subscribed;
     this.updateAudit();
 
     const { subscribedDate } = this.props;

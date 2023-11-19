@@ -22,7 +22,7 @@ export class Singer {
   @Column({ nullable: true })
   subscribedDate?: Date;
 
-  @Column()
+  @Column({ nullable: true, default: 'registered' })
   status: string;
 
   @Column(() => Audit, { prefix: false })

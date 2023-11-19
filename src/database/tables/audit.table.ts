@@ -9,4 +9,6 @@ export class Audit {
   updatedBy?: string;
   @UpdateDateColumn({ nullable: true })
   updatedAt?: Date;
+  @Column({ type: 'bigint' })
+  timestamp?: number;
 }
