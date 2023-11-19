@@ -6,7 +6,7 @@ A simple DDD NESTJS Library
 
 ### Install
 
-`npm install @nestjslatam/ddd`
+`npm install @nestjslatam/ddd-lib`
 
 ### Use library
 

@@ -7,7 +7,7 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "moduleNameMapper": {
-    "@nestjslatam/ddd/(.*)": "<rootDir>/../libs/ddd/src/$1",
-    "@nestjslatam/ddd": "<rootDir>/../libs/ddd/src"
+    "@nestjslatam/ddd-lib/(.*)": "<rootDir>/../libs/ddd/src/$1",
+    "@nestjslatam/ddd-lib": "<rootDir>/../libs/ddd/src"
   }
 }

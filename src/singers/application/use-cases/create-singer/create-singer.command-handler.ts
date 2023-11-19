@@ -2,6 +2,7 @@ import {
   ICommandHandler,
   CommandHandler,
   DomainEventPublisher,
+  BrokenRulesException,
 } from '@nestjslatam/ddd-lib';
 
 import { CreateSingerCommad } from './create-singer-command';
@@ -34,8 +35,11 @@ export class CreateSingerCommandHandler
       }),
     );
 
-    if (!domain.getIsValid())
-      throw new Error(domain.getBrokenRules().toString());
+    if (!domain.getIsValid()) {
+      const brokenRules = domain.getBrokenRulesAsString();
+
+      throw new BrokenRulesException(brokenRules);
+    }
 
     this.repository.add(SingerToSingerTableMapper.map(domain));
 

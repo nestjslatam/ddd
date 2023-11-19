@@ -7,6 +7,10 @@ export class BrokenRuleCollection {
     if (brokenRules) this._brokenRules = brokenRules;
   }
 
+  public clear(): void {
+    this._brokenRules = [];
+  }
+
   public add(brokenRule: BrokenRule): void {
     if (brokenRule === null || brokenRule === undefined)
       throw new Error('BrokenRule is required');

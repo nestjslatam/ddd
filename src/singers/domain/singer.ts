@@ -2,8 +2,6 @@ import {
   BrokenRule,
   DomainAggregateRoot,
   DomainAuditValueObject,
-  DomainNumberValueObject,
-  DomainValueObject,
   TrackingProps,
 } from '@nestjslatam/ddd-lib';
 
@@ -13,11 +11,6 @@ import { PicturePath } from './picture-path';
 import { SingerSong } from './singer-song';
 import { RegisteredSingerEvent, SubscribedSingerEvent } from './domain-events';
 import { UploadedPictureEvent } from './domain-events/uploaded-picture';
-import {
-  DomainDateValueObject,
-  DomainGuard,
-  DomainStringValueObject,
-} from '@nestjslatam/ddd';
 
 interface ISingerProps {
   fullName: FullName;
@@ -147,24 +140,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
   }
 
   protected businessRules(props: ISingerProps): void {
-    const fields = Object.keys(props);
-
-    fields.forEach((key) => {
-      const prop = props[key];
-
-      if (DomainGuard.isValueObject(prop)) {
-        const brokenRules = props[key].getBrokenRules();
-        if (brokenRules.length > 0) {
-          brokenRules.forEach((brokenRule) => {
-            this.addBrokenRule(
-              new BrokenRule(brokenRule.code, brokenRule.description),
-            );
-          });
-        }
-      }
-    });
-
-    console.log(this.getBrokenRules());
+    this.childGuard(props);
   }
 
   private updateAudit(): void {

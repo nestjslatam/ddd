@@ -32,7 +32,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('DDD Overview NESTJS API')
-    .setDescription('This a sample using @nestjslatam/ddd')
+    .setDescription('This a sample using @nestjslatam/ddd-lib')
     .setVersion('1.0.0')
     .build();
 

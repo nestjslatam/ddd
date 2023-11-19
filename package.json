@@ -32,7 +32,7 @@
     "@nestjs/platform-express": "^10.2.9",
     "@nestjs/swagger": "^7.1.16",
     "@nestjs/typeorm": "^10.0.1",
-    "@nestjslatam/ddd-lib": "^1.0.17",
+    "@nestjslatam/ddd-lib": "^1.0.21",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "pg": "^8.11.3",
@@ -89,7 +89,7 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@nestjslatam/ddd(|/.*)$": "<rootDir>/libs/ddd/src/$1"
+      "^@nestjslatam/ddd-lib(|/.*)$": "<rootDir>/libs/ddd/src/$1"
     }
   }
 }

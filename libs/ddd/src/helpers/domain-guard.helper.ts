@@ -1,10 +1,4 @@
-import {
-  DomainAuditValueObject,
-  DomainDateValueObject,
-  DomainNumberValueObject,
-  DomainStringValueObject,
-  DomainValueObject,
-} from '../valueobjects';
+import { DomainValueObject } from '../valueobjects';
 
 const URL_REGEX_PATTERN = /^(ftp|http|https):\/\/[^ "]+$/;
 
@@ -13,13 +7,17 @@ const ERROR_MESSAGE_LENGTH =
 
 export class DomainGuard {
   static isValueObject(obj: unknown): obj is DomainValueObject<unknown> {
-    return (
-      obj instanceof DomainValueObject ||
-      obj instanceof DomainAuditValueObject ||
-      obj instanceof DomainStringValueObject ||
-      obj instanceof DomainDateValueObject ||
-      obj instanceof DomainNumberValueObject
-    );
+    return obj instanceof DomainValueObject;
+  }
+
+  static isInstanceOfValueObject(obj: any): boolean {
+    if (obj === null || obj === undefined) return false;
+
+    if (typeof obj === 'string' || typeof obj === 'boolean') return false;
+
+    const canConvert = obj as DomainValueObject<unknown>;
+
+    return !canConvert ? false : true;
   }
 
   static isEmpty(value: unknown): boolean {

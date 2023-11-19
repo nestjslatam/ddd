@@ -143,10 +143,38 @@ export abstract class DomainEntity<TProps> {
   }
 
   private guard(props: TProps): void {
+    this._brokenRules.clear();
+
+    if (props === undefined) throw new Error('props is undefined');
+
     if (DomainGuard.isEmpty(props))
       this._brokenRules.add(new BrokenRule('props', 'Props is required'));
 
     if (typeof props !== 'object')
       this._brokenRules.add(new BrokenRule('props', 'Props is not an object'));
+
+    this.childGuard(props);
+  }
+
+  private childGuard(props: TProps): void {
+    if (!props || props === undefined) throw new Error('props is undefined');
+
+    Object.keys(props).forEach((key) => {
+      const prop = props[key];
+
+      const isValueObject = DomainGuard.isInstanceOfValueObject(prop);
+
+      if (isValueObject) {
+        const brokenRules = props[key].getBrokenRules();
+
+        if (brokenRules.length > 0 && brokenRules !== undefined) {
+          brokenRules.forEach((brokenRule) => {
+            this.addBrokenRule(
+              new BrokenRule(brokenRule.code, brokenRule.description),
+            );
+          });
+        }
+      }
+    });
   }
 }
