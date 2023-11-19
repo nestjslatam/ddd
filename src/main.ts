@@ -1,12 +1,16 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, PartialGraphHost } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common/exceptions';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as fs from 'fs';
 
 import { AppModule } from './app.module';
-import { BadRequestException } from '@nestjs/common/exceptions';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    snapshot: true,
+    abortOnError: false,
+  });
 
   app.useGlobalPipes(
     //NOTE: How to generate custom error message object. Using exception factory
@@ -41,4 +45,8 @@ async function bootstrap() {
     console.log(`Listening at http://localhost:${PORT}`),
   );
 }
-bootstrap();
+
+bootstrap().catch(() => {
+  fs.writeFileSync('graph.json', PartialGraphHost.toString() ?? '');
+  process.exit(1);
+});

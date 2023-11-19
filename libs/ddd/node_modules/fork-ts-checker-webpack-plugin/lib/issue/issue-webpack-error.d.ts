@@ -1,4 +1,4 @@
-import webpack from 'webpack';
+import * as webpack from 'webpack';
 import type { FormatterPathType } from '../formatter';
 import type { Issue } from './issue';
 declare class IssueWebpackError extends webpack.WebpackError {

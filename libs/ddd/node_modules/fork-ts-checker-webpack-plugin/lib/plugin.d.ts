@@ -1,4 +1,4 @@
-import type webpack from 'webpack';
+import type * as webpack from 'webpack';
 import type { ForkTsCheckerWebpackPluginOptions } from './plugin-options';
 declare class ForkTsCheckerWebpackPlugin {
     /**

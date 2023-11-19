@@ -1,4 +1,6 @@
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import { ModulesContainer } from '@nestjs/core';
+
 import { IDomainEvent } from './core';
 import { DddService } from './ddd.service';
 import { DomainCommandBus } from './domain-command-bus';
@@ -30,13 +32,6 @@ export class DddModule<DomainEventBase extends IDomainEvent>
     private readonly eventBus: DomainEventBus<DomainEventBase>,
     private readonly commandBus: DomainCommandBus,
   ) {}
-
-  static forRoot() {
-    return {
-      module: DddModule,
-      global: true,
-    };
-  }
 
   onApplicationBootstrap() {
     const { domainEvents, sagas, commands } = this.explorerService.explore();

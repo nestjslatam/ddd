@@ -4,11 +4,10 @@ import { Repository } from 'typeorm';
 
 import { DatabaseException } from '../../../shared/exceptions';
 import { SingerTable } from '../../../database/tables';
-
 import {
   ISingerReadRepository,
   ISingerWriteRepository,
-} from 'src/singers/domain/interfaces/singer.repository';
+} from '../../domain/interfaces';
 
 @Injectable()
 export class SingerRepository

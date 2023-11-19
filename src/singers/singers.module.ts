@@ -1,14 +1,18 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
+import { DddModule } from '@nestjslatam/ddd-lib';
 
-import { SingerService } from './application/singer.service';
-import { SingerController } from './application/singer.controller';
 import { SingerRepository } from './infrastructure/db';
 import { SingerTable } from '../database/tables';
 
+import {
+  singerCommandHandlers,
+  singerControllers,
+} from './application/use-cases';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([SingerTable])],
-  controllers: [SingerController],
-  providers: [SingerService, SingerRepository],
+  imports: [TypeOrmModule.forFeature([SingerTable]), DddModule],
+  controllers: [...singerControllers],
+  providers: [...singerCommandHandlers, SingerRepository],
 })
 export class SingersModule {}

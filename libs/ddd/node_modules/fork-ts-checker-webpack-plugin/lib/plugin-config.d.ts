@@ -1,4 +1,4 @@
-import type webpack from 'webpack';
+import type * as webpack from 'webpack';
 import type { FormatterConfig } from './formatter';
 import type { IssueConfig } from './issue/issue-config';
 import type { Logger } from './logger';

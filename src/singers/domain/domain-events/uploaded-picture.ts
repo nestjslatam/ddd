@@ -1,6 +1,10 @@
-import { DomainEvent } from '../../../../libs/ddd/src';
+import { DomainEvent } from '@nestjslatam/ddd-lib';
+
 export class UploadedPictureEvent extends DomainEvent {
-  constructor(readonly singerId: string, readonly newUrlPath: string) {
+  constructor(
+    readonly singerId: string,
+    readonly newUrlPath: string,
+  ) {
     super({
       aggregateId: singerId,
       eventName: UploadedPictureEvent.name,

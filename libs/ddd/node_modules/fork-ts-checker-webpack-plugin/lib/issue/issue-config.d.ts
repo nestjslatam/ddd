@@ -1,4 +1,4 @@
-import type webpack from 'webpack';
+import type * as webpack from 'webpack';
 import type { IssueOptions } from './issue-options';
 import type { IssuePredicate } from './issue-predicate';
 interface IssueConfig {

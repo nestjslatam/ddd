@@ -18,7 +18,6 @@ export type DomainEntityId = DomainUIdValueObject;
 
 export abstract class DomainEntity<TProps> {
   private _id: DomainEntityId;
-  private _isValid: boolean;
   private _trackingProps: ITrackingProps;
   private _audit: DomainAuditValueObject;
   private _brokenRules: BrokenRuleCollection = new BrokenRuleCollection();
@@ -28,8 +27,6 @@ export abstract class DomainEntity<TProps> {
   constructor({ id, props, trackingProps, audit }: IDomainEntityProps<TProps>) {
     this.guard(props);
     this.businessRules(props);
-
-    this._isValid = this._brokenRules.getItems().length ? true : false;
 
     this._id = id;
     this.props = props;
@@ -63,7 +60,7 @@ export abstract class DomainEntity<TProps> {
   }
 
   getIsValid(): boolean {
-    return this._isValid;
+    return this._brokenRules.getItems().length === 0 ? true : false;
   }
 
   addBrokenRule(brokenRule: BrokenRule): void {
