@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "16403266": {
+      "id": "16403266",
+      "label": "CONFIGURABLE_MODULE_OPTIONS[9d546d3ae7d71b6485adc]",
+      "parent": "-1033621697",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DevtoolsModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "CONFIGURABLE_MODULE_OPTIONS[9d546d3ae7d71b6485adc]"
+      }
+    },
     "29525167": {
       "id": "29525167",
       "label": "CreateSingerController",
@@ -55,7 +71,7 @@
         "transient": false,
         "exported": false,
         "token": "InternalCoreModule",
-        "initTime": 76.93969999998808
+        "initTime": 66.76669999957085
       }
     },
     "256260345": {
@@ -121,6 +137,22 @@
         "token": "ModuleRef"
       }
     },
+    "312046243": {
+      "id": "312046243",
+      "label": "SingerCreatedDomainEventHandler",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "SingerCreatedDomainEventHandler",
+        "initTime": 58.10709999501705
+      }
+    },
     "373235992": {
       "id": "373235992",
       "label": "SandboxedCodeExecutor",
@@ -149,7 +181,7 @@
         "transient": false,
         "exported": true,
         "token": "DiscoveryService",
-        "initTime": 75.80409999936819
+        "initTime": 64.43090000003576
       }
     },
     "450929464": {
@@ -211,7 +243,7 @@
         "transient": false,
         "exported": true,
         "token": "Reflector",
-        "initTime": 76.85649999976158
+        "initTime": 66.59700000286102
       }
     },
     "687352615": {
@@ -244,7 +276,7 @@
         "transient": false,
         "exported": false,
         "token": "TypeOrmCoreModule",
-        "initTime": 72.01020000129938
+        "initTime": 60.51060000061989
       }
     },
     "805316524": {
@@ -276,7 +308,7 @@
         "transient": false,
         "exported": false,
         "token": "SingersModule",
-        "initTime": 69.82709999755025
+        "initTime": 58.48030000180006
       }
     },
     "914432006": {
@@ -323,7 +355,7 @@
         "transient": false,
         "exported": true,
         "token": "Symbol(CONFIG_SERVICE)",
-        "initTime": 79.91699999943376
+        "initTime": 69.05550000071526
       }
     },
     "1063746662": {
@@ -339,7 +371,7 @@
         "transient": false,
         "exported": true,
         "token": "CONFIGURATION_TOKEN",
-        "initTime": 75.3323999978602
+        "initTime": 64.27130000293255
       }
     },
     "1233853495": {
@@ -401,7 +433,7 @@
         "transient": false,
         "exported": true,
         "token": "Reflector",
-        "initTime": 81.03409999981523
+        "initTime": 70.55990000069141
       }
     },
     "1475573941": {
@@ -527,7 +559,7 @@
         "transient": false,
         "exported": false,
         "token": "ConfigModule",
-        "initTime": 76.10709999874234
+        "initTime": 65.46400000154972
       }
     },
     "1787828844": {
@@ -544,7 +576,7 @@
         "transient": false,
         "exported": false,
         "token": "ConfigHostModule",
-        "initTime": 75.43719999864697
+        "initTime": 64.47100000083447
       }
     },
     "1809676814": {
@@ -593,7 +625,7 @@
         "transient": false,
         "exported": true,
         "token": "REQUEST",
-        "initTime": 68.67559999972582
+        "initTime": 59.33119999617338
       }
     },
     "1989588516": {
@@ -690,7 +722,7 @@
         "transient": true,
         "exported": true,
         "token": "INQUIRER",
-        "initTime": 68.64180000126362
+        "initTime": 59.28190000355244
       }
     },
     "-26938366": {
@@ -738,7 +770,7 @@
         "transient": false,
         "exported": true,
         "token": "LazyModuleLoader",
-        "initTime": 76.3745999969542
+        "initTime": 66.01709999889135
       }
     },
     "-1904419534": {
@@ -781,7 +813,7 @@
         "transient": false,
         "exported": false,
         "token": "AppModule",
-        "initTime": 76.22039999812841
+        "initTime": 65.72340000420809
       }
     },
     "-71302842": {
@@ -855,7 +887,7 @@
         "transient": false,
         "exported": false,
         "token": "DevtoolsModule",
-        "initTime": 74.80420000106096
+        "initTime": 63.509800001978874
       }
     },
     "-751962311": {
@@ -872,22 +904,6 @@
         "transient": false,
         "exported": false,
         "token": "ModuleRef"
-      }
-    },
-    "-894028882": {
-      "id": "-894028882",
-      "label": "CONFIGURABLE_MODULE_OPTIONS[64a0411923f100200118a]",
-      "parent": "-1033621697",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "DevtoolsModule",
-        "durable": false,
-        "static": true,
-        "scope": 0,
-        "transient": false,
-        "exported": false,
-        "token": "CONFIGURABLE_MODULE_OPTIONS[64a0411923f100200118a]"
       }
     },
     "-643397745": {
@@ -914,7 +930,7 @@
         "transient": false,
         "exported": false,
         "token": "DiscoveryModule",
-        "initTime": 73.57830000296235
+        "initTime": 62.437799997627735
       }
     },
     "-501891371": {
@@ -962,7 +978,7 @@
         "transient": false,
         "exported": true,
         "token": "MetadataScanner",
-        "initTime": 73.99770000204444
+        "initTime": 62.80519999563694
       }
     },
     "-690636288": {
@@ -1025,7 +1041,7 @@
         "transient": false,
         "exported": true,
         "token": "UnhandledExceptionBus",
-        "initTime": 71.71289999783039
+        "initTime": 60.80739999562502
       }
     },
     "-1825934046": {
@@ -1042,7 +1058,7 @@
         "transient": false,
         "exported": false,
         "token": "SharedModule",
-        "initTime": 71.56699999794364
+        "initTime": 60.71600000560284
       }
     },
     "-323870493": {
@@ -1075,7 +1091,7 @@
         "transient": false,
         "exported": false,
         "token": "DatabaseModule",
-        "initTime": 71.1841000020504
+        "initTime": 60.3897999972105
       }
     },
     "-2135742481": {
@@ -1102,7 +1118,7 @@
         "transient": false,
         "exported": false,
         "token": "TypeOrmModule",
-        "initTime": 71.0038000009954
+        "initTime": 60.02589999884367
       }
     },
     "-1068388246": {
@@ -1135,7 +1151,7 @@
         "transient": false,
         "exported": false,
         "token": "TypeOrmModule",
-        "initTime": 70.69400000199676
+        "initTime": 59.460299998521805
       }
     },
     "-223917668": {

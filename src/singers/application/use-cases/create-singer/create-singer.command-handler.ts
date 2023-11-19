@@ -5,7 +5,7 @@ import {
   BrokenRulesException,
 } from '@nestjslatam/ddd-lib';
 
-import { CreateSingerCommad } from './create-singer-command';
+import { CreateSingerCommand } from './create-singer-command';
 import { SingerRepository } from '../../../infrastructure/db';
 import { Singer, eSingerStatus } from '../../../domain/singer';
 import { FullName } from '../../../domain/fullname';
@@ -13,22 +13,22 @@ import { PicturePath } from '../../../domain/picture-path';
 import { RegisterDate } from '../../../../shared/domain';
 import { SingerToSingerTableMapper } from '../../mappers';
 
-@CommandHandler(CreateSingerCommad)
+@CommandHandler(CreateSingerCommand)
 export class CreateSingerCommandHandler
-  implements ICommandHandler<CreateSingerCommad>
+  implements ICommandHandler<CreateSingerCommand>
 {
   constructor(
     private readonly repository: SingerRepository,
     private readonly publisher: DomainEventPublisher,
   ) {}
 
-  async execute(command: CreateSingerCommad): Promise<void> {
+  async execute(command: CreateSingerCommand): Promise<void> {
     const { fullName, picture } = command;
 
     const domain = this.publisher.mergeObjectContext(
       Singer.create({
         fullName: FullName.create(fullName),
-        picture: PicturePath.create(picture.repeat(5000)),
+        picture: PicturePath.create(picture),
         registerDate: RegisterDate.create(new Date()),
         isSubscribed: false,
         status: eSingerStatus.REGISTERED,

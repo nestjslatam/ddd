@@ -8,11 +8,16 @@ import { SingerTable } from '../database/tables';
 import {
   singerCommandHandlers,
   singerControllers,
+  singerDomainEventHandlers,
 } from './application/use-cases';
 
 @Module({
   imports: [TypeOrmModule.forFeature([SingerTable]), DddModule],
   controllers: [...singerControllers],
-  providers: [...singerCommandHandlers, SingerRepository],
+  providers: [
+    ...singerCommandHandlers,
+    ...singerDomainEventHandlers,
+    SingerRepository,
+  ],
 })
 export class SingersModule {}

@@ -8,6 +8,7 @@ import { DomainEventPublisher } from './domain-event-publisher';
 import { UnhandledExceptionBus } from './unhandled-exeption-bus';
 
 @Module({
+  imports: [],
   providers: [
     DddService,
     DomainCommandBus,

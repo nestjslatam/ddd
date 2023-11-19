@@ -1,4 +1,4 @@
-import { RegisteredSingerEvent } from './registered-singer';
-import { SubscribedSingerEvent } from './subscribed-singer';
+import { SingerCreatedDomainEvent } from './singer-created.domainevent';
+import { SingerSubscribedDomainEvent } from './singer-subscribed.domainevent';
 
-export { RegisteredSingerEvent, SubscribedSingerEvent };
+export { SingerCreatedDomainEvent, SingerSubscribedDomainEvent };

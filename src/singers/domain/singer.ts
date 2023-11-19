@@ -10,8 +10,10 @@ import { Id, SubscribedDate, RegisterDate } from '../../shared/domain';
 import { FullName } from './fullname';
 import { PicturePath } from './picture-path';
 import { SingerSong } from './singer-song';
-import { RegisteredSingerEvent, SubscribedSingerEvent } from './domain-events';
-import { UploadedPictureEvent } from './domain-events/uploaded-picture';
+import {
+  SingerCreatedDomainEvent,
+  SingerSubscribedDomainEvent,
+} from './domain-events';
 
 interface ISingerProps {
   fullName: FullName;
@@ -55,7 +57,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
 
     if (this.getTrackingProps().isNew) {
       this.addDomainEvent(
-        new RegisteredSingerEvent(this.getId(), props.fullName.unpack()),
+        new SingerCreatedDomainEvent(this.getId(), props.fullName.unpack()),
       );
     }
   }
@@ -110,15 +112,6 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     return singer;
   }
 
-  uploadPicture(picture: PicturePath): void {
-    this.props.picture = picture;
-    this.updateAudit();
-
-    this.addDomainEvent(
-      new UploadedPictureEvent(this.getId(), picture.unpack()),
-    );
-  }
-
   subscribe(): void {
     if (this.props.isSubscribed)
       this.addBrokenRule(new BrokenRule('singer', 'singer already subscribed'));
@@ -128,16 +121,11 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     this.props.status = eSingerStatus.SUBSCRIBED;
     this.updateAudit();
 
-    const { fullName } = this.props;
+    const { subscribedDate } = this.props;
 
     this.addDomainEvent(
-      new SubscribedSingerEvent(this.getId(), fullName.unpack()),
+      new SingerSubscribedDomainEvent(this.getId(), subscribedDate.unpack()),
     );
-  }
-
-  changeName(newfullName: FullName): void {
-    this.props.fullName = newfullName;
-    this.updateAudit();
   }
 
   protected businessRules(props: ISingerProps): void {}

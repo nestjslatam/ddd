@@ -1,6 +1,6 @@
 import { CommandBase } from '@nestjslatam/ddd-lib';
 
-export class CreateSingerCommad extends CommandBase {
+export class CreateSingerCommand extends CommandBase {
   constructor(
     public readonly fullName: string,
     public readonly picture: string,
