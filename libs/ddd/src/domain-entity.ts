@@ -39,6 +39,10 @@ export abstract class DomainEntity<TProps> {
   // Let's edit the props with new values
   protected readonly props: TProps;
 
+  setId(id: DomainEntityId): void {
+    this._id = id;
+  }
+
   getId(): string {
     return this._id.unpack();
   }
