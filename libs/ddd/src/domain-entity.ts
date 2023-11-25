@@ -1,5 +1,9 @@
 import { DomainGuard, convertPropsToObject } from './helpers';
-import { DomainAuditValueObject, DomainUIdValueObject } from './valueobjects';
+import {
+  DomainAuditValueObject,
+  DomainUIdValueObject,
+  DomainValueObject,
+} from './valueobjects';
 import {
   BrokenRule,
   BrokenRuleCollection,
@@ -22,8 +26,6 @@ export abstract class DomainEntity<TProps> {
   private _audit: DomainAuditValueObject;
   private _brokenRules: BrokenRuleCollection = new BrokenRuleCollection();
 
-  protected abstract businessRules(props: TProps): void;
-
   constructor({ id, props, trackingProps, audit }: IDomainEntityProps<TProps>) {
     this.guard(props);
     this.businessRules(props);
@@ -36,8 +38,31 @@ export abstract class DomainEntity<TProps> {
     this.setTrackingProps(trackingProps);
   }
 
-  // Let's edit the props with new values
+  // NOTE: Props ----------------------------------------------------------------
+
   protected readonly props: TProps;
+
+  getPropsCopy(): TProps & ITrackingProps {
+    const propsCopy = {
+      id: this._id,
+      ...this.props,
+      audit: this._audit,
+      ...this.getTrackingProps(),
+    };
+
+    return Object.freeze(propsCopy);
+  }
+
+  getProps(): TProps & ITrackingProps {
+    const props = {
+      id: this._id,
+      ...this.props,
+      audit: this._audit,
+      ...this.getTrackingProps(),
+    };
+
+    return props;
+  }
 
   setId(id: DomainEntityId): void {
     this._id = id;
@@ -66,6 +91,10 @@ export abstract class DomainEntity<TProps> {
   getIsValid(): boolean {
     return this._brokenRules.getItems().length === 0 ? true : false;
   }
+
+  // NOTE: Broken Rules ---------------------------------------------------------
+
+  protected abstract businessRules(props: TProps): void;
 
   addBrokenRule(brokenRule: BrokenRule): void {
     if (!brokenRule) return;
@@ -110,28 +139,6 @@ export abstract class DomainEntity<TProps> {
     return this._id ? this._id.equals(object._id) : false;
   }
 
-  getPropsCopy(): TProps & ITrackingProps {
-    const propsCopy = {
-      id: this._id,
-      ...this.props,
-      audit: this._audit,
-      ...this.getTrackingProps(),
-    };
-
-    return Object.freeze(propsCopy);
-  }
-
-  getProps(): TProps & ITrackingProps {
-    const props = {
-      id: this._id,
-      ...this.props,
-      audit: this._audit,
-      ...this.getTrackingProps(),
-    };
-
-    return props;
-  }
-
   toObject(): unknown {
     const plainProps = convertPropsToObject(this.props);
 
@@ -157,6 +164,8 @@ export abstract class DomainEntity<TProps> {
     this._trackingProps = TrackingProps.setDeleted();
   }
 
+  // NOTE: Guard ----------------------------------------------------------------
+
   private guard(props: TProps): void {
     this._brokenRules.clear();
 
@@ -170,6 +179,8 @@ export abstract class DomainEntity<TProps> {
 
     this.childGuard(props);
   }
+
+  // NOTE: Child Properties ---------------------------------------------------
 
   private childGuard(props: TProps): void {
     if (!props || props === undefined) throw new Error('props is undefined');
@@ -185,4 +196,37 @@ export abstract class DomainEntity<TProps> {
       }
     });
   }
+
+  removeChild<
+    TParent extends DomainEntity<any>,
+    TChild extends DomainValueObject<any>,
+  >(parent: TParent, child: TChild, childs: Array<TChild>): Array<TChild> {
+    if (!childs) childs = [];
+
+    const index = childs.indexOf(child);
+
+    if (index > -1) {
+      childs.splice(index, 1);
+    } else {
+      parent.addBrokenRule(new BrokenRule('Child', 'Child not found'));
+    }
+
+    return childs;
+  }
+
+  addChild<
+    TParent extends DomainEntity<any>,
+    TChild extends DomainValueObject<any>,
+  >(parent: TParent, child: TChild, childs: Array<TChild>): Array<TChild> {
+    if (!childs) childs = [];
+
+    if (childs.includes(child)) {
+      parent.addBrokenRule(new BrokenRule('Child', 'Child already exists'));
+    }
+
+    childs.push(child);
+
+    return childs;
+  }
+  // --------------------------------------------------------------------------
 }
