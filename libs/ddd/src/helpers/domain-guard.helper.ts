@@ -1,6 +1,7 @@
 import { DomainValueObject } from '../valueobjects';
 
 const URL_REGEX_PATTERN = /^(ftp|http|https):\/\/[^ "]+$/;
+const EMAIL_REGEX_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const ERROR_MESSAGE_LENGTH =
   'Cannot check length of a value. Provided value is empty';
@@ -69,7 +70,7 @@ export class DomainGuard {
   }
 
   static isEmail(value: string) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    return EMAIL_REGEX_PATTERN.test(value);
   }
 
   static isString(value: unknown) {
@@ -91,8 +92,7 @@ export class DomainGuard {
   }
 
   static isUrlValid(value: string): boolean {
-    const urlRegex = URL_REGEX_PATTERN;
-    return urlRegex.test(value);
+    return URL_REGEX_PATTERN.test(value);
   }
 
   private static getValueLength = (value: number | string | Array<unknown>) =>

@@ -181,14 +181,7 @@ export abstract class DomainEntity<TProps> {
 
       if (isValueObject) {
         const brokenRules = props[key].getBrokenRules();
-
-        if (brokenRules.length > 0 && brokenRules !== undefined) {
-          brokenRules.forEach((brokenRule) => {
-            this.addBrokenRule(
-              new BrokenRule(brokenRule.code, brokenRule.description),
-            );
-          });
-        }
+        brokenRules.forEach((brokenRule) => this.addBrokenRule(brokenRule));
       }
     });
   }
