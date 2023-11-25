@@ -1,3 +1,4 @@
+import { BrokenRule, BrokenRuleCollection } from '../core';
 import { DomainEntity } from '../domain-entity';
 import { DomainGuard } from './domain-guard.helper';
 

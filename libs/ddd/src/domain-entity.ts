@@ -113,13 +113,7 @@ export abstract class DomainEntity<TProps> {
   }
 
   getBrokenRulesAsString(): string {
-    let result = '';
-
-    this._brokenRules.getItems().map((brokenRule) => {
-      result += `${brokenRule.code}-${brokenRule.description}` + '\n';
-    });
-
-    return result;
+    return this._brokenRules.getBrokenRulesAsString();
   }
 
   static isEntity(entity: unknown): entity is DomainEntity<unknown> {

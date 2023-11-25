@@ -33,6 +33,16 @@ export class BrokenRuleCollection {
     return this._brokenRules;
   }
 
+  public getBrokenRulesAsString(): string {
+    let result = '';
+
+    this.getItems().map((brokenRule) => {
+      result += `${brokenRule.code}-${brokenRule.description}` + '\n';
+    });
+
+    return result;
+  }
+
   public hasBrokenRules(): boolean {
     return this._brokenRules.length > 0;
   }
