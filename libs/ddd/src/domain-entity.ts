@@ -121,6 +121,17 @@ export abstract class DomainEntity<TProps> {
     return Object.freeze(propsCopy);
   }
 
+  getProps(): TProps & ITrackingProps {
+    const props = {
+      id: this._id,
+      ...this.props,
+      audit: this._audit,
+      ...this.getTrackingProps(),
+    };
+
+    return props;
+  }
+
   toObject(): unknown {
     const plainProps = convertPropsToObject(this.props);
 
