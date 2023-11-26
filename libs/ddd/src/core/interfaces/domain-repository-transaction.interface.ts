@@ -1,6 +1,6 @@
-export interface IDomainTransationRepository<TDomainAggregate> {
+export interface IDomainTransationRepository<TDomain> {
   publishEvents(
-    domainEntity: TDomainAggregate,
+    domainEntity: TDomain,
     handler: () => Promise<void>,
   ): Promise<void>;
 

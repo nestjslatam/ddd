@@ -1,6 +1,6 @@
-export interface IDomainWriteRepository<TKey, TTable> {
-  add(entity: TTable): Promise<void>;
-  addBatch(entities: TTable[]): Promise<void>;
-  update(id: TKey, entity: TTable): Promise<void>;
+export interface IDomainWriteRepository<TKey, TDomain> {
+  insert(entity: TDomain): Promise<void>;
+  insertBatch(entities: TDomain[]): Promise<void>;
+  update(id: TKey, entity: TDomain): Promise<void>;
   delete(id: TKey): Promise<void>;
 }

@@ -1,4 +1,4 @@
-export interface IDomainReadRepository<TKey, TTable> {
-  fetchAll(): Promise<TTable[]>;
-  fetchById(id: TKey): Promise<TTable>;
+export interface IDomainReadRepository<TKey, TDomain> {
+  find(): Promise<TDomain[]>;
+  findById(id: TKey): Promise<TDomain>;
 }
