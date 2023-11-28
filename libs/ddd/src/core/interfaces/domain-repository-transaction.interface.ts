@@ -1,6 +1,6 @@
-export interface IDomainTransationRepository<TDomain> {
+export interface IDomainTransationRepository<TTable> {
   publishEvents(
-    domainEntity: TDomain,
+    domainEntity: TTable,
     handler: () => Promise<void>,
   ): Promise<void>;
 

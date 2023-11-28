@@ -193,7 +193,7 @@ export abstract class DomainEntity<TProps> {
 
   removeChild<
     TParent extends DomainEntity<any>,
-    TChild extends DomainValueObject<any>,
+    TChild extends DomainValueObject<any> | DomainEntity<any>,
   >(parent: TParent, child: TChild, childs: Array<TChild>): Array<TChild> {
     if (!childs) childs = [];
 
@@ -210,7 +210,7 @@ export abstract class DomainEntity<TProps> {
 
   addChild<
     TParent extends DomainEntity<any>,
-    TChild extends DomainValueObject<any>,
+    TChild extends DomainValueObject<any> | DomainEntity<any>,
   >(parent: TParent, child: TChild, childs: Array<TChild>): Array<TChild> {
     if (!childs) childs = [];
 

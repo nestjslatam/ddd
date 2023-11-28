@@ -1,7 +1,10 @@
-import { DomainGuard } from '../../helpers';
+import { DomainGuard } from './../../helpers';
 
 export class BrokenRule {
-  constructor(public code: string, public description: string) {
+  constructor(
+    public code: string,
+    public description: string,
+  ) {
     this.guard(code, description);
 
     this.code = code;

@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { ICommandMetadata, ICommand } from './core/interfaces';
-import { DomainGuard } from './helpers';
 import { DomainArgumentInvalidException } from './exceptions';
+import { DomainGuard } from '.';
 
 export type CommandProps<T> = Omit<T, 'id' | 'metadata'> & Partial<ICommand>;
 

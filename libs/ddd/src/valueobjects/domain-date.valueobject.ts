@@ -1,6 +1,6 @@
-import { DomainGuard } from '../helpers';
 import { DomainValueObject, IDomainPrimitive } from './domain-valueobject';
 import { BrokenRule } from '../core';
+import { DomainGuard } from '../helpers';
 
 export abstract class DomainDateValueObject extends DomainValueObject<Date> {
   protected abstract businessRules(props: IDomainPrimitive<Date>): void;
