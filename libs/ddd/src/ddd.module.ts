@@ -30,14 +30,15 @@ export class DddModule<DomainEventBase extends IDomainEvent>
   constructor(
     private readonly explorerService: DddService<DomainEventBase>,
     private readonly eventBus: DomainEventBus<DomainEventBase>,
-    private readonly commandBus: DomainCommandBus,
+    private readonly domainCommandBus: DomainCommandBus,
   ) {}
 
   onApplicationBootstrap() {
-    const { domainEvents, sagas, commands } = this.explorerService.explore();
+    const { domainEvents, sagas, domainCommands } =
+      this.explorerService.explore();
 
     this.eventBus.register(domainEvents);
-    this.commandBus.register(commands);
+    this.domainCommandBus.register(domainCommands);
     this.eventBus.registerSagas(sagas);
   }
 }

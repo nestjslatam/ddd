@@ -1,8 +1,8 @@
-import { ICommand } from './command.interface';
+import { IDomainCommand } from './command.interface';
 
-export interface ICommandHandler<
-  TCommand extends ICommand = any,
+export interface IDomainCommandHandler<
+  TDomainCommand extends IDomainCommand = any,
   TResult = any,
 > {
-  execute(command: TCommand): Promise<TResult>;
+  execute(domainCommand: TDomainCommand): Promise<TResult>;
 }

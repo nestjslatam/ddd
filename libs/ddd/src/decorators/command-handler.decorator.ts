@@ -5,10 +5,10 @@ import {
   DOMAIN_COMMAND_HANDLER_METADATA,
   DOMAIN_COMMAND_METADATA,
 } from './constants';
-import { ICommand } from '../core/interfaces';
+import { IDomainCommand } from '../core/interfaces';
 
-export const CommandHandler = (
-  command: ICommand | (new (...args: any[]) => ICommand),
+export const DomainCommandHandler = (
+  command: IDomainCommand | (new (...args: any[]) => IDomainCommand),
 ): ClassDecorator => {
   return (target: object) => {
     if (!Reflect.hasOwnMetadata(DOMAIN_COMMAND_METADATA, command)) {

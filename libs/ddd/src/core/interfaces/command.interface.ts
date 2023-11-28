@@ -1,5 +1,5 @@
-import { ICommandMetadata } from './command-metadata.interface';
+import { IDomainCommandMetadata } from './command-metadata.interface';
 
-export interface ICommand {
-  readonly metadata: ICommandMetadata;
+export interface IDomainCommand {
+  readonly metadata: IDomainCommandMetadata;
 }

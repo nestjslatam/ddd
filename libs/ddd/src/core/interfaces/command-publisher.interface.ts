@@ -1,5 +1,7 @@
-import { ICommand } from './command.interface';
+import { IDomainCommand } from './command.interface';
 
-export interface ICommandPublisher<CommandBase extends ICommand = ICommand> {
-  publish<T extends CommandBase = CommandBase>(command: T): any;
+export interface IDomainCommandPublisher<
+  DomainCommandBase extends IDomainCommand = IDomainCommand,
+> {
+  publish<T extends DomainCommandBase = DomainCommandBase>(command: T): any;
 }

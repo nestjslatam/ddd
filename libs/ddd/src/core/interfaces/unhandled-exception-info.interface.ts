@@ -1,7 +1,7 @@
-import { ICommand, IDomainEvent } from '.';
+import { IDomainCommand, IDomainEvent } from '.';
 
 export interface UnhandledExceptionInfo<
-  Cause = IDomainEvent | ICommand,
+  Cause = IDomainEvent | IDomainCommand,
   Exception = any,
 > {
   exception: Exception;

@@ -1,12 +1,12 @@
 import { Subject } from 'rxjs';
-import { ICommand, ICommandPublisher } from '../core/interfaces';
+import { IDomainCommand, IDomainCommandPublisher } from '../core/interfaces';
 
-export class DefaultCommandPubSubHelper<CommandBase extends ICommand>
-  implements ICommandPublisher<CommandBase>
+export class DefaultCommandPubSubHelper<CommandBase extends IDomainCommand>
+  implements IDomainCommandPublisher<CommandBase>
 {
   constructor(private subject$: Subject<CommandBase>) {}
 
-  publish<T extends CommandBase>(command: T) {
-    this.subject$.next(command);
+  publish<T extends CommandBase>(domainCommand: T) {
+    this.subject$.next(domainCommand);
   }
 }

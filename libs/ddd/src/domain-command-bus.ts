@@ -7,11 +7,11 @@ import {
   DomainInvalidCommandHandlerException,
 } from './exceptions';
 import {
-  ICommand,
-  ICommandBus,
-  ICommandHandler,
-  ICommandMetadata,
-  ICommandPublisher,
+  IDomainCommand,
+  IDomainCommandBus,
+  IDomainCommandHandler,
+  IDomainCommandMetadata,
+  IDomainCommandPublisher,
 } from './core/interfaces';
 import { ObservableBus } from './core';
 import {
@@ -20,30 +20,35 @@ import {
 } from './decorators';
 import { DefaultCommandPubSubHelper } from './helpers';
 
-export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
+export type CommandHandlerType = Type<IDomainCommandHandler<IDomainCommand>>;
 
 @Injectable()
-export class DomainCommandBus<CommandBase extends ICommand = ICommand>
-  extends ObservableBus<CommandBase>
-  implements ICommandBus<CommandBase>
+export class DomainCommandBus<
+    DomainCommandBase extends IDomainCommand = IDomainCommand,
+  >
+  extends ObservableBus<DomainCommandBase>
+  implements IDomainCommandBus<DomainCommandBase>
 {
-  private handlers = new Map<string, ICommandHandler<CommandBase>>();
-  private _publisher: ICommandPublisher<CommandBase>;
+  private handlers = new Map<
+    string,
+    IDomainCommandHandler<DomainCommandBase>
+  >();
+  private _publisher: IDomainCommandPublisher<DomainCommandBase>;
 
   constructor(private readonly moduleRef: ModuleRef) {
     super();
     this.useDefaultPublisher();
   }
 
-  get publisher(): ICommandPublisher<CommandBase> {
+  get publisher(): IDomainCommandPublisher<DomainCommandBase> {
     return this._publisher;
   }
 
-  set publisher(_publisher: ICommandPublisher<CommandBase>) {
+  set publisher(_publisher: IDomainCommandPublisher<DomainCommandBase>) {
     this._publisher = _publisher;
   }
 
-  execute<T extends CommandBase, R = any>(command: T): Promise<R> {
+  execute<T extends DomainCommandBase, R = any>(command: T): Promise<R> {
     const commandId = this.getCommandId(command);
     const handler = this.handlers.get(commandId);
     if (!handler) {
@@ -53,7 +58,10 @@ export class DomainCommandBus<CommandBase extends ICommand = ICommand>
     return handler.execute(command);
   }
 
-  bind<T extends CommandBase>(handler: ICommandHandler<T>, id: string) {
+  bind<T extends DomainCommandBase>(
+    handler: IDomainCommandHandler<T>,
+    id: string,
+  ) {
     this.handlers.set(id, handler);
   }
 
@@ -72,12 +80,12 @@ export class DomainCommandBus<CommandBase extends ICommand = ICommand>
         "CommandHandler doesn't have a Command associated",
       );
     }
-    this.bind(instance as ICommandHandler<CommandBase>, target);
+    this.bind(instance as IDomainCommandHandler<DomainCommandBase>, target);
   }
 
-  private getCommandId(command: CommandBase): string {
+  private getCommandId(command: DomainCommandBase): string {
     const { constructor: commandType } = Object.getPrototypeOf(command);
-    const commandMetadata: ICommandMetadata = Reflect.getMetadata(
+    const commandMetadata: IDomainCommandMetadata = Reflect.getMetadata(
       DOMAIN_COMMAND_METADATA,
       commandType,
     );
@@ -89,11 +97,11 @@ export class DomainCommandBus<CommandBase extends ICommand = ICommand>
   }
 
   private reflectCommandId(handler: CommandHandlerType): string | undefined {
-    const command: Type<ICommand> = Reflect.getMetadata(
+    const command: Type<IDomainCommand> = Reflect.getMetadata(
       DOMAIN_COMMAND_HANDLER_METADATA,
       handler,
     );
-    const commandMetadata: ICommandMetadata = Reflect.getMetadata(
+    const commandMetadata: IDomainCommandMetadata = Reflect.getMetadata(
       DOMAIN_COMMAND_METADATA,
       command,
     );
@@ -101,7 +109,7 @@ export class DomainCommandBus<CommandBase extends ICommand = ICommand>
   }
 
   private useDefaultPublisher() {
-    this._publisher = new DefaultCommandPubSubHelper<CommandBase>(
+    this._publisher = new DefaultCommandPubSubHelper<DomainCommandBase>(
       this.subject$,
     );
   }

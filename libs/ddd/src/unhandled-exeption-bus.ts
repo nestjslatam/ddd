@@ -5,7 +5,7 @@ import { IDomainEvent } from './core';
 
 import { DefaultUnhandledExceptionPubSub } from './helpers';
 import {
-  ICommand,
+  IDomainCommand,
   IUnhandledExceptionPublisher,
   UnhandledExceptionInfo,
 } from './core/interfaces';
@@ -18,7 +18,7 @@ import { ObservableBus } from './core';
  */
 @Injectable()
 export class UnhandledExceptionBus<
-  Cause = IDomainEvent | ICommand,
+  Cause = IDomainEvent | IDomainCommand,
 > extends ObservableBus<UnhandledExceptionInfo<Cause>> {
   private _publisher: IUnhandledExceptionPublisher<Cause>;
 

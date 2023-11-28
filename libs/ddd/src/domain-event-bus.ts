@@ -1,6 +1,6 @@
 import { OnModuleDestroy, Injectable, Logger } from '@nestjs/common';
 import {
-  ICommand,
+  IDomainCommand,
   IDomainEvent,
   IDomainEventBus,
   IDomainEventHandler,
@@ -195,7 +195,7 @@ export class DomainEventBus<DomainEventBase extends IDomainEvent = IDomainEvent>
   }
 
   private mapToUnhandledErrorInfo(
-    eventOrCommand: IDomainEvent | ICommand,
+    eventOrCommand: IDomainEvent | IDomainCommand,
     exception: unknown,
   ): UnhandledExceptionInfo {
     return {

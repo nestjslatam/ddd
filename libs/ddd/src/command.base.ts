@@ -1,17 +1,18 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { ICommandMetadata, ICommand } from './core/interfaces';
+import { IDomainCommandMetadata, IDomainCommand } from './core/interfaces';
 import { DomainArgumentInvalidException } from './exceptions';
 import { DomainGuard } from '.';
 
-export type CommandProps<T> = Omit<T, 'id' | 'metadata'> & Partial<ICommand>;
+export type DomainCommandProps<T> = Omit<T, 'id' | 'metadata'> &
+  Partial<IDomainCommand>;
 
-export class CommandBase implements ICommand {
+export class CommandBase implements IDomainCommand {
   private readonly _id: string;
 
-  readonly metadata: ICommandMetadata;
+  readonly metadata: IDomainCommandMetadata;
 
-  constructor(props: CommandProps<unknown>) {
+  constructor(props: DomainCommandProps<unknown>) {
     if (DomainGuard.isEmpty(props)) {
       throw new DomainArgumentInvalidException(
         'Command props should not be empty',

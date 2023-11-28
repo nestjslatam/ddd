@@ -1,13 +1,14 @@
 import { Subject } from 'rxjs';
 import {
-  ICommand,
+  IDomainCommand,
   IDomainEvent,
   IUnhandledExceptionPublisher,
   UnhandledExceptionInfo,
 } from '../core/interfaces';
 
-export class DefaultUnhandledExceptionPubSub<Cause = IDomainEvent | ICommand>
-  implements IUnhandledExceptionPublisher<Cause>
+export class DefaultUnhandledExceptionPubSub<
+  Cause = IDomainEvent | IDomainCommand,
+> implements IUnhandledExceptionPublisher<Cause>
 {
   constructor(private subject$: Subject<UnhandledExceptionInfo<Cause>>) {}
 

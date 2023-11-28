@@ -3,7 +3,11 @@ import { ModulesContainer } from '@nestjs/core';
 import { Module } from '@nestjs/core/injector/module';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
-import { ICommandHandler, IDomainEvent, IDomainEventHandler } from './core';
+import {
+  IDomainCommandHandler,
+  IDomainEvent,
+  IDomainEventHandler,
+} from './core';
 import { IDddOptions } from './ddd.options';
 import {
   DOMAIN_COMMAND_HANDLER_METADATA,
@@ -18,8 +22,10 @@ export class DddService<EventBase extends IDomainEvent = IDomainEvent> {
   explore(): IDddOptions {
     const modules = [...this.modulesContainer.values()];
 
-    const commands = this.flatMap<ICommandHandler>(modules, (instance) =>
-      this.filterProvider(instance, DOMAIN_COMMAND_HANDLER_METADATA),
+    const domainCommands = this.flatMap<IDomainCommandHandler>(
+      modules,
+      (instance) =>
+        this.filterProvider(instance, DOMAIN_COMMAND_HANDLER_METADATA),
     );
 
     const domainEvents = this.flatMap<IDomainEventHandler<EventBase>>(
@@ -32,7 +38,7 @@ export class DddService<EventBase extends IDomainEvent = IDomainEvent> {
       this.filterProvider(instance, DOMAIN_SAGA_METADATA),
     );
 
-    return { commands, domainEvents, sagas };
+    return { domainCommands, domainEvents, sagas };
   }
 
   flatMap<T>(

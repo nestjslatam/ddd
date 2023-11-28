@@ -1,8 +1,8 @@
 import { Type } from '@nestjs/common';
-import { ICommandHandler, IDomainEventHandler } from '.';
+import { IDomainCommandHandler, IDomainEventHandler } from '.';
 
 export interface IDddOptions {
   domainEvents?: Type<IDomainEventHandler>[];
-  commands?: Type<ICommandHandler>[];
+  domainCommands?: Type<IDomainCommandHandler>[];
   sagas?: Type<any>[];
 }

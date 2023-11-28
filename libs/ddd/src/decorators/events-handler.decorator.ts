@@ -7,7 +7,7 @@ import {
 } from './constants';
 import { IDomainEvent } from '../core';
 
-export const DomainEventsHandler = (
+export const DomainEventHandler = (
   ...events: (IDomainEvent | (new (...args: any[]) => IDomainEvent))[]
 ): ClassDecorator => {
   return (target: object) => {
