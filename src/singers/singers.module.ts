@@ -1,6 +1,7 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
 import { DddModule } from '@nestjslatam/ddd-lib';
+import { CqrsModule } from '@nestjs/cqrs';
 
 import { SingerRepository } from './infrastructure/db';
 import { SingerTable } from '../database/tables';
@@ -13,7 +14,7 @@ import {
 import { SystemSagas } from './application/sagas';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SingerTable]), DddModule],
+  imports: [TypeOrmModule.forFeature([SingerTable]), CqrsModule, DddModule],
   controllers: [...singerControllers],
   providers: [
     ...singerCommandHandlers,

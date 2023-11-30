@@ -1,15 +1,9 @@
-import { CommandBase } from '@nestjslatam/ddd-lib';
+import { ICommand } from '@nestjs/cqrs';
 
-export class CreateSingerCommand extends CommandBase {
+export class CreateSingerCommand implements ICommand {
   constructor(
     public readonly fullName: string,
     public readonly picture: string,
     public readonly trackingId?: string,
-  ) {
-    super({
-      metadata: {
-        trackingId,
-      },
-    });
-  }
+  ) {}
 }

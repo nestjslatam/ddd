@@ -18,11 +18,11 @@ export class SingerRepository
     private readonly repository: Repository<SingerTable>,
   ) {}
 
-  async fetchAll(): Promise<SingerTable[]> {
+  async find(): Promise<SingerTable[]> {
     return await this.repository.find();
   }
 
-  async fetchById(id: string): Promise<SingerTable> {
+  async findById(id: string): Promise<SingerTable> {
     try {
       return this.repository.findOneBy({ id });
     } catch (error) {
@@ -30,7 +30,7 @@ export class SingerRepository
     }
   }
 
-  async add(entity: SingerTable): Promise<void> {
+  async insert(entity: SingerTable): Promise<void> {
     if (entity === null || entity === undefined)
       throw new DatabaseException("entity can't be null or undefined");
 
@@ -41,7 +41,7 @@ export class SingerRepository
     }
   }
 
-  async addBatch(entities: SingerTable[]): Promise<void> {
+  async insertBatch(entities: SingerTable[]): Promise<void> {
     if (!entities && entities.length > 0)
       throw new DatabaseException("entity can't be null or undefined");
 
@@ -53,7 +53,7 @@ export class SingerRepository
   }
 
   async update(id: string, entity: SingerTable): Promise<void> {
-    const songToUpdate = await this.fetchById(id);
+    const songToUpdate = await this.findById(id);
 
     if (!songToUpdate) throw new DatabaseException('song not found');
 

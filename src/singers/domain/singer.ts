@@ -9,31 +9,38 @@ import {
 import { Id, SubscribedDate, RegisterDate } from '../../shared/domain';
 import { FullName } from './fullname';
 import { PicturePath } from './picture-path';
-import { SingerSong } from './singer-song';
 import {
   SingerCreatedDomainEvent,
   SingerSubscribedDomainEvent,
 } from './domain-events';
+import { Song } from './song';
 
 interface ISingerProps {
   fullName: FullName;
+  songs?: Song[];
   picture?: PicturePath;
   registerDate: RegisterDate;
   isSubscribed: boolean;
   subscribedDate?: SubscribedDate;
-  songs?: SingerSong[];
+
   status: eSingerStatus;
 }
 
 interface ISongLoadProps {
   id: string;
   fullName: string;
+  songs?: { songId: string; songName: string }[];
   picture?: string;
   registerDate: Date;
   isSubscribed: boolean;
   subscribedDate?: Date;
-  songs?: { songId: string; songName: string }[];
   status: string;
+  audit: {
+    createdBy: string;
+    createdDate: Date;
+    updatedBy: string;
+    updatedDate: Date;
+  };
 }
 
 export enum eSingerStatus {
@@ -90,6 +97,8 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
       registerDate,
       isSubscribed,
       subscribedDate,
+      songs,
+      audit,
       status,
     } = props;
 
@@ -100,6 +109,15 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
         picture: PicturePath.create(picture),
         registerDate: RegisterDate.create(registerDate),
         isSubscribed: isSubscribed,
+        songs: songs?.map((song) =>
+          Song.load({
+            id: song.songId,
+            name: song.songName,
+            singerId: singer.getId().toString(),
+            status: eSingerStatus[status],
+            audit,
+          }),
+        ),
         subscribedDate: subscribedDate
           ? SubscribedDate.create(subscribedDate)
           : null,
@@ -112,7 +130,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     return singer;
   }
 
-  subscribe(): void {
+  subscribe(): Singer {
     if (this.props.isSubscribed)
       this.addBrokenRule(new BrokenRule('singer', 'singer already subscribed'));
 
@@ -126,11 +144,34 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     this.addDomainEvent(
       new SingerSubscribedDomainEvent(this.getId(), subscribedDate.unpack()),
     );
+
+    return this;
   }
 
   protected businessRules(props: ISingerProps): void {}
 
   private updateAudit(): void {
     this.getAudit().update('admin', new Date());
+  }
+
+  addSong(song: Song): Singer {
+    this.addChild(this, song, this.props.songs);
+
+    this.update();
+
+    return this;
+  }
+
+  removeSong(song: Song): Singer {
+    this.removeChild(this, song, this.props.songs);
+
+    this.update();
+
+    return this;
+  }
+
+  private update() {
+    this.updateAudit();
+    this.setTrackingProps(TrackingProps.setDirty());
   }
 }

@@ -1,6 +1,4 @@
 import {
-  ICommandHandler,
-  CommandHandler,
   DomainEventPublisher,
   BrokenRulesException,
 } from '@nestjslatam/ddd-lib';
@@ -8,10 +6,10 @@ import {
 import { CreateSingerCommand } from './create-singer-command';
 import { SingerRepository } from '../../../infrastructure/db';
 import { Singer, eSingerStatus } from '../../../domain/singer';
-import { FullName } from '../../../domain/fullname';
-import { PicturePath } from '../../../domain/picture-path';
+import { FullName, PicturePath } from '../../../domain';
 import { RegisterDate } from '../../../../shared/domain';
 import { SingerToSingerTableMapper } from '../../mappers';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 @CommandHandler(CreateSingerCommand)
 export class CreateSingerCommandHandler
@@ -41,7 +39,7 @@ export class CreateSingerCommandHandler
       throw new BrokenRulesException(brokenRules);
     }
 
-    this.repository.add(SingerToSingerTableMapper.map(domain));
+    this.repository.insert(SingerToSingerTableMapper.map(domain));
 
     domain.commit();
   }

@@ -1,12 +1,12 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { DomainCommandBus } from '@nestjslatam/ddd-lib';
+import { CommandBus } from '@nestjs/cqrs';
 
 import { CreateSingerDto } from './create-singer.dto';
 import { CreateSingerCommand } from './create-singer-command';
 
 @Controller('singers')
 export class CreateSingerController {
-  constructor(private readonly commandBus: DomainCommandBus) {}
+  constructor(private readonly commandBus: CommandBus) {}
 
   @Post()
   async Create(@Body() createSingerDto: CreateSingerDto): Promise<void> {
