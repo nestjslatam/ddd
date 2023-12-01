@@ -5,8 +5,8 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { AutomapperModule } from '@automapper/nestjs';
 import { classes } from '@automapper/classes';
 
-import { SingerRepository } from './infrastructure/db';
-import { SingerTable } from '../database/tables';
+import { singerRepository } from './infrastructure/db';
+import { SingerTable, SongTable } from '../database/tables';
 import {
   singerCommandHandlers,
   singerControllers,
@@ -17,7 +17,7 @@ import { singerMappers } from './application/mappers';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([SingerTable]),
+    TypeOrmModule.forFeature([SingerTable, SongTable]),
     AutomapperModule.forRoot({
       strategyInitializer: classes(),
     }),
@@ -29,8 +29,8 @@ import { singerMappers } from './application/mappers';
     ...singerCommandHandlers,
     ...singerDomainEventHandlers,
     ...singerMappers,
+    ...singerRepository,
     SystemSagas,
-    SingerRepository,
   ],
 })
 export class SingersModule {}
