@@ -10,7 +10,7 @@ import {
 } from '../../../../infrastructure/db';
 import { AbstractCommandHandler } from '../../../../../shared';
 import { RemoveSongToSingerCommand } from './remove-song-singer.command';
-import { Singer, Song } from '../../../../domain';
+import { Singer, SingerSong, Song } from '../../../../domain';
 
 @CommandHandler(RemoveSongToSingerCommand)
 export class RemoveSongToSingerCommandHandler extends AbstractCommandHandler<RemoveSongToSingerCommand> {
@@ -36,29 +36,15 @@ export class RemoveSongToSingerCommandHandler extends AbstractCommandHandler<Rem
       Singer,
     );
 
-    const songCreated = Song.load({
-      id: songId,
-      name: songTable.name,
-      singerId: singerId,
-      status: songTable.status,
-      audit: {
-        createdBy: songTable.audit.createdBy,
-        createdDate: songTable.audit.createdAt,
-        updatedBy: songTable.audit.updatedBy,
-        updatedDate: songTable.audit.updatedAt,
-      },
+    const singerSongCreated = SingerSong.load({
+      songId: songId,
+      songName: songTable.name,
     });
 
-    singerMapped.removeSong(songCreated);
+    singerMapped.removeSong(singerSongCreated);
 
     this.checkBusinessRules(singerMapped);
 
-    const tableMapped = await this.mapper.mapAsync(
-      songCreated,
-      Song,
-      SongTable,
-    );
-
-    this.repository.removeSong(singerId, tableMapped);
+    this.repository.removeSong(singerId, songTable);
   }
 }

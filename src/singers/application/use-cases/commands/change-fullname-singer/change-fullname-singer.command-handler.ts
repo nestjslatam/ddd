@@ -5,7 +5,7 @@ import { Mapper } from '@automapper/core';
 
 import { SingerTable } from '../../../../../database/tables';
 
-import { Singer } from '../../../../domain/singer';
+import { Singer } from '../../../../domain/singers';
 import { PicturePath } from '../../../../domain';
 import { AbstractCommandHandler } from '../../../../../shared';
 import { SingerRepository } from '../../../../infrastructure/db';

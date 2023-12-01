@@ -5,7 +5,7 @@ import { Mapper } from '@automapper/core';
 
 import { SingerTable } from '../../../../../database/tables';
 import { SingerRepository } from '../../../../infrastructure/db';
-import { Singer, eSingerStatus } from '../../../../domain/singer';
+import { Singer, eSingerStatus } from '../../../../domain/singers';
 import { FullName, PicturePath } from '../../../../domain';
 import { RegisterDate, AbstractCommandHandler } from '../../../../../shared';
 import { CreateSingerCommand } from './create-singer.command';

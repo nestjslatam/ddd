@@ -1,4 +1,3 @@
-import { eSongStatus } from './song';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   BrokenRule,
@@ -7,18 +6,18 @@ import {
   TrackingProps,
 } from '@nestjslatam/ddd-lib';
 
-import { Id, SubscribedDate, RegisterDate } from '../../shared/domain';
-import { FullName } from './fullname';
-import { PicturePath } from './picture-path';
+import { Id, SubscribedDate, RegisterDate } from '../../../shared';
+import { SingerSong } from './song';
+import { FullName } from './fullname-field';
+import { PicturePath } from './picture-field';
 import {
   SingerCreatedDomainEvent,
   SingerSubscribedDomainEvent,
-} from './domain-events';
-import { Song } from './song';
+} from './../domain-events';
 
 interface ISingerProps {
   fullName: FullName;
-  songs?: Song[];
+  songs?: SingerSong[];
   picture?: PicturePath;
   registerDate: RegisterDate;
   isSubscribed: boolean;
@@ -111,12 +110,9 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
         registerDate: RegisterDate.create(registerDate),
         isSubscribed: isSubscribed,
         songs: songs?.map((song) =>
-          Song.load({
-            id: song.songId,
-            name: song.songName,
-            singerId: singer.getId().toString(),
-            status: eSingerStatus[status],
-            audit,
+          SingerSong.load({
+            songId: song.songId,
+            songName: song.songName,
           }),
         ),
         subscribedDate: subscribedDate
@@ -169,18 +165,6 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
         new BrokenRule('singer', 'singer is subscribed, cannot remove'),
       );
 
-    this.props.songs.forEach((song) => {
-      if (
-        song.getProps().status === eSongStatus.PUBLISHING ||
-        song.getProps().status === eSongStatus.PUBLISHED
-      ) {
-        this.addBrokenRule(
-          new BrokenRule('singer', 'singer has active songs, cannot remove'),
-        );
-        return;
-      }
-    });
-
     return this;
   }
 
@@ -190,7 +174,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     this.getAudit().update('admin', new Date());
   }
 
-  addSong(song: Song): this {
+  addSong(song: SingerSong): this {
     this.addChild(this, song, this.props.songs);
 
     this.update();
@@ -198,7 +182,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     return this;
   }
 
-  removeSong(song: Song): this {
+  removeSong(song: SingerSong): this {
     this.removeChild(this, song, this.props.songs);
 
     this.update();

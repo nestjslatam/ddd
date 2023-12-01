@@ -5,9 +5,9 @@ import { Mapper } from '@automapper/core';
 
 import { SingerTable, SongTable } from '../../../../../database/tables';
 import { SingerRepository } from '../../../../infrastructure/db';
-import { AbstractCommandHandler, Name } from '../../../../../shared';
+import { AbstractCommandHandler, Id, Name } from '../../../../../shared';
 import { AddSongToSingerCommand } from './add-song-singer.command';
-import { Singer, Song } from '../../../../domain';
+import { Singer, SingerSong, Song } from '../../../../domain';
 
 @CommandHandler(AddSongToSingerCommand)
 export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSongToSingerCommand> {
@@ -32,7 +32,14 @@ export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSon
 
     const songCreated = Song.create(Name.create(songName));
 
-    singerMapped.addSong(songCreated);
+    this.checkBusinessRules(songCreated);
+
+    const singerSongCreated = SingerSong.create({
+      songId: Id.load(songCreated.getId()),
+      songName: Name.create(songName),
+    });
+
+    singerMapped.addSong(singerSongCreated);
 
     this.checkBusinessRules(singerMapped);
 

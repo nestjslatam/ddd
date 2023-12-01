@@ -6,7 +6,7 @@ import {
   IDomainWriteRepository,
 } from '@nestjslatam/ddd-lib';
 import { SingerTable, SongTable } from '../../../database/tables';
-import { Singer } from '../singer';
+import { Singer } from '../singers';
 
 export interface ISingerReadRepository
   extends IDomainReadRepository<string, SingerTable> {}

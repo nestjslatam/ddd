@@ -5,7 +5,7 @@ import {
   TrackingProps,
 } from '@nestjslatam/ddd-lib';
 
-import { Id, Name } from '../../shared';
+import { Id, Name } from '../../../shared';
 
 export enum eSongStatus {
   ACTIVE = 'active',
