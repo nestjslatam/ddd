@@ -3,14 +3,14 @@ import { CommandHandler } from '@nestjs/cqrs';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 
-import { SingerTable } from '../../../../../database/tables';
+import { SingerTable, SongTable } from '../../../../../database/tables';
 import {
   SingerRepository,
   SongRepository,
 } from '../../../../infrastructure/db';
 import { AbstractCommandHandler } from '../../../../../shared';
 import { RemoveSongToSingerCommand } from './remove-song-singer.command';
-import { Singer, SingerSong } from '../../../../domain';
+import { Singer, Song } from '../../../../domain';
 
 @CommandHandler(RemoveSongToSingerCommand)
 export class RemoveSongToSingerCommandHandler extends AbstractCommandHandler<RemoveSongToSingerCommand> {
@@ -36,12 +36,9 @@ export class RemoveSongToSingerCommandHandler extends AbstractCommandHandler<Rem
       Singer,
     );
 
-    const singerSongCreated = SingerSong.load({
-      songId: songId,
-      songName: songTable.name,
-    });
+    const songMapped = await this.mapper.mapAsync(songTable, SongTable, Song);
 
-    singerMapped.removeSong(singerSongCreated);
+    singerMapped.removeSong(songMapped);
 
     this.checkBusinessRules(singerMapped);
 

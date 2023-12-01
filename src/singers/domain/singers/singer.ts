@@ -7,7 +7,7 @@ import {
 } from '@nestjslatam/ddd-lib';
 
 import { Id, SubscribedDate, RegisterDate } from '../../../shared';
-import { SingerSong } from './song';
+import { Song, eSongStatus } from './song';
 import { FullName } from './fullname-field';
 import { PicturePath } from './picture-field';
 import {
@@ -17,7 +17,7 @@ import {
 
 interface ISingerProps {
   fullName: FullName;
-  songs?: SingerSong[];
+  songs?: Song[];
   picture?: PicturePath;
   registerDate: RegisterDate;
   isSubscribed: boolean;
@@ -26,10 +26,15 @@ interface ISingerProps {
   status: eSingerStatus;
 }
 
-interface ISongLoadProps {
+interface ISingerLoadProps {
   id: string;
   fullName: string;
-  songs?: { songId: string; songName: string }[];
+  songs?: {
+    songId: string;
+    songName: string;
+    singerId: string;
+    status: string;
+  }[];
   picture?: string;
   registerDate: Date;
   isSubscribed: boolean;
@@ -89,7 +94,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     );
   }
 
-  static load(props: ISongLoadProps): Singer {
+  static load(props: ISingerLoadProps): Singer {
     const {
       id,
       fullName,
@@ -110,9 +115,12 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
         registerDate: RegisterDate.create(registerDate),
         isSubscribed: isSubscribed,
         songs: songs?.map((song) =>
-          SingerSong.load({
-            songId: song.songId,
-            songName: song.songName,
+          Song.load({
+            id: song.songId,
+            name: song.songName,
+            singerId: id,
+            status: song.status,
+            audit,
           }),
         ),
         subscribedDate: subscribedDate
@@ -174,7 +182,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     this.getAudit().update('admin', new Date());
   }
 
-  addSong(song: SingerSong): this {
+  addSong(song: Song): this {
     this.addChild(this, song, this.props.songs);
 
     this.update();
@@ -182,7 +190,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     return this;
   }
 
-  removeSong(song: SingerSong): this {
+  removeSong(song: Song): this {
     this.removeChild(this, song, this.props.songs);
 
     this.update();

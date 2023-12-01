@@ -1,35 +1,80 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { DomainValueObject } from '@nestjslatam/ddd-lib';
+import {
+  DomainAggregateRoot,
+  DomainAuditValueObject,
+  TrackingProps,
+} from '@nestjslatam/ddd-lib';
 
 import { Id, Name } from '../../../shared';
 
-interface ISingerSongProps {
-  songId: Id;
-  songName: Name;
+export enum eSongStatus {
+  ACTIVE = 'active',
+  PUBLISHING = 'publishing',
+  PUBLISHED = 'published',
+  INACTIVE = 'inactive',
 }
 
-interface ISingerSongLoadProps {
-  songId: string;
-  songName: string;
+export interface ISongProps {
+  singerId: Id;
+  name: Name;
+  status: eSongStatus;
 }
 
-export class SingerSong extends DomainValueObject<ISingerSongProps> {
-  constructor(props: ISingerSongProps) {
-    super(props);
-  }
+export interface ISongLoadProps {
+  id: string;
+  name: string;
+  singerId: string;
+  status: string;
+  audit: {
+    createdBy: string;
+    createdDate: Date;
+    updatedBy: string;
+    updatedDate: Date;
+  };
+}
 
-  static create(props: ISingerSongProps): SingerSong {
-    return new SingerSong(props);
-  }
-
-  static load(props: ISingerSongLoadProps): SingerSong {
-    return new SingerSong({
-      songId: Id.load(props.songId),
-      songName: Name.create(props.songName),
+export class Song extends DomainAggregateRoot<ISongProps> {
+  constructor(
+    props: ISongProps,
+    trackingProps: TrackingProps,
+    audit: DomainAuditValueObject,
+  ) {
+    super({
+      id: Id.create(),
+      props,
+      trackingProps,
+      audit,
     });
+    this.businessRules(props);
   }
 
-  protected businessRules(props: ISingerSongProps): void {
+  static create(singerId: Id, name: Name): Song {
+    return new Song(
+      { singerId, name, status: eSongStatus.ACTIVE },
+      TrackingProps.setNew(),
+      DomainAuditValueObject.create('admin', new Date()),
+    );
+  }
+
+  static load(props: ISongLoadProps): Song {
+    const audit = DomainAuditValueObject.create(
+      props.audit.createdBy,
+      props.audit.createdDate,
+    );
+    audit.update(props.audit.updatedBy, props.audit.updatedDate);
+
+    return new Song(
+      {
+        singerId: Id.load(props.singerId),
+        name: Name.create(props.name),
+        status: eSongStatus.ACTIVE,
+      },
+      TrackingProps.setDirty(),
+      audit,
+    );
+  }
+
+  protected businessRules(props: ISongProps): void {
     throw new Error('Method not implemented.');
   }
 }
