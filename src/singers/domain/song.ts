@@ -9,6 +9,8 @@ import { Id, Name } from '../../shared';
 
 export enum eSongStatus {
   ACTIVE = 'active',
+  PUBLISHING = 'publishing',
+  PUBLISHED = 'published',
   INACTIVE = 'inactive',
 }
 

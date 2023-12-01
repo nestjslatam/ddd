@@ -1,3 +1,4 @@
+import { eSongStatus } from './song';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   BrokenRule,
@@ -130,6 +131,20 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     return singer;
   }
 
+  changeFullName(fullName: FullName): this {
+    this.props.fullName = fullName;
+    this.update();
+
+    return this;
+  }
+
+  changePicture(picture: PicturePath): this {
+    this.props.picture = picture;
+    this.update();
+
+    return this;
+  }
+
   subscribe(): this {
     if (this.props.isSubscribed)
       this.addBrokenRule(new BrokenRule('singer', 'singer already subscribed'));
@@ -144,6 +159,27 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     this.addDomainEvent(
       new SingerSubscribedDomainEvent(this.getId(), subscribedDate.unpack()),
     );
+
+    return this;
+  }
+
+  remove(): this {
+    if (this.props.status === eSingerStatus.Subscribed)
+      this.addBrokenRule(
+        new BrokenRule('singer', 'singer is subscribed, cannot remove'),
+      );
+
+    this.props.songs.forEach((song) => {
+      if (
+        song.getProps().status === eSongStatus.PUBLISHING ||
+        song.getProps().status === eSongStatus.PUBLISHED
+      ) {
+        this.addBrokenRule(
+          new BrokenRule('singer', 'singer has active songs, cannot remove'),
+        );
+        return;
+      }
+    });
 
     return this;
   }

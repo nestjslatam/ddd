@@ -3,34 +3,25 @@ import {
   Column,
   Entity,
   CreateDateColumn,
-  OneToMany,
+  ManyToOne,
 } from 'typeorm';
 
 import { Audit } from './audit.table';
-import { Song } from './song.table';
+import { Singer } from './singer.table';
 
-@Entity('singers')
-export class Singer {
+@Entity('songs')
+export class Song {
   @PrimaryColumn()
   id: string;
 
-  @Column({ nullable: true })
-  fullName: string;
+  @ManyToOne(() => Singer, (singer) => singer.songs)
+  singer: Singer;
 
   @Column({ nullable: true })
-  picture: string;
+  name: string;
 
   @CreateDateColumn()
   registerDate?: Date;
-
-  @Column({ default: false })
-  isSubscribed: boolean;
-
-  @Column({ nullable: true })
-  subscribedDate?: Date;
-
-  @OneToMany(() => Song, (song) => song.singer)
-  songs: Song[];
 
   @Column({ nullable: true, default: 'registered' })
   status: string;

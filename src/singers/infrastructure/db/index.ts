@@ -1,5 +1,6 @@
+import { SongRepository } from './song.repository';
 import { SingerRepository } from './singer.repository';
 
-export { SingerRepository };
+export { SingerRepository, SongRepository };
 
-export const singerRepository = [SingerRepository];
+export const singerRepository = [SingerRepository, SongRepository];

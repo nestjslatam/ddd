@@ -1,7 +1,6 @@
 import {
   Mapper,
   MappingProfile,
-  convertUsing,
   createMap,
   forMember,
   mapFrom,

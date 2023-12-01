@@ -4,11 +4,11 @@ import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 
 import { SingerTable } from '../../../../../database/tables';
-import { CreateSingerCommand } from './create-singer-command';
 import { SingerRepository } from '../../../../infrastructure/db';
 import { Singer, eSingerStatus } from '../../../../domain/singer';
 import { FullName, PicturePath } from '../../../../domain';
 import { RegisterDate, AbstractCommandHandler } from '../../../../../shared';
+import { CreateSingerCommand } from './create-singer.command';
 
 @CommandHandler(CreateSingerCommand)
 export class CreateSingerCommandHandler extends AbstractCommandHandler<CreateSingerCommand> {
