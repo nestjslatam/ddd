@@ -130,7 +130,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     return singer;
   }
 
-  subscribe(): Singer {
+  subscribe(): this {
     if (this.props.isSubscribed)
       this.addBrokenRule(new BrokenRule('singer', 'singer already subscribed'));
 
@@ -154,7 +154,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     this.getAudit().update('admin', new Date());
   }
 
-  addSong(song: Song): Singer {
+  addSong(song: Song): this {
     this.addChild(this, song, this.props.songs);
 
     this.update();
@@ -162,7 +162,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     return this;
   }
 
-  removeSong(song: Song): Singer {
+  removeSong(song: Song): this {
     this.removeChild(this, song, this.props.songs);
 
     this.update();

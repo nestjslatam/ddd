@@ -1,8 +1,8 @@
 import {
   CreateSingerController,
   SingerCreatedDomainEventHandler,
-} from './create-singer';
-import { CreateSingerCommandHandler } from './create-singer/create-singer.command-handler';
+} from './commands/create-singer';
+import { CreateSingerCommandHandler } from './commands/create-singer/create-singer.command-handler';
 
 export const singerCommandHandlers = [CreateSingerCommandHandler];
 export const singerControllers = [CreateSingerController];

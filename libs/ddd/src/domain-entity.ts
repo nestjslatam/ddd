@@ -3,6 +3,7 @@ import {
   DomainAuditValueObject,
   DomainUIdValueObject,
   DomainValueObject,
+  IDomainAuditProps,
 } from './valueobjects';
 import {
   BrokenRule,
@@ -74,6 +75,10 @@ export abstract class DomainEntity<TProps> {
 
   setAudit(audit: DomainAuditValueObject): void {
     this._audit = audit;
+  }
+
+  getAuditToPrimites(): IDomainAuditProps {
+    return this._audit.unpack();
   }
 
   getAudit(): DomainAuditValueObject {

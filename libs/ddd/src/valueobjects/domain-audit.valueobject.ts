@@ -80,17 +80,13 @@ export class DomainAuditValueObject extends DomainValueObject<IDomainAuditProps>
     }
   }
 
-  load(plainProps: {
+  static load(plainProps: {
     createdBy: string;
     createdAt: Date;
     updatedBy: string;
     updatedAt: Date;
     timestamp: number;
   }): DomainAuditValueObject {
-    const { createdAt, createdBy, updatedBy, updatedAt } = plainProps;
-
-    this.businessRules({ createdAt, createdBy, updatedBy, updatedAt });
-
     const audit = DomainAuditValueObject.create(plainProps.createdBy);
     audit.props.createdAt = plainProps.createdAt;
     audit.props.updatedBy = plainProps.updatedBy;
