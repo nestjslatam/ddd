@@ -28,7 +28,7 @@ export abstract class AbstractRepository<TTable extends ObjectLiteral>
 
   async findById(id: any): Promise<TTable> {
     try {
-      return await this.repository.findOne(id);
+      return await this.repository.findOneBy(id);
     } catch (error) {
       throw new DatabaseException(error);
     }
