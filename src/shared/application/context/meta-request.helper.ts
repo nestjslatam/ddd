@@ -5,14 +5,18 @@ import { IMetaRequestContext } from './meta-context-request.model';
 
 export class MetaRequestHelper {
   static getMetadata(context: ExecutionContext): IMetaRequestContext {
-    const metadata: IMetaRequestContext = null;
+    const metadata: IMetaRequestContext = {
+      trackingId: '',
+      requestId: '',
+      user: '',
+    };
 
     if (context.getType() === 'http') {
       const request = context.switchToHttp().getRequest();
       // do something that is only important in the context of regular HTTP requests (REST)
-      metadata.trackingId = request?.body?.trackingId;
-      metadata.requestId = request?.body?.requestId;
-      metadata.user = request?.body?.user;
+      metadata.trackingId = request?.body?.trackingId || '';
+      metadata.requestId = request?.body?.requestId || uuidv4();
+      metadata.user = request?.body?.user || 'admin';
 
       // do something that is only important in the context of Microservice requests
       return metadata;

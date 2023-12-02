@@ -7,11 +7,11 @@ import {
 } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import { Injectable } from '@nestjs/common';
+import { DomainAuditValueObject } from '@nestjslatam/ddd-lib';
 
-import { PicturePath, FullName, Singer } from '../../domain';
+import { PicturePath, FullName, Singer, Song } from '../../domain';
 import { SingerTable, AuditTable } from '../../../database/tables';
 import { RegisterDate } from '../../../shared';
-import { DomainAuditValueObject } from '@nestjslatam/ddd-lib';
 
 export interface IAuditConverter<TSource, TResult> {
   convert(source: TSource): TResult;
@@ -49,6 +49,26 @@ export class SingerMapperProfile extends AutomapperProfile {
         forMember(
           (d) => d.id,
           mapFrom((s) => s.getId()),
+        ),
+        forMember(
+          (d) => d.songs,
+          mapFrom((s) =>
+            s.getPropsCopy().songs.forEach((song) =>
+              Song.load({
+                id: song.getId(),
+                name: song.getPropsCopy().name.unpack(),
+                singerId: song.getPropsCopy().singerId.unpack(),
+                status: song.getPropsCopy().status,
+                audit: {
+                  createdBy: song.getPropsCopy().audit.unpack().createdBy,
+                  createdDate: song.getPropsCopy().audit.unpack().createdAt,
+                  updatedBy: song.getPropsCopy().audit.unpack().updatedBy,
+                  updatedDate: song.getPropsCopy().audit.unpack().updatedAt,
+                  timestamp: song.getPropsCopy().audit.unpack().timestamp,
+                },
+              }),
+            ),
+          ),
         ),
         forMember(
           (d) => d.fullName,
@@ -101,6 +121,26 @@ export class SingerMapperProfile extends AutomapperProfile {
           mapFrom((s) => FullName.create(s.id)),
         ),
         forMember(
+          (d) => d.getProps().songs,
+          mapFrom((s) =>
+            s.songs.forEach((song) =>
+              Song.load({
+                id: song.id,
+                name: song.name,
+                singerId: song.singer.id,
+                status: song.status,
+                audit: {
+                  createdBy: song.audit.createdBy,
+                  createdDate: song.audit.createdAt,
+                  updatedBy: song.audit.updatedBy,
+                  updatedDate: song.audit.updatedAt,
+                  timestamp: song.audit.timestamp,
+                },
+              }),
+            ),
+          ),
+        ),
+        forMember(
           (d) => d.getProps().picture,
           mapFrom((s) => PicturePath.create(s.picture)),
         ),
@@ -113,8 +153,16 @@ export class SingerMapperProfile extends AutomapperProfile {
           mapFrom((s) => s.status),
         ),
         forMember(
-          (d) => d.getProps().audit.unpack(),
-          mapFrom((s) => s.audit),
+          (d) => d.getProps().audit,
+          mapFrom((s) =>
+            DomainAuditValueObject.load({
+              createdBy: s.audit.createdBy,
+              createdAt: s.audit.createdAt,
+              updatedBy: s.audit.updatedBy,
+              updatedAt: s.audit.updatedAt,
+              timestamp: s.audit.timestamp,
+            }),
+          ),
         ),
       );
     };

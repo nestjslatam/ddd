@@ -8,9 +8,6 @@ export class MetaRequestContextService {
   }
 
   static setTrackingId(value: string): void {
-    if (!value || value === undefined)
-      throw new Error('TrackingId is required.');
-
     const ctx = this.getContext();
     ctx.trackingId = value;
   }

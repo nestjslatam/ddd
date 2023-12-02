@@ -6,9 +6,13 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { SharedModule } from './shared/shared.module';
 import { DatabaseModule } from './database/database.module';
 import { SingersModule } from './singers/singers.module';
-import { MetaRequestContextInterceptor } from './shared';
+import {
+  MetaRequestContextInterceptor,
+  MetaRequestContextService,
+} from './shared';
+import { RequestContextModule } from 'nestjs-request-context';
 
-const interceptors = [
+const requestContextInterceptors = [
   {
     provide: APP_INTERCEPTOR,
     useClass: MetaRequestContextInterceptor,
@@ -21,10 +25,11 @@ const interceptors = [
     DevtoolsModule.register({
       http: process.env.NODE_ENV !== 'production',
     }),
+    RequestContextModule,
     SharedModule,
     DatabaseModule,
     SingersModule,
   ],
-  providers: [...interceptors],
+  providers: [...requestContextInterceptors, MetaRequestContextService],
 })
 export class AppModule {}
