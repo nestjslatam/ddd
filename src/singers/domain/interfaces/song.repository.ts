@@ -9,7 +9,9 @@ import { SongTable } from '../../../database/tables';
 import { Song } from '../singers';
 
 export interface ISongReadRepository
-  extends IDomainReadRepository<string, SongTable> {}
+  extends IDomainReadRepository<string, SongTable> {
+  exists(name: string, singerId: string): Promise<boolean>;
+}
 
 export interface ISongWriteRepository
   extends IDomainWriteRepository<string, SongTable> {}

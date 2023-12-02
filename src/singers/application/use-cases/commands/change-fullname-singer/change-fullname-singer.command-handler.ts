@@ -1,4 +1,4 @@
-import { DomainEventPublisher } from '@nestjslatam/ddd-lib';
+import { DateTimeHelper, DomainEventPublisher } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
@@ -7,7 +7,10 @@ import { SingerTable } from '../../../../../database/tables';
 
 import { Singer } from '../../../../domain/singers';
 import { PicturePath } from '../../../../domain';
-import { AbstractCommandHandler } from '../../../../../shared';
+import {
+  AbstractCommandHandler,
+  MetaRequestContextService,
+} from '../../../../../shared';
 import { SingerRepository } from '../../../../infrastructure/db';
 import { ChangeFullNameSingerCommand } from './change-fullname-singer.command';
 
@@ -32,7 +35,14 @@ export class ChangeFullNameSingerCommandHandler extends AbstractCommandHandler<C
       Singer,
     );
 
-    domainMapped.changePicture(new PicturePath(newFullName));
+    const audit = domainMapped
+      .getProps()
+      .audit.update(
+        MetaRequestContextService.getUser(),
+        DateTimeHelper.getUtcDate(),
+      );
+
+    domainMapped.changePicture(new PicturePath(newFullName), audit);
 
     this.checkBusinessRules(domainMapped);
 

@@ -1,3 +1,4 @@
+import { FullName } from './../../domain/singers/fullname-field';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -39,6 +40,26 @@ export class SingerRepository extends AbstractRepository<SingerTable> {
       });
 
       return resultPag;
+    } catch (error) {
+      throw new DatabaseException(error);
+    }
+  }
+
+  async exists(fullName: string): Promise<boolean> {
+    try {
+      const result = await this.repository.findOneBy({ fullName });
+
+      return !!result;
+    } catch (error) {
+      throw new DatabaseException(error);
+    }
+  }
+
+  async findByName(fullName: string): Promise<SingerTable> {
+    try {
+      const result = await this.repository.findOneBy({ fullName });
+
+      return result;
     } catch (error) {
       throw new DatabaseException(error);
     }

@@ -13,6 +13,7 @@ export interface ISingerReadRepository
 
 export interface ISingerWriteRepository
   extends IDomainWriteRepository<string, SingerTable> {
+  exists(fullName: string): Promise<boolean>;
   addSong(singerId: string, song: SongTable): Promise<void>;
   removeSong(singerId: string, song: SongTable): Promise<void>;
 }

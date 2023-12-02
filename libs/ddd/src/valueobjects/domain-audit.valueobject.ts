@@ -99,9 +99,11 @@ export class DomainAuditValueObject extends DomainValueObject<IDomainAuditProps>
     updatedBy: string,
     updatedAt: Date = new Date(),
     timestamp: number = +new Date(),
-  ) {
+  ): this {
     this.props.updatedBy = updatedBy;
     this.props.updatedAt = updatedAt;
     this.props.timestamp = timestamp;
+
+    return this;
   }
 }

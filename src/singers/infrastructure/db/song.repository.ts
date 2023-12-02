@@ -41,4 +41,19 @@ export class SongRepository extends AbstractRepository<SongTable> {
       throw new DatabaseException(error);
     }
   }
+
+  async exists(name: string, singerId: string): Promise<boolean> {
+    try {
+      const result = await this.repository.findOne({
+        where: {
+          name,
+          singer: { id: singerId },
+        },
+      });
+
+      return !!result;
+    } catch (error) {
+      throw new DatabaseException(error);
+    }
+  }
 }

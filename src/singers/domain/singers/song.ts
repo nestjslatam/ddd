@@ -18,6 +18,7 @@ export interface ISongProps {
   singerId: Id;
   name: Name;
   status: eSongStatus;
+  audit: DomainAuditValueObject;
 }
 
 export interface ISongLoadProps {
@@ -30,47 +31,51 @@ export interface ISongLoadProps {
     createdDate: Date;
     updatedBy: string;
     updatedDate: Date;
+    timestamp: number;
   };
 }
 
 export class Song extends DomainAggregateRoot<ISongProps> {
-  constructor(
-    props: ISongProps,
-    trackingProps: TrackingProps,
-    audit: DomainAuditValueObject,
-  ) {
+  constructor(props: ISongProps, trackingProps: TrackingProps) {
     super({
       id: Id.create(),
       props,
       trackingProps,
-      audit,
     });
     this.businessRules(props);
   }
 
-  static create(singerId: Id, name: Name): Song {
+  static create(singerId: Id, name: Name, audit: DomainAuditValueObject): Song {
     return new Song(
-      { singerId, name, status: eSongStatus.ACTIVE },
+      { singerId, name, status: eSongStatus.ACTIVE, audit },
       TrackingProps.setNew(),
-      DomainAuditValueObject.create('admin', new Date()),
     );
   }
 
   static load(props: ISongLoadProps): Song {
-    const audit = DomainAuditValueObject.create(
-      props.audit.createdBy,
-      props.audit.createdDate,
-    );
-    audit.update(props.audit.updatedBy, props.audit.updatedDate);
+    const {
+      singerId,
+      name,
+      status,
+      audit: { createdBy, createdDate, updatedBy, updatedDate, timestamp },
+    } = props;
+
+    const audit = DomainAuditValueObject.load({
+      createdBy,
+      createdAt: createdDate,
+      updatedBy,
+      updatedAt: updatedDate,
+      timestamp,
+    });
 
     return new Song(
       {
-        singerId: Id.load(props.singerId),
-        name: Name.create(props.name),
-        status: eSongStatus.ACTIVE,
+        singerId: Id.load(singerId),
+        name: Name.create(name),
+        status: eSongStatus[status],
+        audit,
       },
       TrackingProps.setDirty(),
-      audit,
     );
   }
 

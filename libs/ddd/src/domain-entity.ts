@@ -3,7 +3,6 @@ import {
   DomainAuditValueObject,
   DomainUIdValueObject,
   DomainValueObject,
-  IDomainAuditProps,
 } from './valueobjects';
 import {
   BrokenRule,
@@ -16,7 +15,6 @@ export interface IDomainEntityProps<T> {
   id: DomainEntityId;
   props: T;
   trackingProps: TrackingProps;
-  audit: DomainAuditValueObject;
 }
 
 export type DomainEntityId = DomainUIdValueObject;
@@ -24,17 +22,14 @@ export type DomainEntityId = DomainUIdValueObject;
 export abstract class DomainEntity<TProps> {
   private _id: DomainEntityId;
   private _trackingProps: ITrackingProps;
-  private _audit: DomainAuditValueObject;
   private _brokenRules: BrokenRuleCollection = new BrokenRuleCollection();
 
-  constructor({ id, props, trackingProps, audit }: IDomainEntityProps<TProps>) {
+  constructor({ id, props, trackingProps }: IDomainEntityProps<TProps>) {
     this.guard(props);
     this.businessRules(props);
 
     this._id = id;
     this.props = props;
-
-    this.setAudit(audit);
 
     this.setTrackingProps(trackingProps);
   }
@@ -47,7 +42,6 @@ export abstract class DomainEntity<TProps> {
     const propsCopy = {
       id: this._id,
       ...this.props,
-      audit: this._audit,
       ...this.getTrackingProps(),
     };
 
@@ -58,7 +52,6 @@ export abstract class DomainEntity<TProps> {
     const props = {
       id: this._id,
       ...this.props,
-      audit: this._audit,
       ...this.getTrackingProps(),
     };
 
@@ -71,18 +64,6 @@ export abstract class DomainEntity<TProps> {
 
   getId(): string {
     return this._id.unpack();
-  }
-
-  setAudit(audit: DomainAuditValueObject): void {
-    this._audit = audit;
-  }
-
-  getAuditToPrimites(): IDomainAuditProps {
-    return this._audit.unpack();
-  }
-
-  getAudit(): DomainAuditValueObject {
-    return this._audit;
   }
 
   setTrackingProps(trackingProps: ITrackingProps): void {
@@ -143,7 +124,6 @@ export abstract class DomainEntity<TProps> {
 
     const result = {
       id: this._id,
-      audit: this._audit,
       ...this.getTrackingProps(),
       ...plainProps,
     };

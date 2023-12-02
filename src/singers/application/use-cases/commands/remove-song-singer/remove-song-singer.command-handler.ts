@@ -1,4 +1,4 @@
-import { DomainEventPublisher } from '@nestjslatam/ddd-lib';
+import { DateTimeHelper, DomainEventPublisher } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
@@ -8,7 +8,10 @@ import {
   SingerRepository,
   SongRepository,
 } from '../../../../infrastructure/db';
-import { AbstractCommandHandler } from '../../../../../shared';
+import {
+  AbstractCommandHandler,
+  MetaRequestContextService,
+} from '../../../../../shared';
 import { RemoveSongToSingerCommand } from './remove-song-singer.command';
 import { Singer, Song } from '../../../../domain';
 
@@ -38,7 +41,14 @@ export class RemoveSongToSingerCommandHandler extends AbstractCommandHandler<Rem
 
     const songMapped = await this.mapper.mapAsync(songTable, SongTable, Song);
 
-    singerMapped.removeSong(songMapped);
+    const audit = singerMapped
+      .getProps()
+      .audit.update(
+        MetaRequestContextService.getUser(),
+        DateTimeHelper.getUtcDate(),
+      );
+
+    singerMapped.removeSong(songMapped, audit);
 
     this.checkBusinessRules(singerMapped);
 

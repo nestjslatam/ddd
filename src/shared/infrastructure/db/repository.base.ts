@@ -34,28 +34,6 @@ export abstract class AbstractRepository<TTable extends ObjectLiteral>
     }
   }
 
-  async exists(
-    id: string,
-    value: string,
-    entityName: string,
-    parentId: string,
-  ): Promise<boolean> {
-    try {
-      const found = await this.repository
-        .createQueryBuilder(entityName)
-        .select()
-        .where(`${value} = :value`, { value })
-        .andWhere(`${parentId} = :parentId`, { parentId })
-        .getOne();
-
-      if (!found) return false;
-
-      return found.id !== id;
-    } catch (error) {
-      throw new DatabaseException(error);
-    }
-  }
-
   async insert(entity: TTable): Promise<void> {
     try {
       await this.repository.insert(entity);

@@ -72,23 +72,23 @@ export class SingerMapperProfile extends AutomapperProfile {
         ),
         forMember(
           (d) => d.audit.createdAt,
-          mapFrom((s) => s.getAuditToPrimites().createdAt),
+          mapFrom((s) => s.getProps().audit.unpack().createdAt),
         ),
         forMember(
           (d) => d.audit.createdBy,
-          mapFrom((s) => s.getAuditToPrimites().createdBy),
+          mapFrom((s) => s.getProps().audit.unpack().createdBy),
         ),
         forMember(
           (d) => d.audit.updatedAt,
-          mapFrom((s) => s.getAuditToPrimites().updatedAt),
+          mapFrom((s) => s.getProps().audit.unpack().updatedAt),
         ),
         forMember(
           (d) => d.audit.updatedBy,
-          mapFrom((s) => s.getAuditToPrimites().updatedBy),
+          mapFrom((s) => s.getProps().audit.unpack().updatedBy),
         ),
         forMember(
           (d) => d.audit.timestamp,
-          mapFrom((s) => s.getAuditToPrimites().timestamp),
+          mapFrom((s) => s.getProps().audit.unpack().timestamp),
         ),
       );
 
@@ -113,7 +113,7 @@ export class SingerMapperProfile extends AutomapperProfile {
           mapFrom((s) => s.status),
         ),
         forMember(
-          (d) => d.getAuditToPrimites(),
+          (d) => d.getProps().audit.unpack(),
           mapFrom((s) => s.audit),
         ),
       );

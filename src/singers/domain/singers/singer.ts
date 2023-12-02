@@ -22,8 +22,8 @@ interface ISingerProps {
   registerDate: RegisterDate;
   isSubscribed: boolean;
   subscribedDate?: SubscribedDate;
-
   status: eSingerStatus;
+  audit: DomainAuditValueObject;
 }
 
 interface ISingerLoadProps {
@@ -34,6 +34,13 @@ interface ISingerLoadProps {
     songName: string;
     singerId: string;
     status: string;
+    audit: {
+      createdBy: string;
+      createdDate: Date;
+      updatedBy: string;
+      updatedDate: Date;
+      timestamp: number;
+    };
   }[];
   picture?: string;
   registerDate: Date;
@@ -45,6 +52,7 @@ interface ISingerLoadProps {
     createdDate: Date;
     updatedBy: string;
     updatedDate: Date;
+    timestamp: number;
   };
 }
 
@@ -54,17 +62,11 @@ export enum eSingerStatus {
 }
 
 export class Singer extends DomainAggregateRoot<ISingerProps> {
-  constructor(
-    id,
-    props: ISingerProps,
-    trackingProps: TrackingProps,
-    audit: DomainAuditValueObject,
-  ) {
+  constructor(id, props: ISingerProps, trackingProps: TrackingProps) {
     super({
       id,
       props,
       trackingProps,
-      audit,
     });
 
     if (this.getTrackingProps().isNew) {
@@ -75,8 +77,15 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
   }
 
   static create(props: ISingerProps): Singer {
-    const { fullName, picture, registerDate, isSubscribed, subscribedDate } =
-      props;
+    const {
+      fullName,
+      picture,
+      registerDate,
+      isSubscribed,
+      subscribedDate,
+      status,
+      audit,
+    } = props;
 
     return new Singer(
       Id.create(),
@@ -86,11 +95,10 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
         registerDate,
         isSubscribed,
         subscribedDate,
-
-        status: eSingerStatus.Registered,
+        status: eSingerStatus[status],
+        audit,
       },
       TrackingProps.setNew(),
-      DomainAuditValueObject.create('admin', new Date()),
     );
   }
 
@@ -103,9 +111,17 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
       isSubscribed,
       subscribedDate,
       songs,
-      audit,
+      audit: { createdBy, createdDate, updatedBy, updatedDate, timestamp },
       status,
     } = props;
+
+    const audit = DomainAuditValueObject.load({
+      createdBy,
+      createdAt: createdDate,
+      updatedBy,
+      updatedAt: updatedDate,
+      timestamp,
+    });
 
     const singer = new Singer(
       Id.load(id),
@@ -120,43 +136,49 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
             name: song.songName,
             singerId: id,
             status: song.status,
-            audit,
+            audit: {
+              createdBy: song.audit.createdBy,
+              createdDate: song.audit.createdDate,
+              updatedBy: song.audit.updatedBy,
+              updatedDate: song.audit.updatedDate,
+              timestamp: song.audit.timestamp,
+            },
           }),
         ),
         subscribedDate: subscribedDate
           ? SubscribedDate.create(subscribedDate)
           : null,
         status: eSingerStatus[status],
+        audit,
       },
       TrackingProps.setDirty(),
-      DomainAuditValueObject.create('admin', new Date()),
     );
 
     return singer;
   }
 
-  changeFullName(fullName: FullName): this {
+  changeFullName(fullName: FullName, audit: DomainAuditValueObject): this {
     this.props.fullName = fullName;
-    this.update();
+    this.update(audit);
 
     return this;
   }
 
-  changePicture(picture: PicturePath): this {
+  changePicture(picture: PicturePath, audit: DomainAuditValueObject): this {
     this.props.picture = picture;
-    this.update();
+    this.update(audit);
 
     return this;
   }
 
-  subscribe(): this {
+  subscribe(audit: DomainAuditValueObject): this {
     if (this.props.isSubscribed)
       this.addBrokenRule(new BrokenRule('singer', 'singer already subscribed'));
 
     this.props.isSubscribed = true;
     this.props.subscribedDate = SubscribedDate.create(new Date());
     this.props.status = eSingerStatus.Subscribed;
-    this.updateAudit();
+    this.update(audit);
 
     const { subscribedDate } = this.props;
 
@@ -178,28 +200,24 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
 
   protected businessRules(props: ISingerProps): void {}
 
-  private updateAudit(): void {
-    this.getAudit().update('admin', new Date());
-  }
-
-  addSong(song: Song): this {
+  addSong(song: Song, audit: DomainAuditValueObject): this {
     this.addChild(this, song, this.props.songs);
 
-    this.update();
+    this.update(audit);
 
     return this;
   }
 
-  removeSong(song: Song): this {
+  removeSong(song: Song, audit: DomainAuditValueObject): this {
     this.removeChild(this, song, this.props.songs);
 
-    this.update();
+    this.update(audit);
 
     return this;
   }
 
-  private update() {
-    this.updateAudit();
+  private update(audit: DomainAuditValueObject): void {
+    this.props.audit.update(audit.unpack().updatedBy, audit.unpack().updatedAt);
     this.setTrackingProps(TrackingProps.setDirty());
   }
 }

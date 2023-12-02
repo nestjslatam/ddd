@@ -1,11 +1,20 @@
-import { DomainEventPublisher } from '@nestjslatam/ddd-lib';
+import {
+  DateTimeHelper,
+  DomainAuditValueObject,
+  DomainEventPublisher,
+} from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 
 import { SingerTable, SongTable } from '../../../../../database/tables';
 import { SingerRepository } from '../../../../infrastructure/db';
-import { AbstractCommandHandler, Id, Name } from '../../../../../shared';
+import {
+  AbstractCommandHandler,
+  Id,
+  MetaRequestContextService,
+  Name,
+} from '../../../../../shared';
 import { AddSongToSingerCommand } from './add-song-singer.command';
 import { Singer, Song } from '../../../../domain';
 
@@ -30,9 +39,22 @@ export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSon
       Singer,
     );
 
-    const songCreated = Song.create(Id.load(singerId), Name.create(songName));
+    const songCreated = Song.create(
+      Id.load(singerId),
+      Name.create(songName),
+      DomainAuditValueObject.create(
+        MetaRequestContextService.getUser(),
+        DateTimeHelper.getUtcDate(),
+      ),
+    );
 
-    singerMapped.addSong(songCreated);
+    singerMapped.addSong(
+      songCreated,
+      DomainAuditValueObject.create(
+        MetaRequestContextService.getUser(),
+        DateTimeHelper.getUtcDate(),
+      ),
+    );
 
     this.checkBusinessRules(songCreated);
 

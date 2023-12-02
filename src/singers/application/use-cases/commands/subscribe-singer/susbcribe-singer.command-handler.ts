@@ -1,4 +1,4 @@
-import { DomainEventPublisher } from '@nestjslatam/ddd-lib';
+import { DateTimeHelper, DomainEventPublisher } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
@@ -6,7 +6,10 @@ import { Mapper } from '@automapper/core';
 import { SingerTable } from '../../../../../database/tables';
 import { SingerRepository } from '../../../../infrastructure/db';
 import { Singer } from '../../../../domain';
-import { AbstractCommandHandler } from '../../../../../shared';
+import {
+  AbstractCommandHandler,
+  MetaRequestContextService,
+} from '../../../../../shared';
 import { SubscribeSingerCommand } from './susbcribe-singer.command';
 
 @CommandHandler(SubscribeSingerCommand)
@@ -30,7 +33,14 @@ export class SubscribeSingerCommandHandler extends AbstractCommandHandler<Subscr
       Singer,
     );
 
-    singerMapped.subscribe();
+    const audit = singerMapped
+      .getProps()
+      .audit.update(
+        MetaRequestContextService.getUser(),
+        DateTimeHelper.getUtcDate(),
+      );
+
+    singerMapped.subscribe(audit);
 
     this.checkBusinessRules(singerMapped);
 
