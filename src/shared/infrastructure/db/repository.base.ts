@@ -5,13 +5,18 @@ import {
 } from '@nestjslatam/ddd-lib';
 
 import { DatabaseException } from '../../exceptions';
+import { Paginated, PaginatedQueryParams } from '../../application';
 
 export abstract class AbstractRepository<TTable extends ObjectLiteral>
   implements
     IDomainReadRepository<string, TTable>,
     IDomainWriteRepository<string, TTable>
 {
+  protected abstract tableName: string;
+
   constructor(protected readonly repository: Repository<TTable>) {}
+
+  abstract findAll(params: PaginatedQueryParams): Promise<Paginated<TTable>>;
 
   async find(): Promise<TTable[]> {
     try {

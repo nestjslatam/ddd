@@ -4,3 +4,4 @@ export * from './domain-number.valueobject';
 export * from './domain-string.valueobject';
 export * from './domain-uid.valueobject';
 export * from './domain-valueobject';
+export * from './domain-enum.valueobject';

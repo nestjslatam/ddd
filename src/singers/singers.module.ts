@@ -11,6 +11,8 @@ import {
   singerCommandHandlers,
   singerControllers,
   singerDomainEventHandlers,
+  singerQueryControllers,
+  singerQueryHandlers,
 } from './application/use-cases';
 import { SystemSagas } from './application/sagas';
 import { singerMappers } from './application/mappers';
@@ -24,12 +26,13 @@ import { singerMappers } from './application/mappers';
     CqrsModule,
     DddModule,
   ],
-  controllers: [...singerControllers],
+  controllers: [...singerControllers, ...singerQueryControllers],
   providers: [
     ...singerCommandHandlers,
     ...singerDomainEventHandlers,
     ...singerMappers,
     ...singerRepository,
+    ...singerQueryHandlers,
     SystemSagas,
   ],
 })

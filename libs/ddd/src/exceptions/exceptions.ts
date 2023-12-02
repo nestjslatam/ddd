@@ -50,6 +50,10 @@ export class DomainInvalidSagaException extends DomainExceptionBase {
   readonly code = 'DomainInvalidSaga';
 }
 
+export class DomainCriteriaException extends DomainExceptionBase {
+  readonly code = 'DomainCriteria';
+}
+
 /**
  * Used to indicate that entity is not found
  */

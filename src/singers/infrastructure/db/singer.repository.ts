@@ -4,19 +4,44 @@ import { Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 
-import { AbstractRepository } from '../../../shared';
+import {
+  AbstractRepository,
+  DatabaseException,
+  Paginated,
+  PaginatedQueryParams,
+} from '../../../shared';
 import { SingerTable, SongTable } from '../../../database/tables';
-import { SongRepository } from './song.repository';
 
 @Injectable()
 export class SingerRepository extends AbstractRepository<SingerTable> {
+  protected tableName: string = 'singers';
+
   constructor(
     @InjectRepository(SingerTable)
     readonly repository: Repository<SingerTable>,
     @InjectMapper() readonly mapper: Mapper,
-    private readonly songRepsitory: SongRepository,
   ) {
     super(repository);
+  }
+
+  async findAll(query: PaginatedQueryParams): Promise<Paginated<SingerTable>> {
+    try {
+      const result = await this.repository.find({
+        skip: query.offset,
+        take: query.limit,
+      });
+
+      const resultPag = new Paginated({
+        data: result,
+        count: result.length,
+        limit: query.limit,
+        page: query.page,
+      });
+
+      return resultPag;
+    } catch (error) {
+      throw new DatabaseException(error);
+    }
   }
 
   async addSong(singerId: string, song: SongTable): Promise<void> {
