@@ -1,4 +1,3 @@
-import { FullName } from './../../domain/singers/fullname-field';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -30,6 +29,7 @@ export class SingerRepository extends AbstractRepository<SingerTable> {
       const result = await this.repository.find({
         skip: query.offset,
         take: query.limit,
+        relations: ['songs'],
       });
 
       const resultPag = new Paginated({
