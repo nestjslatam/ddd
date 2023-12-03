@@ -1,9 +1,5 @@
 import { DomainGuard, convertPropsToObject } from './helpers';
-import {
-  DomainAuditValueObject,
-  DomainUIdValueObject,
-  DomainValueObject,
-} from './valueobjects';
+import { DomainUIdValueObject, DomainValueObject } from './valueobjects';
 import {
   BrokenRule,
   BrokenRuleCollection,

@@ -1,5 +1,6 @@
-import { SingerMapperProfile } from './singer-profile.mapper';
+import { SingerMapper } from './singer.mapper';
+import { SongMapper } from './song.mapper';
 
-export { SingerMapperProfile };
+export { SingerMapper, SongMapper };
 
-export const singerMappers = [SingerMapperProfile];
+export const singerMappers = [SingerMapper, SongMapper];

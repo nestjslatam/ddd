@@ -1,22 +1,18 @@
 import { DateTimeHelper, DomainEventPublisher } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
-import { InjectMapper } from '@automapper/nestjs';
-import { Mapper } from '@automapper/core';
 
-import { SingerTable } from '../../../../../database/tables';
 import { SingerRepository } from '../../../../infrastructure/db';
-import { Singer } from '../../../../domain';
 import {
   AbstractCommandHandler,
   MetaRequestContextService,
 } from '../../../../../shared';
 import { SubscribeSingerCommand } from './susbcribe-singer.command';
+import { SingerMapper } from '../../../../application/mappers';
 
 @CommandHandler(SubscribeSingerCommand)
 export class SubscribeSingerCommandHandler extends AbstractCommandHandler<SubscribeSingerCommand> {
   constructor(
     protected readonly repository: SingerRepository,
-    @InjectMapper() protected readonly mapper: Mapper,
     protected readonly publisher: DomainEventPublisher,
   ) {
     super(publisher);
@@ -27,11 +23,7 @@ export class SubscribeSingerCommandHandler extends AbstractCommandHandler<Subscr
 
     const singerTable = await this.repository.findById(singerId);
 
-    const singerMapped = await this.mapper.mapAsync(
-      singerTable,
-      SingerTable,
-      Singer,
-    );
+    const singerMapped = SingerMapper.toDomain(singerTable);
 
     const audit = singerMapped
       .getProps()
@@ -44,11 +36,7 @@ export class SubscribeSingerCommandHandler extends AbstractCommandHandler<Subscr
 
     this.checkBusinessRules(singerMapped);
 
-    const tableMapped = await this.mapper.mapAsync(
-      singerMapped,
-      Singer,
-      SingerTable,
-    );
+    const tableMapped = SingerMapper.toTable(singerMapped);
 
     this.repository.update(singerId, tableMapped);
   }

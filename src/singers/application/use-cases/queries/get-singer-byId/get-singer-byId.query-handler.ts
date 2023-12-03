@@ -9,6 +9,8 @@ export class GetSingerByIdQueryHandler implements IQueryHandler {
   constructor(private readonly singersRepository: SingerRepository) {}
 
   async execute(query: GetSingerByIdQuery): Promise<SingerTable> {
-    return await this.singersRepository.findById(query.id);
+    const { id } = query;
+
+    return await this.singersRepository.findById(id);
   }
 }

@@ -11,7 +11,7 @@ import {
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class SongRepository extends AbstractRepository<SongTable> {
+export class SongRepository extends AbstractRepository<string, SongTable> {
   protected tableName: string = 'songs';
 
   constructor(

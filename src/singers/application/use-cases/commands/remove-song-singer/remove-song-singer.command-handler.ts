@@ -1,9 +1,6 @@
 import { DateTimeHelper, DomainEventPublisher } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
-import { InjectMapper } from '@automapper/nestjs';
-import { Mapper } from '@automapper/core';
 
-import { SingerTable, SongTable } from '../../../../../database/tables';
 import {
   SingerRepository,
   SongRepository,
@@ -13,14 +10,13 @@ import {
   MetaRequestContextService,
 } from '../../../../../shared';
 import { RemoveSongToSingerCommand } from './remove-song-singer.command';
-import { Singer, Song } from '../../../../domain';
+import { SingerMapper, SongMapper } from '../../../../application/mappers';
 
 @CommandHandler(RemoveSongToSingerCommand)
 export class RemoveSongToSingerCommandHandler extends AbstractCommandHandler<RemoveSongToSingerCommand> {
   constructor(
     protected readonly repository: SingerRepository,
     protected readonly songRepository: SongRepository,
-    @InjectMapper() protected readonly mapper: Mapper,
     protected readonly publisher: DomainEventPublisher,
   ) {
     super(publisher);
@@ -33,13 +29,9 @@ export class RemoveSongToSingerCommandHandler extends AbstractCommandHandler<Rem
 
     const songTable = await this.songRepository.findById(songId);
 
-    const singerMapped = await this.mapper.mapAsync(
-      singerTable,
-      SingerTable,
-      Singer,
-    );
+    const singerMapped = SingerMapper.toDomain(singerTable);
 
-    const songMapped = await this.mapper.mapAsync(songTable, SongTable, Song);
+    const songMapped = SongMapper.toDomain(songTable);
 
     const audit = singerMapped
       .getProps()

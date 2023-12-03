@@ -4,10 +4,7 @@ import {
   DomainEventPublisher,
 } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
-import { InjectMapper } from '@automapper/nestjs';
-import { Mapper } from '@automapper/core';
 
-import { SingerTable } from '../../../../../database/tables';
 import { SingerRepository } from '../../../../infrastructure/db';
 import { Singer, eSingerStatus } from '../../../../domain/singers';
 import { FullName, PicturePath } from '../../../../domain';
@@ -18,12 +15,12 @@ import {
   ApplicationException,
 } from '../../../../../shared';
 import { CreateSingerCommand } from './create-singer.command';
+import { SingerMapper } from 'src/singers/application/mappers';
 
 @CommandHandler(CreateSingerCommand)
 export class CreateSingerCommandHandler extends AbstractCommandHandler<CreateSingerCommand> {
   constructor(
     protected readonly repository: SingerRepository,
-    @InjectMapper() protected readonly mapper: Mapper,
     protected readonly publisher: DomainEventPublisher,
   ) {
     super(publisher);
@@ -32,7 +29,7 @@ export class CreateSingerCommandHandler extends AbstractCommandHandler<CreateSin
   async execute(command: CreateSingerCommand): Promise<void> {
     const { fullName, picture } = command;
 
-    if (this.repository.exists(fullName))
+    if (await this.repository.exists(fullName))
       throw new ApplicationException(
         `Singer with name ${fullName} already exists`,
       );
@@ -51,7 +48,7 @@ export class CreateSingerCommandHandler extends AbstractCommandHandler<CreateSin
 
     this.checkBusinessRules(domain);
 
-    const tableMapped = await this.mapper.mapAsync(domain, Singer, SingerTable);
+    const tableMapped = SingerMapper.toTable(domain);
 
     this.repository.insert(tableMapped);
 

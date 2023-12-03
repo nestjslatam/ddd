@@ -1,19 +1,15 @@
 import { DomainEventPublisher } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
-import { InjectMapper } from '@automapper/nestjs';
-import { Mapper } from '@automapper/core';
 
-import { Singer } from '../../../../domain';
 import { SingerRepository } from '../../../../infrastructure/db';
 import { AbstractCommandHandler } from '../../../../../shared';
-import { SingerTable } from '../../../../../database/tables';
 import { RemoveSingerCommand } from './remove-singer.command';
+import { SingerMapper } from '../../../../application/mappers';
 
 @CommandHandler(RemoveSingerCommand)
 export class RemoveSingerCommandHandler extends AbstractCommandHandler<RemoveSingerCommand> {
   constructor(
     protected readonly repository: SingerRepository,
-    @InjectMapper() protected readonly mapper: Mapper,
     protected readonly publisher: DomainEventPublisher,
   ) {
     super(publisher);
@@ -24,11 +20,7 @@ export class RemoveSingerCommandHandler extends AbstractCommandHandler<RemoveSin
 
     const singerTable = await this.repository.findById(singerId);
 
-    const singerDomain = await this.mapper.mapAsync(
-      singerTable,
-      SingerTable,
-      Singer,
-    );
+    const singerDomain = SingerMapper.toDomain(singerTable);
 
     singerDomain.remove();
 

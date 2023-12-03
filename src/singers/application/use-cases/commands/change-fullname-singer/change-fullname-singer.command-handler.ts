@@ -1,39 +1,31 @@
 import { DateTimeHelper, DomainEventPublisher } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
-import { InjectMapper } from '@automapper/nestjs';
-import { Mapper } from '@automapper/core';
 
 import { SingerTable } from '../../../../../database/tables';
-
-import { Singer } from '../../../../domain/singers';
-import { PicturePath } from '../../../../domain';
+import { FullName, Singer } from '../../../../domain/singers';
 import {
   AbstractCommandHandler,
   MetaRequestContextService,
 } from '../../../../../shared';
 import { SingerRepository } from '../../../../infrastructure/db';
 import { ChangeFullNameSingerCommand } from './change-fullname-singer.command';
+import { SingerMapper } from '../../../../application/mappers';
 
 @CommandHandler(ChangeFullNameSingerCommand)
 export class ChangeFullNameSingerCommandHandler extends AbstractCommandHandler<ChangeFullNameSingerCommand> {
   constructor(
     protected readonly repository: SingerRepository,
-    @InjectMapper() protected readonly mapper: Mapper,
     protected readonly publisher: DomainEventPublisher,
   ) {
     super(publisher);
   }
 
   async execute(command: ChangeFullNameSingerCommand): Promise<void> {
-    const { newFullName, singerId } = command;
+    const { newFullName, id } = command;
 
-    const tableFound = await this.repository.findById(singerId);
+    const tableFound = await this.repository.findById(id);
 
-    const domainMapped = await this.mapper.mapAsync(
-      tableFound,
-      SingerTable,
-      Singer,
-    );
+    const domainMapped = SingerMapper.toDomain(tableFound);
 
     const audit = domainMapped
       .getProps()
@@ -42,17 +34,13 @@ export class ChangeFullNameSingerCommandHandler extends AbstractCommandHandler<C
         DateTimeHelper.getUtcDate(),
       );
 
-    domainMapped.changePicture(new PicturePath(newFullName), audit);
+    domainMapped.changeFullName(FullName.create(newFullName), audit);
 
     this.checkBusinessRules(domainMapped);
 
-    const tableMapped = await this.mapper.mapAsync(
-      domainMapped,
-      Singer,
-      SingerTable,
-    );
+    const tableMapped = SingerMapper.toTable(domainMapped);
 
-    this.repository.update(singerId, tableMapped);
+    this.repository.update(id, tableMapped);
 
     this.publish(domainMapped);
   }

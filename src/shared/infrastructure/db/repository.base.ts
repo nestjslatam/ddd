@@ -7,10 +7,10 @@ import {
 import { DatabaseException } from '../../exceptions';
 import { Paginated, PaginatedQueryParams } from '../../application';
 
-export abstract class AbstractRepository<TTable extends ObjectLiteral>
+export abstract class AbstractRepository<TKey, TTable extends ObjectLiteral>
   implements
-    IDomainReadRepository<string, TTable>,
-    IDomainWriteRepository<string, TTable>
+    IDomainReadRepository<TKey, TTable>,
+    IDomainWriteRepository<TKey, TTable>
 {
   protected abstract tableName: string;
 
@@ -28,7 +28,9 @@ export abstract class AbstractRepository<TTable extends ObjectLiteral>
 
   async findById(id: any): Promise<TTable> {
     try {
-      return await this.repository.findOneBy(id);
+      const data = await this.repository.findOneBy(id);
+
+      return data;
     } catch (error) {
       throw new DatabaseException(error);
     }
@@ -50,21 +52,21 @@ export abstract class AbstractRepository<TTable extends ObjectLiteral>
     }
   }
 
-  async update(id: string, entity: TTable): Promise<void> {
+  async update(id: TKey, entity: TTable): Promise<void> {
     try {
       const found = await this.findById(id);
 
       if (!found) throw new DatabaseException(`Entity with id ${id} not found`);
 
-      await this.repository.update(id, entity);
+      await this.repository.update(id as string, entity);
     } catch (error) {
       throw new DatabaseException(error);
     }
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: TKey): Promise<void> {
     try {
-      await this.repository.delete(id);
+      await this.repository.delete(id as string);
     } catch (error) {
       throw new DatabaseException(error);
     }

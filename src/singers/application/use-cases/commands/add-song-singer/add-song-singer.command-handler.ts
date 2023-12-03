@@ -4,10 +4,7 @@ import {
   DomainEventPublisher,
 } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
-import { InjectMapper } from '@automapper/nestjs';
-import { Mapper } from '@automapper/core';
 
-import { SingerTable, SongTable } from '../../../../../database/tables';
 import { SingerRepository } from '../../../../infrastructure/db';
 import {
   AbstractCommandHandler,
@@ -16,13 +13,13 @@ import {
   Name,
 } from '../../../../../shared';
 import { AddSongToSingerCommand } from './add-song-singer.command';
-import { Singer, Song } from '../../../../domain';
+import { Song } from '../../../../domain';
+import { SingerMapper, SongMapper } from '../../../../application/mappers';
 
 @CommandHandler(AddSongToSingerCommand)
 export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSongToSingerCommand> {
   constructor(
     protected readonly repository: SingerRepository,
-    @InjectMapper() protected readonly mapper: Mapper,
     protected readonly publisher: DomainEventPublisher,
   ) {
     super(publisher);
@@ -33,11 +30,7 @@ export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSon
 
     const singerTable = await this.repository.findById(singerId);
 
-    const singerMapped = await this.mapper.mapAsync(
-      singerTable,
-      SingerTable,
-      Singer,
-    );
+    const singerMapped = SingerMapper.toDomain(singerTable);
 
     const songCreated = Song.create(
       Id.load(singerId),
@@ -58,11 +51,7 @@ export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSon
 
     this.checkBusinessRules(songCreated);
 
-    const tableMapped = await this.mapper.mapAsync(
-      songCreated,
-      Song,
-      SongTable,
-    );
+    const tableMapped = SongMapper.toTable(songCreated);
 
     this.repository.addSong(singerId, tableMapped);
   }
