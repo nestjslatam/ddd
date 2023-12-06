@@ -15,7 +15,7 @@ export abstract class AbstractCommandHandler<TCommand>
 
   checkBusinessRules(domain: DomainEntity<any>): void {
     if (!domain.getIsValid()) {
-      throw new DomainException(domain.getBrokenRulesAsString());
+      throw new DomainException(domain.getBrokenRules().asString());
     }
   }
 

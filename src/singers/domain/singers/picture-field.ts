@@ -1,24 +1,9 @@
-import {
-  BrokenRule,
-  DomainGuard,
-  DomainStringValueObject,
-  IDomainPrimitive,
-} from '@nestjslatam/ddd-lib';
+import { AbstractDomainString, IDomainPrimitive } from '@nestjslatam/ddd-lib';
 
-export class PicturePath extends DomainStringValueObject {
-  constructor(value: string) {
-    super(value);
-  }
-
+export class PicturePath extends AbstractDomainString {
   protected businessRules(props: IDomainPrimitive<string>): void {
-    if (!DomainGuard.lengthIsBetween(props.value, 3, 1500)) {
-      this.addBrokenRule(
-        new BrokenRule(
-          'picture-path',
-          'path must be between 3 and 1500 characters',
-        ),
-      );
-    }
+    // this is a good place to add business rules
+    console.log(props);
   }
 
   static create(value: string): PicturePath {

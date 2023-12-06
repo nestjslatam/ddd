@@ -1,6 +1,6 @@
 import {
   DateTimeHelper,
-  DomainAuditValueObject,
+  DomainAudit,
   DomainEventPublisher,
 } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
@@ -40,10 +40,10 @@ export class CreateSingerCommandHandler extends AbstractCommandHandler<CreateSin
       registerDate: RegisterDate.create(new Date()),
       isSubscribed: false,
       status: eSingerStatus.Registered,
-      audit: DomainAuditValueObject.create(
-        MetaRequestContextService.getUser(),
-        DateTimeHelper.getUtcDate(),
-      ),
+      audit: DomainAudit.create({
+        createdBy: MetaRequestContextService.getUser(),
+        createdAt: DateTimeHelper.getUtcDate(),
+      }),
     });
 
     this.checkBusinessRules(domain);

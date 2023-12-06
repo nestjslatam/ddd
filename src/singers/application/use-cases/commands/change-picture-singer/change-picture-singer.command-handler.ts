@@ -1,14 +1,14 @@
 import { DateTimeHelper, DomainEventPublisher } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
 
-import { SingerRepository } from '../../../../infrastructure/db';
-import { PicturePath } from '../../../../domain';
 import {
   AbstractCommandHandler,
   MetaRequestContextService,
 } from '../../../../../shared';
 import { ChangePictureSingerCommand } from '../change-picture-singer';
-import { SingerMapper } from 'src/singers/application/mappers';
+import { SingerMapper } from '../../../../application/mappers';
+import { SingerRepository } from '../../../../infrastructure/db';
+import { PicturePath } from '../../../../domain';
 
 @CommandHandler(ChangePictureSingerCommand)
 export class ChangePictureSingerCommandHandler extends AbstractCommandHandler<ChangePictureSingerCommand> {
@@ -20,9 +20,9 @@ export class ChangePictureSingerCommandHandler extends AbstractCommandHandler<Ch
   }
 
   async execute(command: ChangePictureSingerCommand): Promise<void> {
-    const { newPicture, singerId } = command;
+    const { newPicture, id } = command;
 
-    const singerTable = await this.repository.findById(singerId);
+    const singerTable = await this.repository.findById(id);
 
     const singerMapped = SingerMapper.toDomain(singerTable);
 
@@ -39,6 +39,6 @@ export class ChangePictureSingerCommandHandler extends AbstractCommandHandler<Ch
 
     const tableMapped = SingerMapper.toTable(singerMapped);
 
-    this.repository.update(singerId, tableMapped);
+    this.repository.update(id, tableMapped);
   }
 }

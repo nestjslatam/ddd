@@ -1,14 +1,11 @@
+import { DomainIdAsString, IDomainPrimitive } from '@nestjslatam/ddd-lib';
+
 import { v4 } from 'uuid';
 
-import { DomainUIdValueObject, IDomainPrimitive } from '../../../libs/ddd/src';
-
-export class Id extends DomainUIdValueObject {
+export class Id extends DomainIdAsString {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected businessRules(props: IDomainPrimitive<string>): void {
     //
-  }
-  constructor(value: string) {
-    super(value);
   }
 
   static create(): Id {
@@ -16,6 +13,6 @@ export class Id extends DomainUIdValueObject {
   }
 
   static load(value: string): Id {
-    return new Id(value);
+    return new Id({ value });
   }
 }

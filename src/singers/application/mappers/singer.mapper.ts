@@ -20,7 +20,7 @@ export class SingerMapper {
     table.picture = picture.unpack();
     table.registerDate = registerDate.unpack();
     table.isSubscribed = isSubscribed;
-    table.subscribedDate = subscribedDate.unpack();
+    table.subscribedDate = subscribedDate ? subscribedDate.unpack() : null;
     table.status = status;
     table.audit = audit.unpack();
 
@@ -56,6 +56,8 @@ export class SingerMapper {
     });
 
     domain.setId(Id.load(table.id));
+
+    domain.validate();
 
     return domain;
   }

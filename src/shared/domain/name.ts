@@ -1,21 +1,9 @@
-import {
-  BrokenRule,
-  DomainGuard,
-  DomainStringValueObject,
-  IDomainPrimitive,
-} from '../../../libs/ddd/src';
+import { AbstractDomainString, IDomainPrimitive } from '@nestjslatam/ddd-lib';
 
-export class Name extends DomainStringValueObject {
-  constructor(value: string) {
-    super(value);
-  }
-
+export class Name extends AbstractDomainString {
   protected businessRules(props: IDomainPrimitive<string>): void {
-    if (!DomainGuard.lengthIsBetween(props.value, 3, 150) === false) {
-      this.addBrokenRule(
-        new BrokenRule('name', 'name must be between 3 and 150 characters'),
-      );
-    }
+    // note: this is a good place to add business rules
+    console.log(props);
   }
 
   static create(value: string): Name {

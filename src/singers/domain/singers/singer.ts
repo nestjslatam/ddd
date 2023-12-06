@@ -2,12 +2,12 @@
 import {
   BrokenRule,
   DomainAggregateRoot,
-  DomainAuditValueObject,
+  DomainAudit,
   TrackingProps,
 } from '@nestjslatam/ddd-lib';
 
 import { Id, SubscribedDate, RegisterDate } from '../../../shared';
-import { Song, eSongStatus } from './song';
+import { Song } from './song';
 import { FullName } from './fullname-field';
 import { PicturePath } from './picture-field';
 import {
@@ -23,7 +23,7 @@ interface ISingerProps {
   isSubscribed: boolean;
   subscribedDate?: SubscribedDate;
   status: eSingerStatus;
-  audit: DomainAuditValueObject;
+  audit: DomainAudit;
 }
 
 interface ISingerLoadProps {
@@ -115,7 +115,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
       status,
     } = props;
 
-    const audit = DomainAuditValueObject.load({
+    const audit = DomainAudit.create({
       createdBy,
       createdAt: createdDate,
       updatedBy,
@@ -157,21 +157,21 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     return singer;
   }
 
-  changeFullName(fullName: FullName, audit: DomainAuditValueObject): this {
+  changeFullName(fullName: FullName, audit: DomainAudit): this {
     this.props.fullName = fullName;
     this.update(audit);
 
     return this;
   }
 
-  changePicture(picture: PicturePath, audit: DomainAuditValueObject): this {
+  changePicture(picture: PicturePath, audit: DomainAudit): this {
     this.props.picture = picture;
     this.update(audit);
 
     return this;
   }
 
-  subscribe(audit: DomainAuditValueObject): this {
+  subscribe(audit: DomainAudit): this {
     if (this.props.isSubscribed)
       this.addBrokenRule(new BrokenRule('singer', 'singer already subscribed'));
 
@@ -200,7 +200,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
 
   protected businessRules(props: ISingerProps): void {}
 
-  addSong(song: Song, audit: DomainAuditValueObject): this {
+  addSong(song: Song, audit: DomainAudit): this {
     this.addChild(this, song, this.props.songs);
 
     this.update(audit);
@@ -208,7 +208,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     return this;
   }
 
-  removeSong(song: Song, audit: DomainAuditValueObject): this {
+  removeSong(song: Song, audit: DomainAudit): this {
     this.removeChild(this, song, this.props.songs);
 
     this.update(audit);
@@ -216,7 +216,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     return this;
   }
 
-  private update(audit: DomainAuditValueObject): void {
+  private update(audit: DomainAudit): void {
     this.props.audit.update(audit.unpack().updatedBy, audit.unpack().updatedAt);
     this.setTrackingProps(TrackingProps.setDirty());
   }

@@ -1,4 +1,4 @@
-import { Body, Controller, Put } from '@nestjs/common';
+import { Body, Controller, Param, Put } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 
 import { ChangePictureSingerDto } from './change-picture-singer.dto';
@@ -8,16 +8,17 @@ import { ChangePictureSingerCommand } from './change-picture-singer.command';
 export class ChangePictureSingerController {
   constructor(private readonly commandBus: CommandBus) {}
 
-  @Put()
+  @Put('/changepicture/:id')
   async changePicture(
+    @Param() id: string,
     @Body() changePictureSingerDto: ChangePictureSingerDto,
   ): Promise<void> {
     if (!changePictureSingerDto || changePictureSingerDto === undefined) return;
 
-    const { newPicture, singerId, trackingId } = changePictureSingerDto;
+    const { newPicture, trackingId } = changePictureSingerDto;
 
     return await this.commandBus.execute(
-      new ChangePictureSingerCommand(singerId, newPicture, trackingId),
+      new ChangePictureSingerCommand(id, newPicture, trackingId),
     );
   }
 }

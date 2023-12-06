@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { AddSongToSingerDto } from './add-song-singer.dto';
 import { AddSongToSingerCommand } from './add-song-singer.command';
@@ -7,14 +7,17 @@ import { AddSongToSingerCommand } from './add-song-singer.command';
 export class AddSongToSingerController {
   constructor(private readonly commandBus: CommandBus) {}
 
-  @Post()
-  async addSong(@Body() addSongToSinger: AddSongToSingerDto): Promise<void> {
+  @Post('/addsong/:id')
+  async addSong(
+    @Param() id: string,
+    @Body() addSongToSinger: AddSongToSingerDto,
+  ): Promise<void> {
     if (!addSongToSinger || addSongToSinger === undefined) return;
 
-    const { songName, singerId, trackingId } = addSongToSinger;
+    const { songName, trackingId } = addSongToSinger;
 
     return await this.commandBus.execute(
-      new AddSongToSingerCommand(singerId, songName, trackingId),
+      new AddSongToSingerCommand(id, songName, trackingId),
     );
   }
 }

@@ -1,6 +1,6 @@
 import {
   DateTimeHelper,
-  DomainAuditValueObject,
+  DomainAudit,
   DomainEventPublisher,
 } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
@@ -26,33 +26,35 @@ export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSon
   }
 
   async execute(command: AddSongToSingerCommand): Promise<void> {
-    const { singerId, songName } = command;
+    const { id, songName } = command;
 
-    const singerTable = await this.repository.findById(singerId);
+    const singerTable = await this.repository.findById(id);
 
     const singerMapped = SingerMapper.toDomain(singerTable);
 
     const songCreated = Song.create(
-      Id.load(singerId),
+      Id.load(id),
       Name.create(songName),
-      DomainAuditValueObject.create(
-        MetaRequestContextService.getUser(),
-        DateTimeHelper.getUtcDate(),
-      ),
-    );
-
-    singerMapped.addSong(
-      songCreated,
-      DomainAuditValueObject.create(
-        MetaRequestContextService.getUser(),
-        DateTimeHelper.getUtcDate(),
-      ),
+      DomainAudit.create({
+        createdBy: MetaRequestContextService.getUser(),
+        createdAt: DateTimeHelper.getUtcDate(),
+      }),
     );
 
     this.checkBusinessRules(songCreated);
 
+    singerMapped.addSong(
+      songCreated,
+      DomainAudit.create({
+        createdBy: MetaRequestContextService.getUser(),
+        createdAt: DateTimeHelper.getUtcDate(),
+      }),
+    );
+
+    this.checkBusinessRules(singerMapped);
+
     const tableMapped = SongMapper.toTable(songCreated);
 
-    this.repository.addSong(singerId, tableMapped);
+    this.repository.addSong(id, tableMapped);
   }
 }

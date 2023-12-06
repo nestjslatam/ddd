@@ -1,9 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  DomainAggregateRoot,
-  DomainAuditValueObject,
-  TrackingProps,
-} from '@nestjslatam/ddd-lib';
+import { DomainAudit, DomainEntity, TrackingProps } from '@nestjslatam/ddd-lib';
 
 import { Id, Name } from '../../../shared';
 
@@ -18,7 +14,7 @@ export interface ISongProps {
   singerId: Id;
   name: Name;
   status: eSongStatus;
-  audit: DomainAuditValueObject;
+  audit: DomainAudit;
 }
 
 export interface ISongLoadProps {
@@ -35,21 +31,26 @@ export interface ISongLoadProps {
   };
 }
 
-export class Song extends DomainAggregateRoot<ISongProps> {
+export class Song extends DomainEntity<ISongProps> {
+  protected businessRules(props: ISongProps): void {
+    //
+  }
+
   constructor(props: ISongProps, trackingProps: TrackingProps) {
     super({
       id: Id.create(),
       props,
       trackingProps,
     });
-    this.businessRules(props);
   }
 
-  static create(singerId: Id, name: Name, audit: DomainAuditValueObject): Song {
-    return new Song(
+  static create(singerId: Id, name: Name, audit: DomainAudit): Song {
+    const song = new Song(
       { singerId, name, status: eSongStatus.ACTIVE, audit },
       TrackingProps.setNew(),
     );
+
+    return song;
   }
 
   static load(props: ISongLoadProps): Song {
@@ -60,7 +61,7 @@ export class Song extends DomainAggregateRoot<ISongProps> {
       audit: { createdBy, createdDate, updatedBy, updatedDate, timestamp },
     } = props;
 
-    const audit = DomainAuditValueObject.load({
+    const audit = DomainAudit.create({
       createdBy,
       createdAt: createdDate,
       updatedBy,
@@ -77,9 +78,5 @@ export class Song extends DomainAggregateRoot<ISongProps> {
       },
       TrackingProps.setDirty(),
     );
-  }
-
-  protected businessRules(props: ISongProps): void {
-    throw new Error('Method not implemented.');
   }
 }

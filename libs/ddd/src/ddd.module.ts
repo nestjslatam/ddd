@@ -1,11 +1,13 @@
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
 
-import { IDomainEvent } from './core';
 import { DddService } from './ddd.service';
-import { DomainCommandBus } from './domain-command-bus';
-import { DomainEventBus } from './domain-event-bus';
-import { DomainEventPublisher } from './domain-event-publisher';
-import { UnhandledExceptionBus } from './unhandled-exeption-bus';
+import { DomainCommandBus } from './ddd-commands';
+import {
+  DomainEventPublisher,
+  DomainEventBus,
+  IDomainEvent,
+} from './ddd-events';
+import { UnhandledExceptionBus } from './ddd-exceptions';
 
 @Module({
   imports: [],
