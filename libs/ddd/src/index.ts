@@ -1,6 +1,7 @@
 export * from './ddd-core';
 export * from './ddd-exceptions';
 export * from './ddd-helpers';
+export * from './ddd-ports';
 export * from './ddd-valueobjects';
 export * from './ddd-decorators';
 export * from './ddd-events';

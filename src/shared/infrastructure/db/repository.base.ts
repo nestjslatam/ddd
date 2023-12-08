@@ -1,5 +1,7 @@
-import { ObjectLiteral, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import {
+  DomainAggregateRoot,
+  DomainEntity,
   IDomainReadRepository,
   IDomainWriteRepository,
 } from '@nestjslatam/ddd-lib';
@@ -7,18 +9,20 @@ import {
 import { DatabaseException } from '../../exceptions';
 import { Paginated, PaginatedQueryParams } from '../../application';
 
-export abstract class AbstractRepository<TKey, TTable extends ObjectLiteral>
+export abstract class AbstractRepository<
+    TDomain extends DomainEntity<any> | DomainAggregateRoot<any>,
+  >
   implements
-    IDomainReadRepository<TKey, TTable>,
-    IDomainWriteRepository<TKey, TTable>
+    IDomainReadRepository<string, TDomain>,
+    IDomainWriteRepository<string, TDomain>
 {
   protected abstract tableName: string;
 
-  constructor(protected readonly repository: Repository<TTable>) {}
+  constructor(protected readonly repository: Repository<TDomain>) {}
 
-  abstract findAll(params: PaginatedQueryParams): Promise<Paginated<TTable>>;
+  abstract findAll(params: PaginatedQueryParams): Promise<Paginated<TDomain>>;
 
-  async find(): Promise<TTable[]> {
+  async find(): Promise<TDomain[]> {
     try {
       return await this.repository.find();
     } catch (error) {
@@ -26,7 +30,7 @@ export abstract class AbstractRepository<TKey, TTable extends ObjectLiteral>
     }
   }
 
-  async findById(id: any): Promise<TTable> {
+  async findById(id: any): Promise<TDomain> {
     try {
       const data = await this.repository.findOneBy(id);
 
@@ -36,7 +40,7 @@ export abstract class AbstractRepository<TKey, TTable extends ObjectLiteral>
     }
   }
 
-  async insert(entity: TTable): Promise<void> {
+  async insert(entity: TDomain): Promise<void> {
     try {
       await this.repository.insert(entity);
     } catch (error) {
@@ -44,7 +48,7 @@ export abstract class AbstractRepository<TKey, TTable extends ObjectLiteral>
     }
   }
 
-  async insertBatch(entities: TTable[]): Promise<void> {
+  async insertBatch(entities: TDomain[]): Promise<void> {
     try {
       await this.repository.insert(entities);
     } catch (error) {
@@ -52,7 +56,7 @@ export abstract class AbstractRepository<TKey, TTable extends ObjectLiteral>
     }
   }
 
-  async update(id: TKey, entity: TTable): Promise<void> {
+  async update(id: TKey, entity: TDomain): Promise<void> {
     try {
       const found = await this.findById(id);
 

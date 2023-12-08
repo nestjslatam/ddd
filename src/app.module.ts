@@ -5,7 +5,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 
 import { SharedModule } from './shared/shared.module';
 import { DatabaseModule } from './database/database.module';
-import { SingersModule } from './singers/singers.module';
+import { SingersModule } from './singers/application/singers.module';
 import {
   MetaRequestContextInterceptor,
   MetaRequestContextService,
