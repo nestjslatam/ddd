@@ -8,29 +8,31 @@ export abstract class DomainAggregateRoot<
   TProps,
   TDomainEventBase extends IDomainEvent = IDomainEvent,
 > extends DomainEntity<TProps> {
-  private _domainEvents: TDomainEventBase[] = [];
+  // #region Properties -----------------------------------------------------------
+  protected _domainEvents: TDomainEventBase[] = [];
+  // #endregion --------------------------------------------------------------------
 
-  /**
-   * Publishes an event. Must be merged with the publisher context in order to work.
-   * @param event The event to publish.
-   */
+  // #region Behavior ------------------------------------------------------------
   publish<T extends TDomainEventBase = TDomainEventBase>(domainEvent: T) {}
 
-  /**
-   * Publishes multiple events. Must be merged with the publisher context in order to work.
-   * @param events The events to publish.
-   */
   publishAll<T extends TDomainEventBase = TDomainEventBase>(
     domainEvents: T[],
   ) {}
 
-  /**
-   * Commits all uncommitted events.
-   */
+  // #endregion -----------------------------------------------------------------
 
+  // #region Public Methods ------------------------------------------------------
   commit() {
     this.publishAll(this._domainEvents);
     this.clearDomainEvents();
+  }
+
+  uncommit() {
+    this._domainEvents.length = 0;
+  }
+
+  getDomainEvents(): TDomainEventBase[] {
+    return this._domainEvents;
   }
 
   existsDomainEvent(domainEvent: TDomainEventBase): boolean {
@@ -39,10 +41,6 @@ export abstract class DomainAggregateRoot<
 
   clearDomainEvents(): void {
     this._domainEvents = [];
-  }
-
-  get getDomainEvents(): TDomainEventBase[] {
-    return this._domainEvents;
   }
 
   addDomainEvent(domainEvent: TDomainEventBase): void {
@@ -59,4 +57,6 @@ export abstract class DomainAggregateRoot<
       this._domainEvents.splice(index, 1);
     }
   }
+
+  // #endregion -----------------------------------------------------------------
 }
