@@ -3,4 +3,5 @@ export interface IDomainEventMetadata {
   readonly ocurredOn: Date;
   readonly timestamp: number;
   readonly trackingId?: string;
+  readonly requestId?: string;
 }
