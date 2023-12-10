@@ -1,3 +1,5 @@
+import { TrackingProps } from '@nestjslatam/ddd-lib';
+
 import { SingerTable } from '../../../database/tables';
 import { Id } from '../../../shared';
 import { Singer } from '../../domain';
@@ -58,6 +60,8 @@ export class SingerMapper {
     domain.setId(Id.load(table.id));
 
     domain.validate();
+
+    domain.setTrackingProps(TrackingProps.setDirty());
 
     return domain;
   }

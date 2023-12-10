@@ -1,6 +1,7 @@
+import { Id } from 'src/shared/domain';
 import { SongTable } from '../../../database/tables';
-import { Id } from '../../../shared';
 import { Song } from '../../domain';
+import { TrackingProps } from '@nestjslatam/ddd-lib';
 
 export class SongMapper {
   static toTable(domain: Song): SongTable {
@@ -34,6 +35,8 @@ export class SongMapper {
     });
 
     domain.setId(Id.load(table.id));
+
+    domain.setTrackingProps(TrackingProps.setDirty());
 
     return domain;
   }

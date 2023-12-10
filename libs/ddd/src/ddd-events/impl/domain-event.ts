@@ -25,6 +25,7 @@ export abstract class DomainEvent implements IDomainEvent {
       this.metadata = {
         aggregateId: props?.aggregateId || '',
         trackingId: this.metadata?.trackingId,
+        requestId: this.metadata?.requestId,
         timestamp: Date.now(),
         ocurredOn: DateTimeHelper.getUtcDate(),
       };

@@ -7,7 +7,7 @@ import { GetSingersQuery } from './get-singers-criteria.query';
 export class GetSingersQueryHandler implements IQueryHandler {
   constructor(private readonly singersRepository: SingerRepository) {}
 
-  execute(query: GetSingersQuery): Promise<any> {
-    return this.singersRepository.findAll(query);
+  async execute(query: GetSingersQuery): Promise<any> {
+    return await this.singersRepository.findAll(query);
   }
 }

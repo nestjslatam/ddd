@@ -6,7 +6,8 @@ export interface IDomainWriteRepository<
   TKey extends Primitives,
   TDomain extends DomainAggregateRoot<any> | DomainEntity<any>,
 > {
-  save(entity: TDomain | TDomain[]): Promise<TDomain | TDomain[]>;
-  update(id: TKey, entity: TDomain): Promise<TDomain>;
-  delete(id: TKey): Promise<TDomain>;
+  insert(entity: TDomain): Promise<void>;
+  insertBatch(entities: TDomain[]): Promise<void>;
+  update(id: TKey, entity: TDomain): Promise<void>;
+  delete(id: TKey): Promise<void>;
 }

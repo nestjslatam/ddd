@@ -6,7 +6,7 @@ import {
   MetaRequestContextService,
 } from '../../../../../shared';
 import { ChangePictureSingerCommand } from '../change-picture-singer';
-import { SingerMapper } from '../../../../application/mappers';
+
 import { SingerRepository } from '../../../../infrastructure/db';
 import { PicturePath } from '../../../../domain';
 
@@ -22,23 +22,19 @@ export class ChangePictureSingerCommandHandler extends AbstractCommandHandler<Ch
   async execute(command: ChangePictureSingerCommand): Promise<void> {
     const { newPicture, id } = command;
 
-    const singerTable = await this.repository.findById(id);
+    const singer = await this.repository.findById(id);
 
-    const singerMapped = SingerMapper.toDomain(singerTable);
-
-    const audit = singerMapped
+    const audit = singer
       .getProps()
       .audit.update(
         MetaRequestContextService.getUser(),
         DateTimeHelper.getUtcDate(),
       );
 
-    singerMapped.changePicture(PicturePath.create(newPicture), audit);
+    singer.changePicture(PicturePath.create(newPicture), audit);
 
-    this.checkBusinessRules(singerMapped);
+    this.checkBusinessRules(singer);
 
-    const tableMapped = SingerMapper.toTable(singerMapped);
-
-    this.repository.update(id, tableMapped);
+    this.repository.update(id, singer);
   }
 }

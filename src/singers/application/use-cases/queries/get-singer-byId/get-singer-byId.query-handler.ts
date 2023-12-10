@@ -3,6 +3,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { SingerRepository } from '../../../../infrastructure/db';
 import { GetSingerByIdQuery } from './get-singer-byId.query';
 import { SingerTable } from '../../../../../database/tables';
+import { SingerMapper } from '../../../../infrastructure';
 
 @QueryHandler(GetSingerByIdQuery)
 export class GetSingerByIdQueryHandler implements IQueryHandler {
@@ -11,6 +12,8 @@ export class GetSingerByIdQueryHandler implements IQueryHandler {
   async execute(query: GetSingerByIdQuery): Promise<SingerTable> {
     const { id } = query;
 
-    return await this.singersRepository.findById(id);
+    const singer = await this.singersRepository.findById(id);
+
+    return SingerMapper.toTable(singer);
   }
 }

@@ -3,17 +3,17 @@ import { Module } from '@nestjs/common';
 import { DddModule } from '@nestjslatam/ddd-lib';
 import { CqrsModule } from '@nestjs/cqrs';
 
-import { singerRepository } from './infrastructure/db';
-import { SingerTable, SongTable } from '../database/tables';
+import { singerRepository } from '../infrastructure/db';
+import { SingerTable, SongTable } from '../../database/tables';
 import {
   singerCommandHandlers,
   singerControllers,
   singerDomainEventHandlers,
   singerQueryControllers,
   singerQueryHandlers,
-} from './application/use-cases';
-import { SystemSagas } from './application/sagas';
-import { singerMappers } from './application/mappers';
+} from '../application/use-cases';
+import { SystemSagas } from '../application/sagas';
+import { singerMappers } from '../infrastructure';
 
 @Module({
   imports: [

@@ -7,7 +7,6 @@ import {
   MetaRequestContextService,
 } from '../../../../../shared';
 import { SubscribeSingerCommand } from './susbcribe-singer.command';
-import { SingerMapper } from '../../../../application/mappers';
 
 @CommandHandler(SubscribeSingerCommand)
 export class SubscribeSingerCommandHandler extends AbstractCommandHandler<SubscribeSingerCommand> {
@@ -21,23 +20,19 @@ export class SubscribeSingerCommandHandler extends AbstractCommandHandler<Subscr
   async execute(command: SubscribeSingerCommand): Promise<void> {
     const { singerId } = command;
 
-    const singerTable = await this.repository.findById(singerId);
+    const singer = await this.repository.findById(singerId);
 
-    const singerMapped = SingerMapper.toDomain(singerTable);
-
-    const audit = singerMapped
+    const audit = singer
       .getProps()
       .audit.update(
         MetaRequestContextService.getUser(),
         DateTimeHelper.getUtcDate(),
       );
 
-    singerMapped.subscribe(audit);
+    singer.subscribe(audit);
 
-    this.checkBusinessRules(singerMapped);
+    this.checkBusinessRules(singer);
 
-    const tableMapped = SingerMapper.toTable(singerMapped);
-
-    this.repository.update(singerId, tableMapped);
+    this.repository.update(singerId, singer);
   }
 }

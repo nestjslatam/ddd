@@ -14,7 +14,6 @@ import {
 } from '../../../../../shared';
 import { AddSongToSingerCommand } from './add-song-singer.command';
 import { Song } from '../../../../domain';
-import { SingerMapper, SongMapper } from '../../../../application/mappers';
 
 @CommandHandler(AddSongToSingerCommand)
 export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSongToSingerCommand> {
@@ -28,9 +27,11 @@ export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSon
   async execute(command: AddSongToSingerCommand): Promise<void> {
     const { id, songName } = command;
 
-    const singerTable = await this.repository.findById(id);
+    const singer = await this.repository.findById(id);
 
-    const singerMapped = SingerMapper.toDomain(singerTable);
+    if (!singer) {
+      throw new Error('Singer not found');
+    }
 
     const songCreated = Song.create(
       Id.load(id),
@@ -41,9 +42,7 @@ export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSon
       }),
     );
 
-    this.checkBusinessRules(songCreated);
-
-    singerMapped.addSong(
+    singer.addSong(
       songCreated,
       DomainAudit.create({
         createdBy: MetaRequestContextService.getUser(),
@@ -51,10 +50,8 @@ export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSon
       }),
     );
 
-    this.checkBusinessRules(singerMapped);
+    this.checkBusinessRules(songCreated);
 
-    const tableMapped = SongMapper.toTable(songCreated);
-
-    this.repository.addSong(id, tableMapped);
+    this.repository.addSong(id, songCreated);
   }
 }

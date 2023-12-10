@@ -15,7 +15,6 @@ import {
   ApplicationException,
 } from '../../../../../shared';
 import { CreateSingerCommand } from './create-singer.command';
-import { SingerMapper } from 'src/singers/application/mappers';
 
 @CommandHandler(CreateSingerCommand)
 export class CreateSingerCommandHandler extends AbstractCommandHandler<CreateSingerCommand> {
@@ -34,7 +33,7 @@ export class CreateSingerCommandHandler extends AbstractCommandHandler<CreateSin
         `Singer with name ${fullName} already exists`,
       );
 
-    const domain = Singer.create({
+    const singer = Singer.create({
       fullName: FullName.create(fullName),
       picture: PicturePath.create(picture),
       registerDate: RegisterDate.create(new Date()),
@@ -46,12 +45,10 @@ export class CreateSingerCommandHandler extends AbstractCommandHandler<CreateSin
       }),
     });
 
-    this.checkBusinessRules(domain);
+    this.checkBusinessRules(singer);
 
-    const tableMapped = SingerMapper.toTable(domain);
+    this.repository.insert(singer);
 
-    this.repository.insert(tableMapped);
-
-    this.publish(domain);
+    this.publish(singer);
   }
 }

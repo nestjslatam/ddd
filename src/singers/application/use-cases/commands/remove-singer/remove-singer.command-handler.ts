@@ -4,7 +4,6 @@ import { CommandHandler } from '@nestjs/cqrs';
 import { SingerRepository } from '../../../../infrastructure/db';
 import { AbstractCommandHandler } from '../../../../../shared';
 import { RemoveSingerCommand } from './remove-singer.command';
-import { SingerMapper } from '../../../../application/mappers';
 
 @CommandHandler(RemoveSingerCommand)
 export class RemoveSingerCommandHandler extends AbstractCommandHandler<RemoveSingerCommand> {
@@ -18,13 +17,11 @@ export class RemoveSingerCommandHandler extends AbstractCommandHandler<RemoveSin
   async execute(command: RemoveSingerCommand): Promise<void> {
     const { singerId } = command;
 
-    const singerTable = await this.repository.findById(singerId);
+    const singer = await this.repository.findById(singerId);
 
-    const singerDomain = SingerMapper.toDomain(singerTable);
+    singer.remove();
 
-    singerDomain.remove();
-
-    this.checkBusinessRules(singerDomain);
+    this.checkBusinessRules(singer);
 
     this.repository.delete(singerId);
   }

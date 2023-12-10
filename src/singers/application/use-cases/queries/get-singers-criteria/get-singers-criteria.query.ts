@@ -1,4 +1,4 @@
-import { PaginatedParams, PaginatedQueryBase } from '../../../../../shared';
+import { PaginatedParams, PaginatedQueryBase } from '@nestjslatam/ddd-lib';
 
 export class GetSingersQuery extends PaginatedQueryBase {
   readonly name?: string;
