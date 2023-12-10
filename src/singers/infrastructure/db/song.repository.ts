@@ -4,8 +4,6 @@ import { Repository } from 'typeorm';
 import {
   IDomainReadRepository,
   IDomainWriteRepository,
-  Paginated,
-  PaginatedQueryParams,
 } from '@nestjslatam/ddd-lib';
 
 import { SongTable } from '../../../database/tables';
@@ -34,23 +32,6 @@ export class SongRepository
     const result = await this.repository.findOneBy({ id });
 
     return SongMapper.toDomain(result);
-  }
-
-  async findAll(query: PaginatedQueryParams): Promise<Paginated<Song>> {
-    const result = await this.repository.find({
-      skip: query.offset,
-      take: query.limit,
-      relations: ['songs'],
-    });
-
-    const resultPag = new Paginated({
-      data: result.map((s) => SongMapper.toDomain(s)),
-      count: result.length,
-      limit: query.limit,
-      page: query.page,
-    });
-
-    return resultPag;
   }
 
   async exists(name: string): Promise<boolean> {
