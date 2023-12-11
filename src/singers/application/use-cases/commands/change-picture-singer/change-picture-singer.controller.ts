@@ -10,7 +10,7 @@ export class ChangePictureSingerController {
 
   @Put('/changepicture/:id')
   async changePicture(
-    @Param() id: string,
+    @Param('id') id: string,
     @Body() changePictureSingerDto: ChangePictureSingerDto,
   ): Promise<void> {
     if (!changePictureSingerDto || changePictureSingerDto === undefined) return;

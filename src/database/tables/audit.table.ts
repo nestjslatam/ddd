@@ -10,5 +10,5 @@ export class Audit {
   @UpdateDateColumn({ nullable: true })
   updatedAt?: Date;
   @Column({ type: 'bigint' })
-  timestamp?: number;
+  timestamp: number;
 }

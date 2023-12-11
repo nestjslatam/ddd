@@ -47,7 +47,7 @@ export class CreateSingerCommandHandler extends AbstractCommandHandler<CreateSin
 
     this.checkBusinessRules(singer);
 
-    this.repository.insert(singer);
+    await this.repository.insert(singer);
 
     this.publish(singer);
   }

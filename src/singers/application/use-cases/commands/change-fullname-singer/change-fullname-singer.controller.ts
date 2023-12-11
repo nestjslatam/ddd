@@ -10,7 +10,7 @@ export class ChangeFullNameSingerController {
 
   @Put('/changename/:id')
   async changeFullName(
-    @Param() id: string,
+    @Param('id') id: string,
     @Body() changeFullNameSingerDto: ChangeFullNameSingerDto,
   ): Promise<void> {
     if (!changeFullNameSingerDto || changeFullNameSingerDto === undefined)

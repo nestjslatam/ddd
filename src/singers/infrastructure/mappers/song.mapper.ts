@@ -12,7 +12,14 @@ export class SongMapper {
     table.singer.id = singerId.unpack();
     table.name = name.unpack();
     table.status = status;
-    table.audit = audit.unpack();
+    const { createdBy, createdAt, updatedBy, updatedAt, timestamp } =
+      audit.unpack();
+
+    table.audit.createdBy = createdBy;
+    table.audit.createdAt = createdAt;
+    table.audit.updatedBy = updatedBy;
+    table.audit.updatedAt = updatedAt;
+    table.audit.timestamp = timestamp;
 
     return table;
   }

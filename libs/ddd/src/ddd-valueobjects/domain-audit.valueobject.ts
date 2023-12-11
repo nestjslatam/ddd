@@ -10,6 +10,13 @@ export interface IDomainAuditProps {
 }
 
 export class DomainAudit extends AbstractDomainValueObject<IDomainAuditProps> {
+  constructor(props: IDomainAuditProps) {
+    super(props);
+    this.businessRules(props);
+
+    this.props.timestamp = +new Date();
+  }
+
   protected getCreatedBy() {
     return this.props.createdBy;
   }
