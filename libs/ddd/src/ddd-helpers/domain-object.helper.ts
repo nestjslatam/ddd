@@ -16,8 +16,6 @@ export class DomainObjectHelper {
   }
 
   static convertToPlainObject(item: any): any {
-    if (!item) throw new Error('Item is required');
-
     if (ValueObjectValidator.isValueObject(item)) {
       return item.unpack();
     }
@@ -38,7 +36,10 @@ export class DomainObjectHelper {
           return this.convertToPlainObject(item);
         });
       }
-      propsCopy[prop] = this.convertToPlainObject(propsCopy[prop]);
+
+      if (propsCopy[prop]) {
+        propsCopy[prop] = this.convertToPlainObject(propsCopy[prop]);
+      }
     }
 
     return propsCopy;

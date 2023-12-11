@@ -14,6 +14,10 @@ export class GetSingerByIdQueryHandler implements IQueryHandler {
 
     const singer = await this.singersRepository.findById(id);
 
+    if (!singer) {
+      throw new Error('Singer not found');
+    }
+
     return SingerMapper.toTable(singer);
   }
 }

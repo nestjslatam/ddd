@@ -8,7 +8,7 @@ export class GetSingerByIdCriteriaController {
   constructor(private readonly queryBus: QueryBus) {}
 
   @Get(':id')
-  async getById(@Param() id: string): Promise<any> {
+  async getById(@Param('id') id: string): Promise<any> {
     const query = new GetSingerByIdQuery(id);
 
     return await this.queryBus.execute(query);

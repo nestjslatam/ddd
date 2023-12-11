@@ -18,13 +18,23 @@ export class SingerMapper {
 
     const table = new SingerTable();
     table.id = domain.getId();
-    table.fullName = table.fullName = fullName.unpack();
+    table.fullName = fullName.unpack();
     table.picture = picture.unpack();
     table.registerDate = registerDate.unpack();
     table.isSubscribed = isSubscribed;
     table.subscribedDate = subscribedDate ? subscribedDate.unpack() : null;
     table.status = status;
-    table.audit = audit.unpack();
+
+    const { createdBy, createdAt, updatedBy, updatedAt, timestamp } =
+      audit.unpack();
+
+    table.audit = {
+      createdBy,
+      createdAt,
+      updatedBy,
+      updatedAt,
+      timestamp,
+    };
 
     return table;
   }
