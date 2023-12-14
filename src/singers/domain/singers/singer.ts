@@ -201,7 +201,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
   protected businessRules(props: ISingerProps): void {}
 
   addSong(song: Song, audit: DomainAudit): this {
-    this.addChild(this, song, this.props.songs);
+    this.props.songs = this.addChild(this, song, this.props.songs);
 
     this.update(audit);
 

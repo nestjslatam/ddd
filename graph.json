@@ -1,5 +1,20 @@
 {
   "nodes": {
+    "29525167": {
+      "id": "29525167",
+      "label": "CreateSingerController",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "controller",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "CreateSingerController"
+      }
+    },
     "58481777": {
       "id": "58481777",
       "label": "ExplorerService",
@@ -13,7 +28,7 @@
         "transient": false,
         "exported": false,
         "token": "ExplorerService",
-        "initTime": 63.74379998445511
+        "initTime": 84.25900000333786
       }
     },
     "108015789": {
@@ -30,53 +45,6 @@
         "transient": false,
         "exported": false,
         "token": "ApplicationConfig"
-      }
-    },
-    "123609626": {
-      "id": "123609626",
-      "label": "GetSingersByCriteriaController",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "controller",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "GetSingersByCriteriaController"
-      }
-    },
-    "192275089": {
-      "id": "192275089",
-      "label": "SystemSagas",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "SystemSagas",
-        "initTime": 64.58749997615814
-      }
-    },
-    "199231693": {
-      "id": "199231693",
-      "label": "SingerCreatedDomainEventHandler",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "SingerCreatedDomainEventHandler",
-        "initTime": 65.63789999485016
       }
     },
     "203550704": {
@@ -119,7 +87,7 @@
         "transient": false,
         "exported": false,
         "token": "InternalCoreModule",
-        "initTime": 67.98810005187988
+        "initTime": 91.25350004434586
       }
     },
     "226102206": {
@@ -135,7 +103,7 @@
         "transient": false,
         "exported": true,
         "token": "RequestContextMiddleware",
-        "initTime": 61.82760000228882
+        "initTime": 87.64300000667572
       }
     },
     "256260345": {
@@ -201,6 +169,22 @@
         "token": "ModuleRef"
       }
     },
+    "312046243": {
+      "id": "312046243",
+      "label": "SingerCreatedDomainEventHandler",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "SingerCreatedDomainEventHandler",
+        "initTime": 84.35060000419617
+      }
+    },
     "355751832": {
       "id": "355751832",
       "label": "RequestContextModule",
@@ -215,7 +199,7 @@
         "transient": false,
         "exported": false,
         "token": "RequestContextModule",
-        "initTime": 61.91690003871918
+        "initTime": 87.73849999904633
       }
     },
     "373235992": {
@@ -231,7 +215,7 @@
         "transient": false,
         "exported": false,
         "token": "SandboxedCodeExecutor",
-        "initTime": 68.14640003442764
+        "initTime": 93.48260003328323
       }
     },
     "400681591": {
@@ -247,7 +231,7 @@
         "transient": false,
         "exported": true,
         "token": "DiscoveryService",
-        "initTime": 65.06599998474121
+        "initTime": 90.3977000117302
       }
     },
     "450929464": {
@@ -322,49 +306,35 @@
         "token": "CqrsModule"
       }
     },
-    "643959204": {
-      "id": "643959204",
-      "label": "ChangePictureSingerCommandHandler",
-      "parent": "-19112576",
+    "644910477": {
+      "id": "644910477",
+      "label": "SongMapper",
+      "parent": "-786025002",
       "metadata": {
         "type": "provider",
         "internal": false,
-        "sourceModuleName": "AppModule",
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "SongMapper",
+        "initTime": 84.20279997587204
+      }
+    },
+    "670117882": {
+      "id": "670117882",
+      "label": "ChangePictureSingerCommandHandler",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
         "durable": false,
         "static": true,
         "transient": false,
         "exported": false,
         "token": "ChangePictureSingerCommandHandler"
-      }
-    },
-    "656988874": {
-      "id": "656988874",
-      "label": "GetSingersQueryHandler",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "GetSingersQueryHandler"
-      }
-    },
-    "659350539": {
-      "id": "659350539",
-      "label": "ChangeFullNameSingerController",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "controller",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "ChangeFullNameSingerController"
       }
     },
     "671882984": {
@@ -380,7 +350,7 @@
         "transient": false,
         "exported": true,
         "token": "Reflector",
-        "initTime": 67.88319998979568
+        "initTime": 91.12730002403259
       }
     },
     "687352615": {
@@ -429,7 +399,22 @@
         "transient": false,
         "exported": false,
         "token": "TypeOrmCoreModule",
-        "initTime": 61.13660001754761
+        "initTime": 88.54250001907349
+      }
+    },
+    "805316524": {
+      "id": "805316524",
+      "label": "CreateSingerCommandHandler",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "CreateSingerCommandHandler"
       }
     },
     "899416288": {
@@ -446,7 +431,7 @@
         "transient": false,
         "exported": false,
         "token": "SingersModule",
-        "initTime": 58.45310002565384
+        "initTime": 86.14099997282028
       }
     },
     "909003965": {
@@ -476,8 +461,7 @@
         "static": true,
         "transient": false,
         "exported": true,
-        "token": "DomainEventBus",
-        "initTime": 65.86619997024536
+        "token": "DomainEventBus"
       }
     },
     "915774976": {
@@ -509,7 +493,70 @@
         "transient": false,
         "exported": true,
         "token": "Symbol(CONFIG_SERVICE)",
-        "initTime": 69.08910000324249
+        "initTime": 94.37590003013611
+      }
+    },
+    "959439869": {
+      "id": "959439869",
+      "label": "ChangePictureSingerController",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "controller",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "ChangePictureSingerController"
+      }
+    },
+    "1002213725": {
+      "id": "1002213725",
+      "label": "CONFIGURABLE_MODULE_OPTIONS[59f287812f2040239d484]",
+      "parent": "-1033621697",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DevtoolsModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "CONFIGURABLE_MODULE_OPTIONS[59f287812f2040239d484]"
+      }
+    },
+    "1013238375": {
+      "id": "1013238375",
+      "label": "SystemSagas",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "SystemSagas",
+        "initTime": 83.11970001459122
+      }
+    },
+    "1057759225": {
+      "id": "1057759225",
+      "label": "SingerSubscribedDomainEventHandler",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "SingerSubscribedDomainEventHandler",
+        "initTime": 84.30000001192093
       }
     },
     "1063746662": {
@@ -525,22 +572,7 @@
         "transient": false,
         "exported": true,
         "token": "CONFIGURATION_TOKEN",
-        "initTime": 63.74800002574921
-      }
-    },
-    "1082211783": {
-      "id": "1082211783",
-      "label": "GetSingerByIdQueryHandler",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "GetSingerByIdQueryHandler"
+        "initTime": 89.5586000084877
       }
     },
     "1233853495": {
@@ -556,7 +588,7 @@
         "transient": false,
         "exported": true,
         "token": "DomainCommandBus",
-        "initTime": 62.4277999997139
+        "initTime": 83.03749996423721
       }
     },
     "1319630879": {
@@ -572,7 +604,22 @@
         "transient": false,
         "exported": true,
         "token": "DddService",
-        "initTime": 63.30769997835159
+        "initTime": 83.83059996366501
+      }
+    },
+    "1330604452": {
+      "id": "1330604452",
+      "label": "SongRepository",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "SongRepository"
       }
     },
     "1419776374": {
@@ -604,7 +651,7 @@
         "transient": false,
         "exported": true,
         "token": "Reflector",
-        "initTime": 73.0920000076294
+        "initTime": 95.62430000305176
       }
     },
     "1475573941": {
@@ -621,21 +668,6 @@
         "transient": false,
         "exported": false,
         "token": "ModuleRef"
-      }
-    },
-    "1508187275": {
-      "id": "1508187275",
-      "label": "SubscribeSingerController",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "controller",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "SubscribeSingerController"
       }
     },
     "1528017428": {
@@ -680,6 +712,21 @@
         "token": "ModuleRef"
       }
     },
+    "1643886814": {
+      "id": "1643886814",
+      "label": "ChangeFullNameSingerCommandHandler",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "ChangeFullNameSingerCommandHandler"
+      }
+    },
     "1649461507": {
       "id": "1649461507",
       "label": "DddModule",
@@ -703,7 +750,7 @@
         "transient": false,
         "exported": false,
         "token": "MetaRequestContextService",
-        "initTime": 59.61540001630783
+        "initTime": 87.47150003910065
       }
     },
     "1688619051": {
@@ -737,6 +784,21 @@
         "token": "ModuleRef"
       }
     },
+    "1704237335": {
+      "id": "1704237335",
+      "label": "AddSongToSingerCommandHandler",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "AddSongToSingerCommandHandler"
+      }
+    },
     "1712628187": {
       "id": "1712628187",
       "label": "ConfigModule",
@@ -745,36 +807,6 @@
         "global": false,
         "dynamic": true,
         "internal": false
-      }
-    },
-    "1715331022": {
-      "id": "1715331022",
-      "label": "RemoveSingerCommandHandler",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "RemoveSingerCommandHandler"
-      }
-    },
-    "1763442905": {
-      "id": "1763442905",
-      "label": "CreateSingerController",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "controller",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "CreateSingerController"
       }
     },
     "1769319388": {
@@ -791,7 +823,7 @@
         "transient": false,
         "exported": false,
         "token": "ConfigModule",
-        "initTime": 64.44129997491837
+        "initTime": 90.13509994745255
       }
     },
     "1771390018": {
@@ -824,7 +856,7 @@
         "transient": false,
         "exported": false,
         "token": "ConfigHostModule",
-        "initTime": 63.82539999485016
+        "initTime": 89.66570001840591
       }
     },
     "1809676814": {
@@ -873,23 +905,7 @@
         "transient": false,
         "exported": true,
         "token": "REQUEST",
-        "initTime": 61.61180001497269
-      }
-    },
-    "1932175216": {
-      "id": "1932175216",
-      "label": "SingerMapper",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "SingerMapper",
-        "initTime": 65.53949999809265
+        "initTime": 85.24690002202988
       }
     },
     "1989588516": {
@@ -908,34 +924,19 @@
         "token": "ApplicationConfig"
       }
     },
-    "2025359681": {
-      "id": "2025359681",
-      "label": "AddSongToSingerCommandHandler",
-      "parent": "-19112576",
+    "2030811687": {
+      "id": "2030811687",
+      "label": "RemoveSingerController",
+      "parent": "-786025002",
       "metadata": {
-        "type": "provider",
+        "type": "controller",
         "internal": false,
-        "sourceModuleName": "AppModule",
+        "sourceModuleName": "SingersModule",
         "durable": false,
         "static": true,
         "transient": false,
         "exported": false,
-        "token": "AddSongToSingerCommandHandler"
-      }
-    },
-    "2053351502": {
-      "id": "2053351502",
-      "label": "SongRepository",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "SongRepository"
+        "token": "RemoveSingerController"
       }
     },
     "2075644217": {
@@ -1016,7 +1017,7 @@
         "transient": true,
         "exported": true,
         "token": "INQUIRER",
-        "initTime": 61.521399974823
+        "initTime": 85.1923999786377
       }
     },
     "-26938366": {
@@ -1064,7 +1065,7 @@
         "transient": false,
         "exported": true,
         "token": "LazyModuleLoader",
-        "initTime": 67.4617999792099
+        "initTime": 90.54919999837875
       }
     },
     "-1904419534": {
@@ -1107,7 +1108,7 @@
         "transient": false,
         "exported": false,
         "token": "AppModule",
-        "initTime": 67.34789997339249
+        "initTime": 90.42330002784729
       }
     },
     "-71302842": {
@@ -1142,113 +1143,6 @@
         "token": "ApplicationConfig"
       }
     },
-    "-285955498": {
-      "id": "-285955498",
-      "label": "CreateSingerCommandHandler",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "CreateSingerCommandHandler"
-      }
-    },
-    "-1766022008": {
-      "id": "-1766022008",
-      "label": "ChangeFullNameSingerCommandHandler",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "ChangeFullNameSingerCommandHandler"
-      }
-    },
-    "-645620472": {
-      "id": "-645620472",
-      "label": "SubscribeSingerCommandHandler",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "SubscribeSingerCommandHandler"
-      }
-    },
-    "-886842818": {
-      "id": "-886842818",
-      "label": "RemoveSongToSingerCommandHandler",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "RemoveSongToSingerCommandHandler"
-      }
-    },
-    "-298135261": {
-      "id": "-298135261",
-      "label": "SingerSubscribedDomainEventHandler",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "SingerSubscribedDomainEventHandler",
-        "initTime": 65.59270000457764
-      }
-    },
-    "-193124169": {
-      "id": "-193124169",
-      "label": "SongMapper",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "SongMapper",
-        "initTime": 65.48769998550415
-      }
-    },
-    "-732880249": {
-      "id": "-732880249",
-      "label": "SingerRepository",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "SingerRepository"
-      }
-    },
     "-322228083": {
       "id": "-322228083",
       "label": "MetaRequestContextInterceptor",
@@ -1263,7 +1157,7 @@
         "exported": false,
         "token": "APP_INTERCEPTOR (UUID: -1146749753)",
         "subtype": "interceptor",
-        "initTime": 64.80660003423691
+        "initTime": 90.31749999523163
       }
     },
     "-331776899": {
@@ -1279,82 +1173,7 @@
         "transient": false,
         "exported": false,
         "token": "MetaRequestContextService",
-        "initTime": 64.6923999786377
-      }
-    },
-    "-1043777753": {
-      "id": "-1043777753",
-      "label": "ChangePictureSingerController",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "controller",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "ChangePictureSingerController"
-      }
-    },
-    "-2104839599": {
-      "id": "-2104839599",
-      "label": "RemoveSingerController",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "controller",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "RemoveSingerController"
-      }
-    },
-    "-1763570364": {
-      "id": "-1763570364",
-      "label": "AddSongToSingerController",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "controller",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "AddSongToSingerController"
-      }
-    },
-    "-420518719": {
-      "id": "-420518719",
-      "label": "RemoveSongToSingerController",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "controller",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "RemoveSongToSingerController"
-      }
-    },
-    "-1526861330": {
-      "id": "-1526861330",
-      "label": "GetSingerByIdCriteriaController",
-      "parent": "-19112576",
-      "metadata": {
-        "type": "controller",
-        "internal": false,
-        "sourceModuleName": "AppModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": false,
-        "token": "GetSingerByIdCriteriaController"
+        "initTime": 90.26759999990463
       }
     },
     "-503631789": {
@@ -1396,7 +1215,7 @@
         "transient": false,
         "exported": false,
         "token": "DevtoolsModule",
-        "initTime": 63.209800004959106
+        "initTime": 89.07270002365112
       }
     },
     "-751962311": {
@@ -1413,22 +1232,6 @@
         "transient": false,
         "exported": false,
         "token": "ModuleRef"
-      }
-    },
-    "-1577254197": {
-      "id": "-1577254197",
-      "label": "CONFIGURABLE_MODULE_OPTIONS[8fd3a2374096c8c778247]",
-      "parent": "-1033621697",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "DevtoolsModule",
-        "durable": false,
-        "static": true,
-        "scope": 0,
-        "transient": false,
-        "exported": false,
-        "token": "CONFIGURABLE_MODULE_OPTIONS[8fd3a2374096c8c778247]"
       }
     },
     "-643397745": {
@@ -1455,7 +1258,7 @@
         "transient": false,
         "exported": false,
         "token": "DiscoveryModule",
-        "initTime": 62.269300043582916
+        "initTime": 88.07480001449585
       }
     },
     "-501891371": {
@@ -1503,7 +1306,7 @@
         "transient": false,
         "exported": true,
         "token": "MetadataScanner",
-        "initTime": 62.47690004110336
+        "initTime": 88.32480001449585
       }
     },
     "-1234219207": {
@@ -1548,143 +1351,6 @@
         "token": "ApplicationConfig"
       }
     },
-    "-905679032": {
-      "id": "-905679032",
-      "label": "CqrsModule",
-      "metadata": {
-        "type": "module",
-        "global": false,
-        "dynamic": false,
-        "internal": false
-      }
-    },
-    "-77522000": {
-      "id": "-77522000",
-      "label": "CommandBus",
-      "parent": "-905679032",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "CqrsModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": true,
-        "token": "CommandBus",
-        "initTime": 63.6350000500679
-      }
-    },
-    "-1452901037": {
-      "id": "-1452901037",
-      "label": "QueryBus",
-      "parent": "-905679032",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "CqrsModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": true,
-        "token": "QueryBus",
-        "initTime": 63.53769999742508
-      }
-    },
-    "-227071807": {
-      "id": "-227071807",
-      "label": "EventBus",
-      "parent": "-905679032",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "CqrsModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": true,
-        "token": "EventBus",
-        "initTime": 66.98000001907349
-      }
-    },
-    "-1789024433": {
-      "id": "-1789024433",
-      "label": "UnhandledExceptionBus",
-      "parent": "-905679032",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "CqrsModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": true,
-        "token": "UnhandledExceptionBus",
-        "initTime": 61.062299966812134
-      }
-    },
-    "-690636288": {
-      "id": "-690636288",
-      "label": "DddModule",
-      "parent": "1649461507",
-      "metadata": {
-        "type": "provider",
-        "internal": true,
-        "sourceModuleName": "DddModule",
-        "durable": false,
-        "static": true,
-        "scope": 0,
-        "transient": false,
-        "exported": false,
-        "token": "DddModule"
-      }
-    },
-    "-396048642": {
-      "id": "-396048642",
-      "label": "ApplicationConfig",
-      "parent": "1649461507",
-      "metadata": {
-        "type": "provider",
-        "internal": true,
-        "sourceModuleName": "DddModule",
-        "durable": false,
-        "static": true,
-        "scope": 0,
-        "transient": false,
-        "exported": false,
-        "token": "ApplicationConfig"
-      }
-    },
-    "-660772982": {
-      "id": "-660772982",
-      "label": "DomainEventPublisher",
-      "parent": "1649461507",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "DddModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": true,
-        "token": "DomainEventPublisher"
-      }
-    },
-    "-595790820": {
-      "id": "-595790820",
-      "label": "UnhandledExceptionBus",
-      "parent": "1649461507",
-      "metadata": {
-        "type": "provider",
-        "internal": false,
-        "sourceModuleName": "DddModule",
-        "durable": false,
-        "static": true,
-        "transient": false,
-        "exported": true,
-        "token": "UnhandledExceptionBus",
-        "initTime": 59.803799986839294
-      }
-    },
     "-1825934046": {
       "id": "-1825934046",
       "label": "SharedModule",
@@ -1699,7 +1365,7 @@
         "transient": false,
         "exported": false,
         "token": "SharedModule",
-        "initTime": 59.721400022506714
+        "initTime": 87.56110000610352
       }
     },
     "-323870493": {
@@ -1732,7 +1398,7 @@
         "transient": false,
         "exported": false,
         "token": "DatabaseModule",
-        "initTime": 59.538500010967255
+        "initTime": 87.394700050354
       }
     },
     "-2135742481": {
@@ -1759,7 +1425,7 @@
         "transient": false,
         "exported": false,
         "token": "TypeOrmModule",
-        "initTime": 59.43269997835159
+        "initTime": 87.20639997720718
       }
     },
     "-1068388246": {
@@ -1792,7 +1458,7 @@
         "transient": false,
         "exported": false,
         "token": "TypeOrmModule",
-        "initTime": 59.14989995956421
+        "initTime": 86.88879996538162
       }
     },
     "-223917668": {
@@ -1878,6 +1544,202 @@
         "token": "ModuleRef"
       }
     },
+    "-1760333474": {
+      "id": "-1760333474",
+      "label": "SubscribeSingerCommandHandler",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "SubscribeSingerCommandHandler"
+      }
+    },
+    "-868097756": {
+      "id": "-868097756",
+      "label": "RemoveSingerCommandHandler",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "RemoveSingerCommandHandler"
+      }
+    },
+    "-3857516": {
+      "id": "-3857516",
+      "label": "RemoveSongToSingerCommandHandler",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "RemoveSongToSingerCommandHandler"
+      }
+    },
+    "-2141321274": {
+      "id": "-2141321274",
+      "label": "SingerMapper",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "SingerMapper",
+        "initTime": 84.25069999694824
+      }
+    },
+    "-1525473443": {
+      "id": "-1525473443",
+      "label": "SingerRepository",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "SingerRepository"
+      }
+    },
+    "-654377440": {
+      "id": "-654377440",
+      "label": "GetSingersQueryHandler",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "GetSingersQueryHandler"
+      }
+    },
+    "-113010019": {
+      "id": "-113010019",
+      "label": "GetSingerByIdQueryHandler",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "GetSingerByIdQueryHandler"
+      }
+    },
+    "-1450541343": {
+      "id": "-1450541343",
+      "label": "ChangeFullNameSingerController",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "controller",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "ChangeFullNameSingerController"
+      }
+    },
+    "-330139807": {
+      "id": "-330139807",
+      "label": "SubscribeSingerController",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "controller",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "SubscribeSingerController"
+      }
+    },
+    "-1954126950": {
+      "id": "-1954126950",
+      "label": "AddSongToSingerController",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "controller",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "AddSongToSingerController"
+      }
+    },
+    "-571362153": {
+      "id": "-571362153",
+      "label": "RemoveSongToSingerController",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "controller",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "RemoveSongToSingerController"
+      }
+    },
+    "-2086658704": {
+      "id": "-2086658704",
+      "label": "GetSingersByCriteriaController",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "controller",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "GetSingersByCriteriaController"
+      }
+    },
+    "-1435770044": {
+      "id": "-1435770044",
+      "label": "GetSingerByIdCriteriaController",
+      "parent": "-786025002",
+      "metadata": {
+        "type": "controller",
+        "internal": false,
+        "sourceModuleName": "SingersModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": false,
+        "token": "GetSingerByIdCriteriaController"
+      }
+    },
     "-257450701": {
       "id": "-257450701",
       "label": "TypeOrmModule",
@@ -1892,7 +1754,7 @@
         "transient": false,
         "exported": false,
         "token": "TypeOrmModule",
-        "initTime": 58.2746000289917
+        "initTime": 83.01840001344681
       }
     },
     "-223917667": {
@@ -1940,25 +1802,145 @@
         "exported": true,
         "token": "SongRepository"
       }
+    },
+    "-905679032": {
+      "id": "-905679032",
+      "label": "CqrsModule",
+      "metadata": {
+        "type": "module",
+        "global": false,
+        "dynamic": false,
+        "internal": false
+      }
+    },
+    "-77522000": {
+      "id": "-77522000",
+      "label": "CommandBus",
+      "parent": "-905679032",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "CqrsModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "CommandBus",
+        "initTime": 84.17980003356934
+      }
+    },
+    "-1452901037": {
+      "id": "-1452901037",
+      "label": "QueryBus",
+      "parent": "-905679032",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "CqrsModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "QueryBus",
+        "initTime": 84.05320000648499
+      }
+    },
+    "-227071807": {
+      "id": "-227071807",
+      "label": "EventBus",
+      "parent": "-905679032",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "CqrsModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "EventBus"
+      }
+    },
+    "-1789024433": {
+      "id": "-1789024433",
+      "label": "UnhandledExceptionBus",
+      "parent": "-905679032",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "CqrsModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "UnhandledExceptionBus",
+        "initTime": 82.14469999074936
+      }
+    },
+    "-690636288": {
+      "id": "-690636288",
+      "label": "DddModule",
+      "parent": "1649461507",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DddModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "DddModule"
+      }
+    },
+    "-396048642": {
+      "id": "-396048642",
+      "label": "ApplicationConfig",
+      "parent": "1649461507",
+      "metadata": {
+        "type": "provider",
+        "internal": true,
+        "sourceModuleName": "DddModule",
+        "durable": false,
+        "static": true,
+        "scope": 0,
+        "transient": false,
+        "exported": false,
+        "token": "ApplicationConfig"
+      }
+    },
+    "-660772982": {
+      "id": "-660772982",
+      "label": "DomainEventPublisher",
+      "parent": "1649461507",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DddModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "DomainEventPublisher"
+      }
+    },
+    "-595790820": {
+      "id": "-595790820",
+      "label": "UnhandledExceptionBus",
+      "parent": "1649461507",
+      "metadata": {
+        "type": "provider",
+        "internal": false,
+        "sourceModuleName": "DddModule",
+        "durable": false,
+        "static": true,
+        "transient": false,
+        "exported": true,
+        "token": "UnhandledExceptionBus",
+        "initTime": 80.94699996709824
+      }
     }
   },
   "edges": {
-    "156525937": {
-      "source": "-227071807",
-      "target": "-77522000",
-      "metadata": {
-        "type": "class-to-class",
-        "sourceModuleName": "CqrsModule",
-        "sourceClassName": "EventBus",
-        "targetClassName": "CommandBus",
-        "sourceClassToken": "EventBus",
-        "targetClassToken": "CommandBus",
-        "targetModuleName": "CqrsModule",
-        "keyOrIndex": 0,
-        "injectionType": "constructor"
-      },
-      "id": "156525937"
-    },
     "175763745": {
       "source": "545846241",
       "target": "211572259",
@@ -2015,23 +1997,6 @@
         "targetModuleName": "ConfigHostModule"
       },
       "id": "353572985"
-    },
-    "405693722": {
-      "source": "914432006",
-      "target": "1597271241",
-      "metadata": {
-        "type": "class-to-class",
-        "sourceModuleName": "DddModule",
-        "sourceClassName": "DomainEventBus",
-        "targetClassName": "ModuleRef",
-        "sourceClassToken": "DomainEventBus",
-        "targetClassToken": "ModuleRef",
-        "targetModuleName": "DddModule",
-        "keyOrIndex": 1,
-        "injectionType": "constructor",
-        "internal": true
-      },
-      "id": "405693722"
     },
     "525256965": {
       "source": "472982718",
@@ -2163,23 +2128,6 @@
       },
       "id": "1240855953"
     },
-    "1251768680": {
-      "source": "-227071807",
-      "target": "1771390018",
-      "metadata": {
-        "type": "class-to-class",
-        "sourceModuleName": "CqrsModule",
-        "sourceClassName": "EventBus",
-        "targetClassName": "ModuleRef",
-        "sourceClassToken": "EventBus",
-        "targetClassToken": "ModuleRef",
-        "targetModuleName": "CqrsModule",
-        "keyOrIndex": 1,
-        "injectionType": "constructor",
-        "internal": true
-      },
-      "id": "1251768680"
-    },
     "1262696338": {
       "source": "1649461507",
       "target": "-1026304274",
@@ -2304,22 +2252,6 @@
       },
       "id": "1801916176"
     },
-    "1831810448": {
-      "source": "914432006",
-      "target": "1233853495",
-      "metadata": {
-        "type": "class-to-class",
-        "sourceModuleName": "DddModule",
-        "sourceClassName": "DomainEventBus",
-        "targetClassName": "DomainCommandBus",
-        "sourceClassToken": "DomainEventBus",
-        "targetClassToken": "DomainCommandBus",
-        "targetModuleName": "DddModule",
-        "keyOrIndex": 0,
-        "injectionType": "constructor"
-      },
-      "id": "1831810448"
-    },
     "1976848738": {
       "source": "1528017428",
       "target": "555176277",
@@ -2349,23 +2281,6 @@
         "targetModuleName": "TypeOrmCoreModule"
       },
       "id": "2107559886"
-    },
-    "-1602614019": {
-      "source": "-77522000",
-      "target": "1771390018",
-      "metadata": {
-        "type": "class-to-class",
-        "sourceModuleName": "CqrsModule",
-        "sourceClassName": "CommandBus",
-        "targetClassName": "ModuleRef",
-        "sourceClassToken": "CommandBus",
-        "targetClassToken": "ModuleRef",
-        "targetModuleName": "CqrsModule",
-        "keyOrIndex": 0,
-        "injectionType": "constructor",
-        "internal": true
-      },
-      "id": "-1602614019"
     },
     "-1537161641": {
       "source": "731684192",
@@ -2400,6 +2315,23 @@
       },
       "id": "-1463782886"
     },
+    "-1602614019": {
+      "source": "-77522000",
+      "target": "1771390018",
+      "metadata": {
+        "type": "class-to-class",
+        "sourceModuleName": "CqrsModule",
+        "sourceClassName": "CommandBus",
+        "targetClassName": "ModuleRef",
+        "sourceClassToken": "CommandBus",
+        "targetClassToken": "ModuleRef",
+        "targetModuleName": "CqrsModule",
+        "keyOrIndex": 0,
+        "injectionType": "constructor",
+        "internal": true
+      },
+      "id": "-1602614019"
+    },
     "-221187751": {
       "source": "400681591",
       "target": "-26938366",
@@ -2416,22 +2348,6 @@
         "internal": true
       },
       "id": "-221187751"
-    },
-    "-951393523": {
-      "source": "930519593",
-      "target": "1063746662",
-      "metadata": {
-        "type": "class-to-class",
-        "sourceModuleName": "ConfigHostModule",
-        "sourceClassName": "ConfigService",
-        "targetClassName": "CONFIGURATION_TOKEN",
-        "sourceClassToken": "Symbol(CONFIG_SERVICE)",
-        "targetClassToken": "CONFIGURATION_TOKEN",
-        "targetModuleName": "ConfigHostModule",
-        "keyOrIndex": 0,
-        "injectionType": "constructor"
-      },
-      "id": "-951393523"
     },
     "-844262897": {
       "source": "-19112576",
@@ -2452,26 +2368,6 @@
         "targetModuleName": "DevtoolsModule"
       },
       "id": "-692061701"
-    },
-    "-1060987281": {
-      "source": "-19112576",
-      "target": "-905679032",
-      "metadata": {
-        "type": "module-to-module",
-        "sourceModuleName": "AppModule",
-        "targetModuleName": "CqrsModule"
-      },
-      "id": "-1060987281"
-    },
-    "-2030387269": {
-      "source": "-19112576",
-      "target": "1649461507",
-      "metadata": {
-        "type": "module-to-module",
-        "sourceModuleName": "AppModule",
-        "targetModuleName": "DddModule"
-      },
-      "id": "-2030387269"
     },
     "-1165172840": {
       "source": "-19112576",
@@ -2592,56 +2488,6 @@
         "targetModuleName": "TypeOrmCoreModule"
       },
       "id": "-586004219"
-    },
-    "-2017568312": {
-      "source": "-905679032",
-      "target": "555176277",
-      "metadata": {
-        "type": "module-to-module",
-        "sourceModuleName": "CqrsModule",
-        "targetModuleName": "InternalCoreModule"
-      },
-      "id": "-2017568312"
-    },
-    "-554837095": {
-      "source": "-905679032",
-      "target": "211572259",
-      "metadata": {
-        "type": "module-to-module",
-        "sourceModuleName": "CqrsModule",
-        "targetModuleName": "ConfigHostModule"
-      },
-      "id": "-554837095"
-    },
-    "-1855516438": {
-      "source": "-905679032",
-      "target": "-1026304274",
-      "metadata": {
-        "type": "module-to-module",
-        "sourceModuleName": "CqrsModule",
-        "targetModuleName": "TypeOrmCoreModule"
-      },
-      "id": "-1855516438"
-    },
-    "-2093584098": {
-      "source": "1649461507",
-      "target": "555176277",
-      "metadata": {
-        "type": "module-to-module",
-        "sourceModuleName": "DddModule",
-        "targetModuleName": "InternalCoreModule"
-      },
-      "id": "-2093584098"
-    },
-    "-1980841135": {
-      "source": "1649461507",
-      "target": "211572259",
-      "metadata": {
-        "type": "module-to-module",
-        "sourceModuleName": "DddModule",
-        "targetModuleName": "ConfigHostModule"
-      },
-      "id": "-1980841135"
     },
     "-1930766348": {
       "source": "472982718",
@@ -2773,6 +2619,72 @@
       },
       "id": "-1627865725"
     },
+    "-2017568312": {
+      "source": "-905679032",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "CqrsModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "-2017568312"
+    },
+    "-554837095": {
+      "source": "-905679032",
+      "target": "211572259",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "CqrsModule",
+        "targetModuleName": "ConfigHostModule"
+      },
+      "id": "-554837095"
+    },
+    "-1855516438": {
+      "source": "-905679032",
+      "target": "-1026304274",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "CqrsModule",
+        "targetModuleName": "TypeOrmCoreModule"
+      },
+      "id": "-1855516438"
+    },
+    "-2093584098": {
+      "source": "1649461507",
+      "target": "555176277",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DddModule",
+        "targetModuleName": "InternalCoreModule"
+      },
+      "id": "-2093584098"
+    },
+    "-1980841135": {
+      "source": "1649461507",
+      "target": "211572259",
+      "metadata": {
+        "type": "module-to-module",
+        "sourceModuleName": "DddModule",
+        "targetModuleName": "ConfigHostModule"
+      },
+      "id": "-1980841135"
+    },
+    "-951393523": {
+      "source": "930519593",
+      "target": "1063746662",
+      "metadata": {
+        "type": "class-to-class",
+        "sourceModuleName": "ConfigHostModule",
+        "sourceClassName": "ConfigService",
+        "targetClassName": "CONFIGURATION_TOKEN",
+        "sourceClassToken": "Symbol(CONFIG_SERVICE)",
+        "targetClassToken": "CONFIGURATION_TOKEN",
+        "targetModuleName": "ConfigHostModule",
+        "keyOrIndex": 0,
+        "injectionType": "constructor"
+      },
+      "id": "-951393523"
+    },
     "-1597821732": {
       "source": "373235992",
       "target": "-1904419534",
@@ -2806,38 +2718,6 @@
         "internal": true
       },
       "id": "-2041147046"
-    },
-    "-1140765596": {
-      "source": "-227071807",
-      "target": "-1789024433",
-      "metadata": {
-        "type": "class-to-class",
-        "sourceModuleName": "CqrsModule",
-        "sourceClassName": "EventBus",
-        "targetClassName": "UnhandledExceptionBus",
-        "sourceClassToken": "EventBus",
-        "targetClassToken": "UnhandledExceptionBus",
-        "targetModuleName": "CqrsModule",
-        "keyOrIndex": 2,
-        "injectionType": "constructor"
-      },
-      "id": "-1140765596"
-    },
-    "-260171858": {
-      "source": "914432006",
-      "target": "-595790820",
-      "metadata": {
-        "type": "class-to-class",
-        "sourceModuleName": "DddModule",
-        "sourceClassName": "DomainEventBus",
-        "targetClassName": "UnhandledExceptionBus",
-        "sourceClassToken": "DomainEventBus",
-        "targetClassToken": "UnhandledExceptionBus",
-        "targetModuleName": "DddModule",
-        "keyOrIndex": 2,
-        "injectionType": "constructor"
-      },
-      "id": "-260171858"
     }
   },
   "entrypoints": {},
@@ -2850,14 +2730,15 @@
     "cause": {
       "type": "unknown-dependencies",
       "context": {
-        "index": 0,
+        "index": 1,
         "dependencies": [
-          "SingerRepository"
+          "SingerRepository",
+          "Repository"
         ],
-        "name": "SingerRepository"
+        "name": "Repository"
       },
-      "moduleId": "-19112576",
-      "nodeId": "-732880249"
+      "moduleId": "-786025002",
+      "nodeId": "-1525473443"
     }
   }
 }

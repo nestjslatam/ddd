@@ -4,6 +4,7 @@ import {
   Entity,
   CreateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 import { Audit } from './audit.table';
@@ -14,8 +15,9 @@ export class Song {
   @PrimaryColumn()
   id: string;
 
-  @ManyToOne(() => Singer, (singer) => singer.songs)
-  singer: Singer;
+  @ManyToOne(() => Singer, (singer) => singer.songs, { cascade: true })
+  @JoinColumn({ name: 'singer_id', referencedColumnName: 'id' })
+  singer!: Singer;
 
   @Column({ nullable: true })
   name: string;

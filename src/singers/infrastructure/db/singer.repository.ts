@@ -20,10 +20,16 @@ export class SingerRepository
   constructor(
     @InjectRepository(SingerTable)
     readonly repository: Repository<SingerTable>,
+    @InjectRepository(SongTable)
+    readonly repositorySong: Repository<SongTable>,
   ) {}
 
   async find(): Promise<Singer[]> {
-    const result = await this.repository.find();
+    const result = await this.repository.find({
+      relations: {
+        songs: true,
+      },
+    });
 
     return result.map((s) => SingerMapper.toDomain(s));
   }
@@ -66,25 +72,21 @@ export class SingerRepository
     await this.repository.delete(id);
   }
 
-  async addSong(singerId: string, song: Song): Promise<void> {
+  async addSong(parent: Singer, song: Song): Promise<void> {
     const songTable = SongMapper.toTable(song);
+    const parentTable = SingerMapper.toTable(parent);
 
-    this.repository.manager.transaction(async (manager) => {
-      await manager.save(songTable);
-
-      const singer = await manager.findOneBy(SingerTable, { id: singerId });
-
-      singer.songs.push(songTable);
-
-      await manager.save(singer);
-    });
+    this.repositorySong.save(songTable);
+    this.repository.save(parentTable);
   }
 
-  async removeSong(singerId: string, song: Song): Promise<void> {
+  async removeSong(parent: Singer, song: Song): Promise<void> {
     const songTable = SongMapper.toTable(song);
 
     this.repository.manager.transaction(async (manager) => {
-      const singer = await manager.findOneBy(SingerTable, { id: singerId });
+      const singer = await manager.findOneBy(SingerTable, {
+        id: parent.getId(),
+      });
 
       singer.songs = singer.songs.filter((s) => s.id !== songTable.id);
 

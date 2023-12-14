@@ -39,6 +39,6 @@ export class RemoveSongToSingerCommandHandler extends AbstractCommandHandler<Rem
 
     this.checkBusinessRules(singer);
 
-    this.repository.removeSong(singerId, song);
+    this.repository.removeSong(singer, song);
   }
 }

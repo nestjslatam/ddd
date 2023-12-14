@@ -52,6 +52,6 @@ export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSon
 
     this.checkBusinessRules(songCreated);
 
-    this.repository.addSong(id, songCreated);
+    this.repository.addSong(singer, songCreated);
   }
 }

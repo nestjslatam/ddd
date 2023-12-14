@@ -1,8 +1,9 @@
 import { TrackingProps } from '@nestjslatam/ddd-lib';
 
-import { SingerTable } from '../../../database/tables';
+import { SingerTable, SongTable } from '../../../database/tables';
 import { Id } from '../../../shared';
 import { Singer } from '../../domain';
+import { SongMapper } from './song.mapper';
 
 export class SingerMapper {
   static toTable(domain: Singer): SingerTable {
@@ -12,6 +13,7 @@ export class SingerMapper {
       registerDate,
       isSubscribed,
       subscribedDate,
+      songs,
       status,
       audit,
     } = domain.getProps();
@@ -23,6 +25,7 @@ export class SingerMapper {
     table.registerDate = registerDate.unpack();
     table.isSubscribed = isSubscribed;
     table.subscribedDate = subscribedDate ? subscribedDate.unpack() : null;
+    table.songs = songs ? songs.map((s) => SongMapper.toTable(s)) : [];
     table.status = status;
 
     const { createdBy, createdAt, updatedBy, updatedAt, timestamp } =
@@ -66,6 +69,8 @@ export class SingerMapper {
         timestamp: audit.timestamp,
       },
     });
+
+    domain.getProps().songs = table.songs.map((s) => SongMapper.toDomain(s));
 
     domain.setId(Id.load(table.id));
 

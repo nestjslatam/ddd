@@ -3,6 +3,11 @@ import { DomainIdAsString, IDomainPrimitive } from '@nestjslatam/ddd-lib';
 import { v4 } from 'uuid';
 
 export class Id extends DomainIdAsString {
+  protected constructor(value: string) {
+    super(value);
+
+    this.businessRules({ value });
+  }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected businessRules(props: IDomainPrimitive<string>): void {
     //
@@ -13,6 +18,6 @@ export class Id extends DomainIdAsString {
   }
 
   static load(value: string): Id {
-    return new Id({ value });
+    return new Id(value);
   }
 }

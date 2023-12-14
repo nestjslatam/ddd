@@ -9,6 +9,20 @@ const UUID_V4_PATTERN =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 export class DomainIdAsString extends AbstractDomainValueObject<string> {
+  protected constructor(value: string) {
+    super({ value });
+
+    this.businessRules({ value });
+  }
+
+  public static create(value: string): DomainIdAsString {
+    return new DomainIdAsString(value);
+  }
+
+  public static load(value: string): DomainIdAsString {
+    return new DomainIdAsString(value);
+  }
+
   protected businessRules(props: IDomainPrimitive<string>): void {
     const { value } = props;
 

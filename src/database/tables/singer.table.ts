@@ -30,7 +30,7 @@ export class Singer {
   subscribedDate?: Date;
 
   @OneToMany(() => Song, (song) => song.singer)
-  songs: Song[];
+  songs!: Song[];
 
   @Column({ nullable: true, default: 'registered' })
   status: string;

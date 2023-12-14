@@ -9,7 +9,7 @@ export class AddSongToSingerController {
 
   @Post('/addsong/:id')
   async addSong(
-    @Param() id: string,
+    @Param('id') id: string,
     @Body() addSongToSinger: AddSongToSingerDto,
   ): Promise<void> {
     if (!addSongToSinger || addSongToSinger === undefined) return;

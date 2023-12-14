@@ -1,25 +1,29 @@
 import { Id } from 'src/shared/domain';
-import { SongTable } from '../../../database/tables';
+import { SingerTable, SongTable } from '../../../database/tables';
 import { Song } from '../../domain';
 import { TrackingProps } from '@nestjslatam/ddd-lib';
 
 export class SongMapper {
   static toTable(domain: Song): SongTable {
-    const { singerId, name, status, audit } = domain.getProps();
+    const { name, status, audit, singerId } = domain.getProps();
 
     const table = new SongTable();
     table.id = domain.getId();
-    table.singer.id = singerId.unpack();
     table.name = name.unpack();
     table.status = status;
+    table.singer = new SingerTable();
+    table.singer.id = singerId.unpack();
+
     const { createdBy, createdAt, updatedBy, updatedAt, timestamp } =
       audit.unpack();
 
-    table.audit.createdBy = createdBy;
-    table.audit.createdAt = createdAt;
-    table.audit.updatedBy = updatedBy;
-    table.audit.updatedAt = updatedAt;
-    table.audit.timestamp = timestamp;
+    table.audit = {
+      createdBy,
+      createdAt,
+      updatedBy,
+      updatedAt,
+      timestamp,
+    };
 
     return table;
   }
