@@ -26,9 +26,7 @@ export class SingerRepository
 
   async find(): Promise<Singer[]> {
     const result = await this.repository.find({
-      relations: {
-        songs: true,
-      },
+      relations: ['songs'],
     });
 
     return result.map((s) => SingerMapper.toDomain(s));

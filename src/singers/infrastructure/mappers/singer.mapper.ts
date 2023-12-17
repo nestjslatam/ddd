@@ -70,7 +70,13 @@ export class SingerMapper {
       },
     });
 
-    domain.getProps().songs = table.songs.map((s) => SongMapper.toDomain(s));
+    if (table.songs) {
+      const songs = table.songs.map((s) => SongMapper.toDomain(s));
+
+      songs.forEach((s) => {
+        domain.addSong(s, s.getProps().audit);
+      });
+    }
 
     domain.setId(Id.load(table.id));
 

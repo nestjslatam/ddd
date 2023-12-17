@@ -29,12 +29,12 @@ export class SongMapper {
   }
 
   static toDomain(table: SongTable): Song {
-    const { singer, name, status, audit } = table;
+    const { singerId, name, status, audit } = table;
 
     const domain = Song.load({
       id: table.id,
       name,
-      singerId: singer.id,
+      singerId: singerId,
       status,
       audit: {
         createdBy: audit.createdBy,

@@ -36,7 +36,7 @@
     "@nestjs/platform-express": "^10.2.10",
     "@nestjs/swagger": "^7.1.16",
     "@nestjs/typeorm": "^10.0.1",
-    "@nestjslatam/ddd-lib": "^1.0.42",
+    "@nestjslatam/ddd-lib": "^1.0.43",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "graphql": "^16.8.1",
@@ -47,6 +47,8 @@
     "release-it": "^17.0.0",
     "rimraf": "^5.0.5",
     "rxjs": "^7.8.1",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.6",
     "typeorm": "^0.3.17"
   },
   "devDependencies": {
