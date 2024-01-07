@@ -1,4 +1,4 @@
-# Ddd Library
+# Ddd Library For NESTJS
 
 Welcome to DDD Library for NESTJS, an innovative open-source library crafted to seamlessly integrate Domain-Driven Design (DDD) principles into your NESTJS applications. This powerful library is meticulously developed with a focus on TypeScript, leveraging the robust capabilities of NESTJS and ensuring seamless compatibility with Node.js.
 
