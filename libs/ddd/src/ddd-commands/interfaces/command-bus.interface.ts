@@ -1,7 +1,21 @@
 import { IDomainCommand } from './command.interface';
-
+/**
+ * Represents a command bus that executes domain commands.
+ *
+ * @template TDomainCommandBase - The base type for domain commands.
+ */
 export interface IDomainCommandBus<
-  DomainCommandBase extends IDomainCommand = IDomainCommand,
+  TDomainCommandBase extends IDomainCommand = IDomainCommand,
 > {
-  execute<T extends DomainCommandBase, R = any>(domainCommand: T): Promise<R>;
+  /**
+   * Executes a domain command and returns a promise that resolves to the result.
+   *
+   * @template T - The specific type of the domain command.
+   * @template TResult - The type of the result returned by the command execution.
+   * @param domainCommand - The domain command to be executed.
+   * @returns A promise that resolves to the result of the command execution.
+   */
+  execute<T extends TDomainCommandBase, TResult = any>(
+    domainCommand: T,
+  ): Promise<TResult>;
 }

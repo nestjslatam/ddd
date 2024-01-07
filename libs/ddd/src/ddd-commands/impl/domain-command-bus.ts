@@ -1,12 +1,11 @@
 import 'reflect-metadata';
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 
 import {
   IDomainCommand,
   IDomainCommandBus,
   IDomainCommandHandler,
-  IDomainCommandMetadata,
   IDomainCommandPublisher,
 } from '../interfaces';
 import { ObservableBus } from '../../ddd-core';
@@ -14,102 +13,143 @@ import {
   DomainCommandHandlerNotFoundException,
   DomainInvalidCommandHandlerException,
 } from '../../ddd-exceptions';
-import {
-  DOMAIN_COMMAND_HANDLER_METADATA,
-  DOMAIN_COMMAND_METADATA,
-} from '../../ddd-decorators';
-import { DefaultCommandPubSubHelper } from './default-command-publisher';
 
-export type CommandHandlerType = Type<IDomainCommandHandler<IDomainCommand>>;
+import { DefaultCommandPublisher } from './default-command-publisher';
+import { ReflectCommandHelper } from '../../ddd-decorators';
+import { CommandHandlerType } from './command-types';
 
+/**
+ * Represents a domain command bus that handles the execution and routing of domain commands.
+ * It implements the IDomainCommandBus interface.
+ *
+ * @template TDomainCommandBase - The base type for domain commands.
+ */
 @Injectable()
 export class DomainCommandBus<
-    DomainCommandBase extends IDomainCommand = IDomainCommand,
+    TDomainCommandBase extends IDomainCommand = IDomainCommand,
   >
-  extends ObservableBus<DomainCommandBase>
-  implements IDomainCommandBus<DomainCommandBase>
+  extends ObservableBus<TDomainCommandBase>
+  implements IDomainCommandBus<TDomainCommandBase>
 {
-  private handlers = new Map<
+  /**
+   * A map that stores the command handlers associated with their command IDs.
+   */
+  private _handlers = new Map<
     string,
-    IDomainCommandHandler<DomainCommandBase>
+    IDomainCommandHandler<TDomainCommandBase>
   >();
-  private _publisher: IDomainCommandPublisher<DomainCommandBase>;
 
+  /**
+   * The publisher responsible for publishing the domain commands.
+   */
+  private _publisher: IDomainCommandPublisher<TDomainCommandBase>;
+
+  /**
+   * Creates an instance of DomainCommandBus.
+   *
+   * @param moduleRef - The module reference used for dependency injection.
+   */
   constructor(private readonly moduleRef: ModuleRef) {
     super();
+
     this.useDefaultPublisher();
   }
 
-  get publisher(): IDomainCommandPublisher<DomainCommandBase> {
+  /**
+   * Gets the publisher responsible for publishing the domain commands.
+   */
+  get publisher(): IDomainCommandPublisher<TDomainCommandBase> {
     return this._publisher;
   }
 
-  set publisher(_publisher: IDomainCommandPublisher<DomainCommandBase>) {
-    this._publisher = _publisher;
+  /**
+   * Sets the publisher responsible for publishing the domain commands.
+   */
+  set publisher(publisher: IDomainCommandPublisher<TDomainCommandBase>) {
+    this._publisher = publisher;
   }
 
-  execute<T extends DomainCommandBase, R = any>(command: T): Promise<R> {
-    const commandId = this.getCommandId(command);
-    const handler = this.handlers.get(commandId);
+  /**
+   * Executes a domain command by finding the associated command handler and executing it.
+   *
+   * @param command - The domain command to execute.
+   * @returns A promise that resolves to the result of the command execution.
+   * @throws {DomainCommandHandlerNotFoundException} If no command handler is found for the command.
+   */
+  execute<T extends TDomainCommandBase, R = any>(command: T): Promise<R> {
+    const commandId = ReflectCommandHelper.getCommandId(command);
+
+    const handler = this._handlers.get(commandId);
+
     if (!handler) {
-      throw new DomainCommandHandlerNotFoundException(commandId);
+      throw new DomainCommandHandlerNotFoundException(
+        `Command Id: ${commandId}, does not have a command handler assigned`,
+      );
     }
+
     this._publisher.publish(command);
+
     return handler.execute(command);
   }
 
-  bind<T extends DomainCommandBase>(
+  /**
+   * Binds a command handler to a command ID.
+   *
+   * @param handler - The command handler to bind.
+   * @param id - The ID of the command.
+   * @throws {DomainInvalidCommandHandlerException} If a command handler is already bound to the command ID.
+   */
+  bind<T extends TDomainCommandBase>(
     handler: IDomainCommandHandler<T>,
     id: string,
   ) {
-    this.handlers.set(id, handler);
+    if (this._handlers.has(id)) {
+      throw new DomainInvalidCommandHandlerException(
+        `Command Id: ${id}, already has a command handler assigned`,
+      );
+    }
+
+    this._handlers.set(id, handler);
   }
 
+  /**
+   * Registers an array of command handlers.
+   *
+   * @param handlers - The array of command handlers to register.
+   */
   register(handlers: CommandHandlerType[] = []) {
     handlers.forEach((handler) => this.registerHandler(handler));
   }
 
+  /**
+   * Registers a single command handler.
+   *
+   * @param handler - The command handler to register.
+   * @throws {DomainInvalidCommandHandlerException} If the command handler is not associated with a command.
+   */
   protected registerHandler(handler: CommandHandlerType) {
     const instance = this.moduleRef.get(handler, { strict: false });
+
     if (!instance) {
       return;
     }
-    const target = this.reflectCommandId(handler);
+
+    const target = ReflectCommandHelper.reflectCommandId(handler);
+
     if (!target) {
       throw new DomainInvalidCommandHandlerException(
         "CommandHandler doesn't have a Command associated",
       );
     }
-    this.bind(instance as IDomainCommandHandler<DomainCommandBase>, target);
+
+    this.bind(instance as IDomainCommandHandler<TDomainCommandBase>, target);
   }
 
-  private getCommandId(command: DomainCommandBase): string {
-    const { constructor: commandType } = Object.getPrototypeOf(command);
-    const commandMetadata: IDomainCommandMetadata = Reflect.getMetadata(
-      DOMAIN_COMMAND_METADATA,
-      commandType,
-    );
-    if (!commandMetadata) {
-      throw new DomainCommandHandlerNotFoundException(commandType.name);
-    }
-
-    return commandMetadata.id;
-  }
-
-  private reflectCommandId(handler: CommandHandlerType): string | undefined {
-    const command: Type<IDomainCommand> = Reflect.getMetadata(
-      DOMAIN_COMMAND_HANDLER_METADATA,
-      handler,
-    );
-    const commandMetadata: IDomainCommandMetadata = Reflect.getMetadata(
-      DOMAIN_COMMAND_METADATA,
-      command,
-    );
-    return commandMetadata.id;
-  }
-
+  /**
+   * Sets the default command publisher for the domain command bus.
+   */
   private useDefaultPublisher() {
-    this._publisher = new DefaultCommandPubSubHelper<DomainCommandBase>(
+    this._publisher = new DefaultCommandPublisher<TDomainCommandBase>(
       this.subject$,
     );
   }

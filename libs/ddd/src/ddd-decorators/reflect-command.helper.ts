@@ -1,0 +1,44 @@
+import { Type } from '@nestjs/common';
+import { DOMAIN_COMMAND_HANDLER_METADATA, DOMAIN_COMMAND_METADATA } from '.';
+import { DomainCommandHandlerNotFoundException } from '../ddd-exceptions';
+import {
+  IDomainCommand,
+  IDomainCommandMetadata,
+} from '../ddd-commands/interfaces';
+import { CommandHandlerType } from '../ddd-commands';
+
+export class ReflectCommandHelper {
+  static getCommandId(command: IDomainCommand): string {
+    const { constructor: commandType } =
+      Object.getPrototypeOf(command).constructor;
+
+    const commandMetadata: IDomainCommandMetadata = Reflect.getMetadata(
+      DOMAIN_COMMAND_METADATA,
+      commandType,
+    ) as IDomainCommandMetadata;
+
+    if (!commandMetadata) {
+      throw new DomainCommandHandlerNotFoundException(commandType.name);
+    }
+
+    return commandMetadata.id;
+  }
+
+  static reflectCommandId(handler: CommandHandlerType): string | undefined {
+    const command: Type<IDomainCommand> = Reflect.getMetadata(
+      DOMAIN_COMMAND_HANDLER_METADATA,
+      handler,
+    ) as Type<IDomainCommand>;
+
+    if (!command) {
+      throw new DomainCommandHandlerNotFoundException(handler.name);
+    }
+
+    const commandMetadata: IDomainCommandMetadata = Reflect.getMetadata(
+      DOMAIN_COMMAND_METADATA,
+      command,
+    ) as IDomainCommandMetadata;
+
+    return commandMetadata.id;
+  }
+}

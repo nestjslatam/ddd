@@ -85,7 +85,7 @@ export class DomainEventBus<DomainEventBase extends IDomainEvent = IDomainEvent>
     const stream$ = id ? this.ofEventId(id) : this.subject$;
     const subscription = stream$
       .pipe(
-        mergeMap((event) =>
+        mergeMap((event: DomainEventBase) =>
           defer(() => Promise.resolve(handler.handle(event))).pipe(
             catchError((error) =>
               throwError(() => this.mapToUnhandledErrorInfo(event, error)),
@@ -144,7 +144,7 @@ export class DomainEventBus<DomainEventBase extends IDomainEvent = IDomainEvent>
 
   protected ofEventId(id: string) {
     return this.subject$.pipe(
-      filter((event) => this.getDomainEventId(event) === id),
+      filter((event: DomainEventBase) => this.getDomainEventId(event) === id),
     );
   }
 

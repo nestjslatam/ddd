@@ -2,12 +2,29 @@ import { Subject } from 'rxjs';
 
 import { IDomainCommand, IDomainCommandPublisher } from '../interfaces';
 
-export class DefaultCommandPubSubHelper<CommandBase extends IDomainCommand>
-  implements IDomainCommandPublisher<CommandBase>
+/**
+ * Default implementation of the IDomainCommandPublisher interface.
+ * This class is responsible for publishing domain commands to the subject.
+ *
+ * @template TDomainCommandBase - The base type for domain commands.
+ */
+export class DefaultCommandPublisher<TDomainCommandBase extends IDomainCommand>
+  implements IDomainCommandPublisher<TDomainCommandBase>
 {
-  constructor(private subject$: Subject<CommandBase>) {}
+  /**
+   * Creates an instance of DefaultCommandPublisher.
+   *
+   * @param subject$ - The subject to which the domain commands will be published.
+   */
+  constructor(private subject$: Subject<TDomainCommandBase>) {}
 
-  publish<T extends CommandBase>(domainCommand: T) {
+  /**
+   * Publishes a domain command to the subject.
+   *
+   * @template T - The specific type of the domain command.
+   * @param domainCommand - The domain command to be published.
+   */
+  publish<T extends TDomainCommandBase>(domainCommand: T): void {
     this.subject$.next(domainCommand);
   }
 }

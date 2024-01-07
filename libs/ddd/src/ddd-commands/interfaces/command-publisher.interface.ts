@@ -1,7 +1,15 @@
 import { IDomainCommand } from './command.interface';
-
+/**
+ * Represents a publisher for domain commands.
+ * @template TDomainCommandBase - The base type for domain commands.
+ */
 export interface IDomainCommandPublisher<
-  DomainCommandBase extends IDomainCommand = IDomainCommand,
+  TDomainCommandBase extends IDomainCommand = IDomainCommand,
 > {
-  publish<T extends DomainCommandBase = DomainCommandBase>(command: T): any;
+  /**
+   * Publishes a domain command.
+   * @template T - The specific type of domain command to publish.
+   * @param command - The domain command to publish.
+   */
+  publish<T extends TDomainCommandBase = TDomainCommandBase>(command: T): void;
 }
