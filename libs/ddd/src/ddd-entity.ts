@@ -9,19 +9,14 @@ import {
 import { DomainIdAsString } from './ddd-valueobjects';
 import { AbstractDomainValueObject } from './ddd-valueobject';
 
-//#region Interfaces -----------------------------------------------------------
 export interface IDomainEntityProps<T> {
-  id: DomainEntityId;
+  id: DomainIdAsString;
   props: T;
   trackingProps: TrackingProps;
 }
 
-export type DomainEntityId = DomainIdAsString;
-//#endregion --------------------------------------------------------------------
-
 export abstract class DomainEntity<TProps> {
-  //#region Properties ----------------------------------------------------------
-  private _id: DomainEntityId;
+  private _id: DomainIdAsString;
   private _trackingProps: ITrackingProps;
   private _brokenRules: BrokenRuleCollection = new BrokenRuleCollection();
 
@@ -29,9 +24,6 @@ export abstract class DomainEntity<TProps> {
 
   protected abstract businessRules(props: TProps): void;
 
-  //#endregion ----------------------------------------------------------------
-
-  //#region Constructor ----------------------------------------------------------
   constructor({ id, props, trackingProps }: IDomainEntityProps<TProps>) {
     this.businessRules(props);
 
@@ -40,9 +32,7 @@ export abstract class DomainEntity<TProps> {
 
     this.setTrackingProps(trackingProps);
   }
-  //#endregion ----------------------------------------------------------------
 
-  //#region Getters/Setters ------------------------------------------------------
   getPropsCopy(): TProps & ITrackingProps {
     const propsCopy = {
       id: this._id,
@@ -63,7 +53,7 @@ export abstract class DomainEntity<TProps> {
     return props;
   }
 
-  setId(id: DomainEntityId): void {
+  setId(id: DomainIdAsString): void {
     this._id = id;
   }
 
@@ -86,10 +76,6 @@ export abstract class DomainEntity<TProps> {
   getBrokenRules(): BrokenRuleCollection {
     return this._brokenRules;
   }
-
-  //#endregion ----------------------------------------------------------------
-
-  //#region Behavior: methods / functions -----------------------------------------
 
   static isEntity(entity: unknown): entity is DomainEntity<unknown> {
     return entity instanceof DomainEntity;
@@ -146,9 +132,6 @@ export abstract class DomainEntity<TProps> {
     this.businessRules(this.props);
   }
 
-  //#endregion ----------------------------------------------------------------
-
-  //#region Child Properties ---------------------------------------------------
   public removeChild<
     TParent extends DomainEntity<any>,
     TChild extends AbstractDomainValueObject<any> | DomainEntity<any>,
@@ -180,5 +163,4 @@ export abstract class DomainEntity<TProps> {
 
     return childs;
   }
-  //#endregion ----------------------------------------------------------------
 }
