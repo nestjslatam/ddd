@@ -2,7 +2,7 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
 
 import { DomainEntity } from '../ddd-entity';
-import { Type } from '../type.interface';
+import { Type } from '../ddd-core/impl/types';
 import { ValueObjectValidator } from '../ddd-validators';
 
 /**

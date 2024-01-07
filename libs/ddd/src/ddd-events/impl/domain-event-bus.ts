@@ -23,7 +23,7 @@ import {
 import {
   DomainEventBusException,
   DomainInvalidSagaException,
-  UnhandledExceptionBus,
+  UnhandledExceptionDomainBus,
   UnhandledExceptionInfo,
 } from '../../ddd-exceptions/';
 import { DOMAIN_SAGA_METADATA, ReflectEventHelper } from '../../ddd-decorators';
@@ -66,7 +66,7 @@ export class DomainEventBus<DomainEventBase extends IDomainEvent = IDomainEvent>
   constructor(
     private readonly commandBus: DomainCommandBus,
     private readonly moduleRef: ModuleRef,
-    private readonly unhandledExceptionBus: UnhandledExceptionBus,
+    private readonly unhandledExceptionBus: UnhandledExceptionDomainBus,
   ) {
     super();
 

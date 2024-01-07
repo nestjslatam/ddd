@@ -1,3 +1,10 @@
+/**
+ * Represents the DDD module in the application.
+ * This module provides services, event buses, and exception handlers for DDD (Domain-Driven Design) implementation.
+ * It also implements the `OnApplicationBootstrap` interface to perform initialization tasks when the application starts.
+ *
+ * @template DomainEventBase - The base type for domain events.
+ */
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
 
 import { DddService } from './ddd.service';
@@ -7,8 +14,11 @@ import {
   DomainEventBus,
   IDomainEvent,
 } from './ddd-events';
-import { UnhandledExceptionBus } from './ddd-exceptions';
+import { UnhandledExceptionDomainBus } from './ddd-exceptions';
 
+/**
+ * Represents the DDD module in the application.
+ */
 @Module({
   imports: [],
   providers: [
@@ -16,14 +26,14 @@ import { UnhandledExceptionBus } from './ddd-exceptions';
     DomainCommandBus,
     DomainEventBus,
     DomainEventPublisher,
-    UnhandledExceptionBus,
+    UnhandledExceptionDomainBus,
   ],
   exports: [
     DddService,
     DomainCommandBus,
     DomainEventBus,
     DomainEventPublisher,
-    UnhandledExceptionBus,
+    UnhandledExceptionDomainBus,
   ],
 })
 export class DddModule<DomainEventBase extends IDomainEvent>
@@ -35,6 +45,9 @@ export class DddModule<DomainEventBase extends IDomainEvent>
     private readonly domainCommandBus: DomainCommandBus,
   ) {}
 
+  /**
+   * Performs initialization tasks when the application starts.
+   */
   onApplicationBootstrap() {
     const { domainEvents, sagas, domainCommands } =
       this.explorerService.explore();

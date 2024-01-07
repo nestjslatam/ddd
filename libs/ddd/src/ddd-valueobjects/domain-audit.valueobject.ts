@@ -24,47 +24,47 @@ export class DomainAudit extends AbstractDomainValueObject<IDomainAuditProps> {
     super(props);
     this.businessRules(props);
 
-    this.props.timestamp = +new Date();
+    this._props.timestamp = +new Date();
   }
 
   /**
    * Gets the value of the createdBy property.
    * @returns The createdBy value.
    */
-  protected getCreatedBy() {
-    return this.props.createdBy;
+  get CreatedBy() {
+    return this._props.createdBy;
   }
 
   /**
    * Gets the value of the createdAt property.
    * @returns The createdAt value.
    */
-  protected getCreatedAt() {
-    return this.props.createdAt;
+  get CreatedAt() {
+    return this._props.createdAt;
   }
 
   /**
    * Gets the value of the updatedBy property.
    * @returns The updatedBy value.
    */
-  protected getUpdatedBy() {
-    return this.props.updatedBy;
+  get UpdatedBy() {
+    return this._props.updatedBy;
   }
 
   /**
    * Gets the value of the updatedAt property.
    * @returns The updatedAt value.
    */
-  protected getUpdatedAt() {
-    return this.props.updatedAt;
+  get UpdatedAt() {
+    return this._props.updatedAt;
   }
 
   /**
    * Gets the value of the timestamp property.
    * @returns The timestamp value.
    */
-  protected getTimeStamp() {
-    return this.props.timestamp;
+  get TimeStamp() {
+    return this._props.timestamp;
   }
 
   /**
@@ -124,9 +124,9 @@ export class DomainAudit extends AbstractDomainValueObject<IDomainAuditProps> {
    * @returns The updated instance of the DomainAudit class.
    */
   update(updatedBy: string, updatedAt: Date, timestamp: number): this {
-    this.props.updatedBy = updatedBy;
-    this.props.updatedAt = updatedAt;
-    this.props.timestamp = timestamp;
+    this._props.updatedBy = updatedBy;
+    this._props.updatedAt = updatedAt;
+    this._props.timestamp = timestamp;
 
     return this;
   }
