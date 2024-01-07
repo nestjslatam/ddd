@@ -1,3 +1,6 @@
+/**
+ * Represents a serialized exception.
+ */
 export interface ISerializedException {
   message: string;
   code: string;
@@ -7,11 +10,26 @@ export interface ISerializedException {
   metadata?: unknown;
 }
 
+/**
+ * Represents a base class for domain exceptions.
+ */
 export abstract class DomainExceptionBase extends Error {
+  /**
+   * The code associated with the exception.
+   */
   abstract code: string;
 
+  /**
+   * The unique tracking ID for the exception.
+   */
   public readonly trackingId: string;
 
+  /**
+   * Creates a new instance of the DomainExceptionBase class.
+   * @param message The error message.
+   * @param cause The cause of the exception.
+   * @param metadata Additional metadata associated with the exception.
+   */
   constructor(
     readonly message: string,
     readonly cause?: Error,
@@ -21,11 +39,8 @@ export abstract class DomainExceptionBase extends Error {
   }
 
   /**
-   * By default in NodeJS Error objects are not
-   * serialized properly when sending plain objects
-   * to external processes. This method is a workaround.
-   * Keep in mind not to return a stack trace to user when in production.
-   * https://iaincollins.medium.com/error-handling-in-javascript-a6172ccdf9af
+   * Converts the exception to a serialized format.
+   * @returns The serialized exception object.
    */
   toJSON(): ISerializedException {
     return {

@@ -1,6 +1,9 @@
-import { BROKEN_RULES_EXCEPTION } from './constants';
-import { DomainExceptionBase } from './exception.base';
+import { BROKEN_RULES_EXCEPTION } from '../constants';
+import { DomainExceptionBase } from '../interfaces/exception.base';
 
+/**
+ * Represents an exception that is thrown when there are broken rules in a domain.
+ */
 export class BrokenRulesException extends DomainExceptionBase {
   code: string;
   constructor(

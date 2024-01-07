@@ -2,21 +2,22 @@ import 'reflect-metadata';
 import { Injectable, Type } from '@nestjs/common';
 import { Observable, filter } from 'rxjs';
 
-import { IDomainEvent } from '../ddd-events';
+import { IDomainEvent } from '../../ddd-events';
 import {
   IUnhandledExceptionPublisher,
   UnhandledExceptionInfo,
-} from './interfaces';
-import { DefaultUnhandledExceptionPubSub } from './default-unhandled-exception-pubsub.helper';
-import { IDomainCommand } from '../ddd-commands';
-import { ObservableBus } from '../ddd-core';
+} from '../interfaces';
+
+import { IDomainCommand } from '../../ddd-commands';
+import { ObservableBus } from '../../ddd-core';
+import { DefaultUnhandledExceptionPublisher } from './domain-publisher.exception';
 
 /**
  * A bus that publishes unhandled exceptions.
  * @template Cause The type of the cause of the exception.
  */
 @Injectable()
-export class UnhandledExceptionBus<
+export class UnhandledExceptionDomainBus<
   Cause = IDomainEvent | IDomainCommand,
 > extends ObservableBus<UnhandledExceptionInfo<Cause>> {
   private _publisher: IUnhandledExceptionPublisher<Cause>;
@@ -68,6 +69,8 @@ export class UnhandledExceptionBus<
   }
 
   private useDefaultPublisher() {
-    this._publisher = new DefaultUnhandledExceptionPubSub<Cause>(this.subject$);
+    this._publisher = new DefaultUnhandledExceptionPublisher<Cause>(
+      this.subject$,
+    );
   }
 }
