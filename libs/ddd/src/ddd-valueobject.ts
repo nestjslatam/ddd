@@ -2,83 +2,130 @@ import { BrokenRule, BrokenRuleCollection } from './ddd-core';
 import { ValueObjectValidator } from './ddd-validators';
 import { DomainObjectHelper } from './ddd-helpers';
 
-//#region Types and Interfaces -------------------------------------------------
+/**
+ * Represents the properties required to create a domain value object.
+ */
 export type Primitives = string | number | boolean;
 
+/**
+ * Represents the properties required to create a domain value object.
+ */
 export type Props<T> = T extends Primitives | Date ? IDomainPrimitive<T> : T;
 
+/**
+ * Represents the properties required to create a domain value object.
+ */
 export interface IDomainPrimitive<T extends Primitives | Date> {
   value: T;
 }
-//#endregion ------------------------------------------------------------------
 
+/**
+ * Abstract class representing a domain value object.
+ *
+ * @template T - The type of the properties of the value object.
+ */
 export abstract class AbstractDomainValueObject<T> {
-  //#region Properties --------------------------------------------------------
-  protected readonly props: Props<T>;
+  /**
+   * The properties of the value object.
+   */
+  protected readonly _props: Props<T>;
+
+  /**
+   * The collection of broken rules associated with the value object.
+   */
   private _brokenRules: BrokenRuleCollection = new BrokenRuleCollection();
-  private _isValid: boolean;
-  //#endregion ----------------------------------------------------------------
 
-  //#region Abstract Methods -------------------------------------------------
-  protected abstract businessRules(props: Props<T>): void;
-  //#endregion ----------------------------------------------------------------
+  /**
+   * Indicates whether the value object is valid or not.
+   */
+  private _isValid: boolean = true;
 
-  //#region Constructor -------------------------------------------------------
   constructor(props: Props<T>) {
-    this._isValid = true;
-
     this.guard(props);
-
     this.businessRules(props);
-
     this._isValid = !!this._brokenRules.getItems().length;
-
-    this.props = props;
+    this._props = props;
   }
 
-  //#endregion ----------------------------------------------------------------
-
-  //#region Getters/Setters ---------------------------------------------------
-  public isValid(): boolean {
+  /**
+   * Gets a value indicating whether the value object is valid or not.
+   */
+  get isValid(): boolean {
     return this._isValid;
   }
 
-  public getBrokenRules(): BrokenRuleCollection {
+  /**
+   * Gets the collection of broken rules associated with the value object.
+   */
+  get getBrokenRules(): BrokenRuleCollection {
     return this._brokenRules;
   }
 
-  public addBrokenRule(brokenRule: BrokenRule): void {
+  /**
+   * Adds a broken rule to the collection of broken rules.
+   *
+   * @param brokenRule - The broken rule to add.
+   */
+  addBrokenRule(brokenRule: BrokenRule): void {
     this._brokenRules.add(brokenRule);
   }
 
-  public removeBrokenRule(brokenRule: BrokenRule): void {
+  /**
+   * Removes a broken rule from the collection of broken rules.
+   *
+   * @param brokenRule - The broken rule to remove.
+   */
+  removeBrokenRule(brokenRule: BrokenRule): void {
     this._brokenRules.remove(brokenRule);
   }
-  //#endregion ----------------------------------------------------------------
 
-  //#region Behavior ----------------------------------------------------------
-  public equals(object?: AbstractDomainValueObject<T>): boolean {
+  /**
+   * Checks if the value object is equal to another value object.
+   *
+   * @param object - The value object to compare.
+   * @returns True if the value objects are equal, false otherwise.
+   */
+  protected equals(object?: AbstractDomainValueObject<T>): boolean {
     return ValueObjectValidator.equals(object);
   }
 
-  public isValueObject(
-    obj: unknown,
-  ): obj is AbstractDomainValueObject<unknown> {
+  /**
+   * Checks if an object is a value object.
+   *
+   * @param obj - The object to check.
+   * @returns True if the object is a value object, false otherwise.
+   */
+  isValueObject(obj: unknown): obj is AbstractDomainValueObject<unknown> {
     return ValueObjectValidator.isValueObject(obj);
   }
 
-  public unpack(): T {
-    if (ValueObjectValidator.isDomainPrimitive<T>(this.props)) {
-      return this.props.value;
+  /**
+   * Unpacks the value object and returns its underlying value.
+   *
+   * @returns The underlying value of the value object.
+   */
+  unpack(): T {
+    if (ValueObjectValidator.isDomainPrimitive<T>(this._props)) {
+      return this._props.value;
     }
 
-    const propsCopy = DomainObjectHelper.convertPropsToObject(this.props);
+    const propsCopy = DomainObjectHelper.convertPropsToObject(this._props);
 
     return Object.freeze(propsCopy);
   }
-  //#endregion ----------------------------------------------------------------
 
-  //#region Guard Methods -----------------------------------------------------
+  /**
+   * Validates the properties of the value object and adds any broken rules.
+   *
+   * @param props - The properties of the value object.
+   */
+  protected abstract businessRules(props: Props<T>): void;
+
+  /**
+   * Guards against invalid properties and adds any broken rules.
+   *
+   * @param props - The properties of the value object.
+   */
   private guard(props: Props<T>): void {
     if (ValueObjectValidator.isNotAndObject(props))
       this.addBrokenRule(
@@ -90,5 +137,4 @@ export abstract class AbstractDomainValueObject<T> {
         new BrokenRule(this.constructor.name, 'Props cannot be empty'),
       );
   }
-  //#endregion ----------------------------------------------------------------
 }
