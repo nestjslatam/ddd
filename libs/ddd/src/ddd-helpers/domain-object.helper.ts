@@ -5,7 +5,21 @@ import { DomainEntity } from '../ddd-entity';
 import { Type } from '../type.interface';
 import { ValueObjectValidator } from '../ddd-validators';
 
+/**
+ * Domain Object Helper
+ *
+ * @export
+ * @class DomainObjectHelper
+ */
 export class DomainObjectHelper {
+  /**
+   * Checks if the given object is a domain entity.
+   *
+   * @static
+   * @param {*} obj The object to check.
+   * @returns {obj is DomainEntity<unknown>} True if the object is a domain entity, false otherwise.
+   * @memberof DomainObjectHelper
+   */
   static isEntity(obj: unknown): obj is DomainEntity<unknown> {
     return (
       Object.prototype.hasOwnProperty.call(obj, 'toObject') &&
@@ -15,6 +29,14 @@ export class DomainObjectHelper {
     );
   }
 
+  /**
+   * Checks if the given object is a domain value object.
+   *
+   * @static
+   * @param {*} obj The object to check.
+   * @returns {obj is DomainValueObject<unknown>} True if the object is a domain value object, false otherwise.
+   * @memberof DomainObjectHelper
+   */
   static convertToPlainObject(item: any): any {
     if (ValueObjectValidator.isValueObject(item)) {
       return item.unpack();
@@ -25,6 +47,14 @@ export class DomainObjectHelper {
     return item;
   }
 
+  /**
+   * Converts the given props to a plain object.
+   *
+   * @static
+   * @param {*} props The props to convert.
+   * @returns {*} The converted props.
+   * @memberof DomainObjectHelper
+   */
   static convertPropsToObject(props: any): any {
     if (!props) throw new Error('Props is required');
 
@@ -45,6 +75,14 @@ export class DomainObjectHelper {
     return propsCopy;
   }
 
+  /**
+   * Checks if the given object is a domain value object.
+   *
+   * @static
+   * @param {*} obj The object to check.
+   * @returns {obj is DomainValueObject<unknown>} True if the object is a domain value object, false otherwise.
+   * @memberof DomainObjectHelper
+   */
   static flatMap<T>(
     modules: Module[],
     callback: (instance: InstanceWrapper) => Type<any> | undefined,
@@ -55,6 +93,14 @@ export class DomainObjectHelper {
     return items.filter((element) => !!element) as Type<T>[];
   }
 
+  /**
+   * Checks if the given object is a domain value object.
+   *
+   * @static
+   * @param {*} obj The object to check.
+   * @returns {obj is DomainValueObject<unknown>} True if the object is a domain value object, false otherwise.
+   * @memberof DomainObjectHelper
+   */
   static filterProvider(
     wrapper: InstanceWrapper,
     metadataKey: string,
@@ -66,6 +112,14 @@ export class DomainObjectHelper {
     return this.extractMetadata(instance, metadataKey);
   }
 
+  /**
+   * Checks if the given object is a domain value object.
+   *
+   * @static
+   * @param {*} obj The object to check.
+   * @returns {obj is DomainValueObject<unknown>} True if the object is a domain value object, false otherwise.
+   * @memberof DomainObjectHelper
+   */
   static extractMetadata(
     instance: Record<string, any>,
     metadataKey: string,
