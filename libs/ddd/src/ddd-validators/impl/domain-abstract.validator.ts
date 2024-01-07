@@ -1,12 +1,30 @@
+/**
+ * AbstractValidator is an abstract class that provides common validation methods.
+ */
 export abstract class AbstractValidator {
+  /**
+   * Checks if the given value is not an object.
+   * @param value - The value to check.
+   * @returns Returns true if the value is not an object, otherwise returns false.
+   */
   static isNotAndObject(value: unknown): boolean {
     return typeof value !== 'object';
   }
 
+  /**
+   * Checks if the given value is undefined or null.
+   * @param value - The value to check.
+   * @returns Returns true if the value is undefined or null, otherwise returns false.
+   */
   static isUndefinedOrNull(value: unknown): boolean {
     return typeof value === 'undefined' || value === null;
   }
 
+  /**
+   * Checks if the given props object is empty.
+   * @param props - The props object to check.
+   * @returns Returns true if the props object is empty, otherwise returns false.
+   */
   static isEmptyProps(props: unknown): boolean {
     if (this.isUndefinedOrNull(props)) return false;
 
