@@ -1,2 +1,4 @@
-/* eslint-disable @typescript-eslint/no-empty-interface */
+/**
+ * Represents a domain event.
+ */
 export interface IDomainEvent {}

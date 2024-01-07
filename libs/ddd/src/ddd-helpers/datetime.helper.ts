@@ -6,4 +6,8 @@ export class DateTimeHelper {
 
     return new Date(Date.UTC(year, month, day));
   }
+
+  static getTimeStamp(): number {
+    return +new Date();
+  }
 }

@@ -5,6 +5,8 @@ import {
   DOMAIN_COMMAND_HANDLER_NOT_FOUND,
   DOMAIN_CONFLICT,
   DOMAIN_CRITERIA,
+  DOMAIN_EVENT_BUS_EXCEPTION,
+  DOMAIN_EVENT_EXCEPTION,
   DOMAIN_INTERNAL_SERVER_ERROR,
   DOMAIN_INVALID_COMMAND_HANDLER,
   DOMAIN_INVALID_SAGA,
@@ -41,6 +43,14 @@ export class DomainArgumentOutOfRangeException extends DomainExceptionBase {
  */
 export class DomainConflictException extends DomainExceptionBase {
   readonly code = DOMAIN_CONFLICT;
+}
+
+export class DomainEventException extends DomainExceptionBase {
+  readonly code = DOMAIN_EVENT_EXCEPTION;
+}
+
+export class DomainEventBusException extends DomainExceptionBase {
+  readonly code = DOMAIN_EVENT_BUS_EXCEPTION;
 }
 
 export class DomainCommandHandlerNotFoundException extends DomainExceptionBase {
