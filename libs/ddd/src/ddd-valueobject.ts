@@ -85,7 +85,7 @@ export abstract class AbstractDomainValueObject<T> {
    * @param object - The value object to compare.
    * @returns True if the value objects are equal, false otherwise.
    */
-  protected equals(object?: AbstractDomainValueObject<T>): boolean {
+  equals(object?: AbstractDomainValueObject<T>): boolean {
     return ValueObjectValidator.equals(object);
   }
 
