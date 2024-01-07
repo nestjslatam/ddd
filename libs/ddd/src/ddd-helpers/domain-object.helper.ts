@@ -47,6 +47,10 @@ export class DomainObjectHelper {
     return item;
   }
 
+  static isDomainEntity(entity: unknown): entity is DomainEntity<unknown> {
+    return entity instanceof DomainEntity;
+  }
+
   /**
    * Converts the given props to a plain object.
    *

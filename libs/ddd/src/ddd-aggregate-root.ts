@@ -94,7 +94,7 @@ export abstract class DomainAggregateRoot<
    *
    * @returns The list of domain events.
    */
-  getDomainEvents(): TDomainEventBase[] {
+  get DomainEvents(): TDomainEventBase[] {
     return this._domainEvents;
   }
 
