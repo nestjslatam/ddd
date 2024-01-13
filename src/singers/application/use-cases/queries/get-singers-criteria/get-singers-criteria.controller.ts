@@ -11,7 +11,7 @@ export class GetSingersByCriteriaController {
 
   @Get()
   async getAllByCriteria(@Body() requestDto: GetSingersDto): Promise<void> {
-    const query = new GetSingersQuery();
+    const query = new GetSingersQuery(requestDto.status);
     return await this.queryBus.execute(query);
   }
 }

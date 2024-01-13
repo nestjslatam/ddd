@@ -25,7 +25,6 @@ import { ConfigModule } from '@nestjs/config';
       synchronize: true,
       entities: [SingerTable, SongTable],
     }),
-    TypeOrmModule.forFeature([SingerTable, SongTable]),
     CqrsModule,
     DddModule,
   ],
