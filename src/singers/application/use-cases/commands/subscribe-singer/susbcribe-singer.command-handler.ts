@@ -22,12 +22,10 @@ export class SubscribeSingerCommandHandler extends AbstractCommandHandler<Subscr
 
     const singer = await this.repository.findById(singerId);
 
-    const audit = singer
-      .getProps()
-      .audit.update(
-        MetaRequestContextService.getUser(),
-        DateTimeHelper.getUtcDate(),
-      );
+    const audit = singer.props.audit.update(
+      MetaRequestContextService.getUser(),
+      DateTimeHelper.getUtcDate(),
+    );
 
     singer.subscribe(audit);
 

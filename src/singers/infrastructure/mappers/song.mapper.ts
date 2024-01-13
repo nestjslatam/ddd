@@ -1,14 +1,13 @@
 import { Id } from 'src/shared/domain';
-import { SingerTable, SongTable } from '../../../database/tables';
-import { Song } from '../../domain';
-import { TrackingProps } from '@nestjslatam/ddd-lib';
+import { SingerTable, SongTable } from '../db/tables';
+import { ISongRaw, Song } from '../../domain';
 
 export class SongMapper {
   static toTable(domain: Song): SongTable {
-    const { name, status, audit, singerId } = domain.getProps();
+    const { name, status, audit, singerId } = domain.props;
 
     const table = new SongTable();
-    table.id = domain.getId();
+    table.id = domain.id;
     table.name = name.unpack();
     table.status = status;
     table.singer = new SingerTable();
@@ -31,23 +30,25 @@ export class SongMapper {
   static toDomain(table: SongTable): Song {
     const { singerId, name, status, audit } = table;
 
-    const domain = Song.load({
+    const songRaw = {
       id: table.id,
-      name,
+      songName: name,
       singerId: singerId,
       status,
       audit: {
         createdBy: audit.createdBy,
-        createdDate: audit.createdAt,
-        updatedDate: audit.updatedAt,
+        createdAt: audit.createdAt,
+        updatedAt: audit.updatedAt,
         updatedBy: audit.updatedBy,
         timestamp: audit.timestamp,
       },
-    });
+    } as ISongRaw;
 
-    domain.setId(Id.load(table.id));
+    const domain = Song.fromRaw(songRaw);
 
-    domain.setTrackingProps(TrackingProps.setDirty());
+    domain.id = Id.load(table.id);
+
+    domain.markAsDirty();
 
     return domain;
   }

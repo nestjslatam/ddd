@@ -123,11 +123,28 @@ export class DomainAudit extends AbstractDomainValueObject<IDomainAuditProps> {
    * @param timestamp - The timestamp value. Default is the current timestamp.
    * @returns The updated instance of the DomainAudit class.
    */
-  update(updatedBy: string, updatedAt: Date, timestamp: number): this {
+  update(updatedBy: string, updatedAt: Date): this {
     this._props.updatedBy = updatedBy;
     this._props.updatedAt = updatedAt;
-    this._props.timestamp = timestamp;
+    this._props.timestamp = +new Date();
 
     return this;
+  }
+
+  /**
+   * Gets the raw properties of the domain audit.
+   @returns The raw properties of the domain audit.
+   */
+  getRaw(): IDomainAuditProps {
+    return this._props;
+  }
+
+  /**
+   * Creates a new instance of the DomainAudit class from raw properties.
+   @param raw - The raw properties of the domain audit.
+   @returns A new instance of the DomainAudit class.
+   */
+  static getFromRaw(raw: IDomainAuditProps): DomainAudit {
+    return new DomainAudit(raw);
   }
 }

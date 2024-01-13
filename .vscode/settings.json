@@ -1,3 +1,13 @@
 {
-  "cSpell.words": ["domainevent", "exeption", "nestjslatam"]
+  "cSpell.words": ["domainevent", "exeption", "nestjslatam"],
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "database": "${workspaceFolder:ddd}/db/ddd.sql",
+      "name": "ddd-db",
+      "group": "ddd"
+    }
+  ],
+  "sqltools.useNodeRuntime": true
 }

@@ -23,6 +23,6 @@ export class RemoveSingerCommandHandler extends AbstractCommandHandler<RemoveSin
 
     this.checkBusinessRules(singer);
 
-    this.repository.delete(singerId);
+    await this.repository.delete(singerId);
   }
 }

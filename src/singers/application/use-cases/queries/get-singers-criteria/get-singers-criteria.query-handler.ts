@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { SingerMapper } from './../../../../infrastructure/mappers/singer.mapper';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { SingerRepository } from '../../../../infrastructure/db';
+import { SingerMapper } from './../../../../infrastructure/mappers/singer.mapper';
+import { SingerRepository, SingerTable } from '../../../../infrastructure/db';
 import { GetSingersQuery } from './get-singers-criteria.query';
-import { SingerTable } from '../../../../../database/tables';
 
 @QueryHandler(GetSingersQuery)
 export class GetSingersQueryHandler implements IQueryHandler {

@@ -17,7 +17,7 @@ export class Id extends DomainIdAsString {
     return new Id(v4().toString());
   }
 
-  static load(value: string): Id {
+  static fromRaw(value: string): Id {
     return new Id(value);
   }
 }

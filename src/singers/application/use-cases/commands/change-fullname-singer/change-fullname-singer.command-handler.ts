@@ -23,18 +23,16 @@ export class ChangeFullNameSingerCommandHandler extends AbstractCommandHandler<C
 
     const singer = await this.repository.findById(id);
 
-    const audit = singer
-      .getProps()
-      .audit.update(
-        MetaRequestContextService.getUser(),
-        DateTimeHelper.getUtcDate(),
-      );
+    const audit = singer.props.audit.update(
+      MetaRequestContextService.getUser(),
+      DateTimeHelper.getUtcDate(),
+    );
 
     singer.changeFullName(FullName.create(newFullName), audit);
 
     this.checkBusinessRules(singer);
 
-    this.repository.update(id, singer);
+    await this.repository.update(id, singer);
 
     this.publish(singer);
   }

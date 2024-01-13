@@ -34,7 +34,7 @@ export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSon
     }
 
     const songCreated = Song.create(
-      Id.load(id),
+      Id.fromRaw(id),
       Name.create(songName),
       DomainAudit.create({
         createdBy: MetaRequestContextService.getUser(),
@@ -52,6 +52,6 @@ export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSon
 
     this.checkBusinessRules(songCreated);
 
-    this.repository.addSong(singer, songCreated);
+    await this.repository.addSong(singer, songCreated);
   }
 }

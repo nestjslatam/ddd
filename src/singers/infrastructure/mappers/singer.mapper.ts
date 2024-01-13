@@ -1,8 +1,6 @@
-import { TrackingProps } from '@nestjslatam/ddd-lib';
-
-import { SingerTable, SongTable } from '../../../database/tables';
 import { Id } from '../../../shared';
 import { Singer } from '../../domain';
+import { SingerTable } from '../db';
 import { SongMapper } from './song.mapper';
 
 export class SingerMapper {
@@ -16,10 +14,10 @@ export class SingerMapper {
       songs,
       status,
       audit,
-    } = domain.getProps();
+    } = domain.props;
 
     const table = new SingerTable();
-    table.id = domain.getId();
+    table.id = domain.id;
     table.fullName = fullName.unpack();
     table.picture = picture.unpack();
     table.registerDate = registerDate.unpack();
@@ -53,7 +51,7 @@ export class SingerMapper {
       audit,
     } = table;
 
-    const domain = Singer.load({
+    const domain = Singer.mapFromRaw({
       id: table.id,
       fullName,
       picture,
@@ -63,8 +61,8 @@ export class SingerMapper {
       status,
       audit: {
         createdBy: audit.createdBy,
-        createdDate: audit.createdAt,
-        updatedDate: audit.updatedAt,
+        createdAt: audit.createdAt,
+        updatedAt: audit.updatedAt,
         updatedBy: audit.updatedBy,
         timestamp: audit.timestamp,
       },
@@ -74,15 +72,13 @@ export class SingerMapper {
       const songs = table.songs.map((s) => SongMapper.toDomain(s));
 
       songs.forEach((s) => {
-        domain.addSong(s, s.getProps().audit);
+        domain.addSong(s, s.props.audit);
       });
     }
 
-    domain.setId(Id.load(table.id));
+    domain.id = Id.load(table.id);
 
-    domain.validate();
-
-    domain.setTrackingProps(TrackingProps.setDirty());
+    domain.markAsDirty();
 
     return domain;
   }

@@ -1,6 +1,6 @@
 import { DomainEventHandler, IDomainEventHandler } from '@nestjslatam/ddd-lib';
 
-import { SingerCreatedDomainEvent } from '../../../../domain/domain-events';
+import { SingerCreatedDomainEvent } from '../../../../domain/events';
 
 @DomainEventHandler(SingerCreatedDomainEvent)
 export class SingerCreatedDomainEventHandler

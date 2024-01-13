@@ -6,7 +6,7 @@ import {
   IDomainWriteRepository,
 } from '@nestjslatam/ddd-lib';
 
-import { SongTable } from '../../../database/tables';
+import { SongTable } from '../db/tables';
 import { Song } from '../../domain';
 import { DatabaseException } from '../../../shared/exceptions';
 import { SongMapper } from '../mappers';

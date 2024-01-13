@@ -28,17 +28,15 @@ export class RemoveSongToSingerCommandHandler extends AbstractCommandHandler<Rem
 
     const song = await this.songRepository.findById(songId);
 
-    const audit = singer
-      .getProps()
-      .audit.update(
-        MetaRequestContextService.getUser(),
-        DateTimeHelper.getUtcDate(),
-      );
+    const audit = singer.props.audit.update(
+      MetaRequestContextService.getUser(),
+      DateTimeHelper.getUtcDate(),
+    );
 
     singer.removeSong(song, audit);
 
     this.checkBusinessRules(singer);
 
-    this.repository.removeSong(singer, song);
+    await this.repository.removeSong(singer, song);
   }
 }

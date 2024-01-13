@@ -3,20 +3,28 @@ import { Module } from '@nestjs/common';
 import { DddModule } from '@nestjslatam/ddd-lib';
 import { CqrsModule } from '@nestjs/cqrs';
 
-import { singerRepository } from '../infrastructure/db';
-import { SingerTable, SongTable } from '../../database/tables';
+import { SingerTable, SongTable, singerRepository } from './infrastructure/db';
 import {
   singerCommandHandlers,
   singerControllers,
   singerDomainEventHandlers,
   singerQueryControllers,
   singerQueryHandlers,
-} from '../application/use-cases';
-import { SystemSagas } from '../application/sagas';
-import { singerMappers } from '../infrastructure';
+} from './application/use-cases';
+import { SystemSagas } from './application/sagas';
+import { singerMappers } from './infrastructure';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
+    TypeOrmModule.forFeature([SingerTable, SongTable]),
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'db/ddd.sql',
+      synchronize: true,
+      entities: [SingerTable, SongTable],
+    }),
     TypeOrmModule.forFeature([SingerTable, SongTable]),
     CqrsModule,
     DddModule,

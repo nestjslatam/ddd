@@ -1,19 +1,19 @@
 import { DomainEvent } from '@nestjslatam/ddd-lib';
 
-export class SingerCreatedDomainEvent extends DomainEvent {
+export class SingerSubscribedDomainEvent extends DomainEvent {
   constructor(
     readonly singerId: string,
-    readonly singerName: string,
+    readonly ocurredOn: Date,
   ) {
     super({
       aggregateId: singerId,
-      eventName: SingerCreatedDomainEvent.name,
+      eventName: SingerSubscribedDomainEvent.name,
     });
   }
-  toPlain() {
+  toRaw() {
     return {
       singerId: this.singerId,
-      singerName: this.singerName,
+      ocurredOn: this.ocurredOn,
       status: 'subscribed',
     };
   }

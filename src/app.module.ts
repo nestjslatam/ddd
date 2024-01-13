@@ -4,8 +4,7 @@ import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 
 import { SharedModule } from './shared/shared.module';
-import { DatabaseModule } from './database/database.module';
-import { SingersModule } from './singers/application/singers.module';
+import { SingersModule } from './singers/singers.module';
 import {
   MetaRequestContextInterceptor,
   MetaRequestContextService,
@@ -27,7 +26,6 @@ const requestContextInterceptors = [
     }),
     RequestContextModule,
     SharedModule,
-    DatabaseModule,
     SingersModule,
   ],
   providers: [...requestContextInterceptors, MetaRequestContextService],

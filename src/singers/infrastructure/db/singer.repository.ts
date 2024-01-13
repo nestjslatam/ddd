@@ -6,7 +6,7 @@ import {
   IDomainWriteRepository,
 } from '@nestjslatam/ddd-lib';
 
-import { SingerTable, SongTable } from '../../../database/tables';
+import { SingerTable, SongTable } from '../db/tables';
 import { Singer, Song } from '../../domain';
 import { DatabaseException } from '../../../shared/exceptions';
 import { SingerMapper, SongMapper } from '../mappers';
@@ -83,7 +83,7 @@ export class SingerRepository
 
     this.repository.manager.transaction(async (manager) => {
       const singer = await manager.findOneBy(SingerTable, {
-        id: parent.getId(),
+        id: parent.id,
       });
 
       singer.songs = singer.songs.filter((s) => s.id !== songTable.id);

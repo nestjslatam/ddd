@@ -24,17 +24,15 @@ export class ChangePictureSingerCommandHandler extends AbstractCommandHandler<Ch
 
     const singer = await this.repository.findById(id);
 
-    const audit = singer
-      .getProps()
-      .audit.update(
-        MetaRequestContextService.getUser(),
-        DateTimeHelper.getUtcDate(),
-      );
+    const audit = singer.props.audit.update(
+      MetaRequestContextService.getUser(),
+      DateTimeHelper.getUtcDate(),
+    );
 
     singer.changePicture(PicturePath.create(newPicture), audit);
 
     this.checkBusinessRules(singer);
 
-    this.repository.update(id, singer);
+    await this.repository.update(id, singer);
   }
 }

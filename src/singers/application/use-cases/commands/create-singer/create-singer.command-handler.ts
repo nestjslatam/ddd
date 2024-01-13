@@ -6,7 +6,7 @@ import {
 import { CommandHandler } from '@nestjs/cqrs';
 
 import { SingerRepository } from '../../../../infrastructure/db';
-import { Singer, eSingerStatus } from '../../../../domain/singers';
+import { Singer, eSingerStatus } from '../../../../domain';
 import { FullName, PicturePath } from '../../../../domain';
 import {
   RegisterDate,

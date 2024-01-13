@@ -14,8 +14,8 @@ export abstract class AbstractCommandHandler<TCommand>
   abstract execute(command: TCommand): Promise<void>;
 
   checkBusinessRules(domain: DomainEntity<any>): void {
-    if (!domain.getIsValid()) {
-      throw new DomainException(domain.getBrokenRules().asString());
+    if (!domain.IsValid) {
+      throw new DomainException(domain.BrokenRules.asString());
     }
   }
 

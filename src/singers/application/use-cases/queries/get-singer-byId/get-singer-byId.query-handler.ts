@@ -1,8 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { SingerRepository } from '../../../../infrastructure/db';
+import { SingerRepository, SingerTable } from '../../../../infrastructure/db';
 import { GetSingerByIdQuery } from './get-singer-byId.query';
-import { SingerTable } from '../../../../../database/tables';
+
 import { SingerMapper } from '../../../../infrastructure';
 
 @QueryHandler(GetSingerByIdQuery)
