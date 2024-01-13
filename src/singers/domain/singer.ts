@@ -27,11 +27,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
   }
 
   constructor(id, props: ISingerProps, trackingProps: TrackingProps) {
-    super({
-      id,
-      props,
-      trackingProps,
-    });
+    super(id, props, trackingProps);
 
     if (this.trackingProps) {
       this.addDomainEvent(

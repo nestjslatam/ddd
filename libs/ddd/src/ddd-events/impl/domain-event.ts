@@ -10,12 +10,14 @@ import { DomainEventException } from '../../ddd-exceptions';
 /**
  * Properties for creating a domain event.
  */
-export type DomainEventProps<T> = {
+export interface DomainEventProps {
   readonly aggregateId?: string;
+  readonly type?: string;
+  readonly position?: number;
   readonly eventName?: string;
-  readonly data?: T;
+  readonly data?: Record<string, any>;
   readonly metadata?: IDomainEventMetadata;
-};
+}
 
 /**
  * Abstract class for a domain event.
@@ -25,6 +27,17 @@ export abstract class DomainEvent implements IDomainEvent {
    * The unique identifier of the domain event.
    */
   readonly domainEventId: string;
+
+  /**
+   * The type of the domain event.
+   */
+  readonly type: string;
+
+  /**
+   * The position of the domain event in the sequence of events.
+   */
+  readonly position: number;
+
   /**
    * The identifier of the aggregate associated with the domain event.
    */
@@ -36,7 +49,7 @@ export abstract class DomainEvent implements IDomainEvent {
   /**
    * The data associated with the domain event.
    */
-  readonly data: unknown;
+  readonly data: Record<string, any>;
   /**
    * The metadata associated with the domain event.
    */
@@ -46,9 +59,11 @@ export abstract class DomainEvent implements IDomainEvent {
    * Creates a new instance of the DomainEvent class.
    * @param props - The properties for creating the domain event.
    */
-  constructor(props: DomainEventProps<unknown>) {
+  constructor(props: DomainEventProps) {
     try {
       this.domainEventId = v4().toString();
+      this.type = props.type || 'DomainEvent';
+      this.position = props?.position || 0;
       this.eventName = props?.eventName || this.constructor.name;
       this.data = props?.data;
       this.metadata = {

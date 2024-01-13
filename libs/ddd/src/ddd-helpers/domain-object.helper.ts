@@ -4,6 +4,7 @@ import { Module } from '@nestjs/core/injector/module';
 import { DomainEntity } from '../ddd-entity';
 import { Type } from '../types';
 import { ValueObjectValidator } from '../ddd-validators';
+import { IDomainEvent, IDomainEventHandler } from '../ddd-events';
 
 /**
  * Domain Object Helper
@@ -133,5 +134,17 @@ export class DomainObjectHelper {
     }
     const metadata = Reflect.getMetadata(metadataKey, instance.constructor);
     return metadata ? (instance.constructor as Type<any>) : undefined;
+  }
+
+  static getEventHandler<T extends IDomainEvent = IDomainEvent>(
+    event: T,
+  ): Type<IDomainEventHandler> | undefined {
+    const handler = `on${this.getEventName(event)}`;
+    return this[handler];
+  }
+
+  static getEventName(event: any): string {
+    const { constructor } = Object.getPrototypeOf(event);
+    return constructor.name as string;
   }
 }
