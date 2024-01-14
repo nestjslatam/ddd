@@ -13,6 +13,8 @@ import {
   DomainEventPublisher,
   DomainEventBus,
   IDomainEvent,
+  DomainEventSerializer,
+  DomainEventDeserializer,
 } from './ddd-events';
 import { UnhandledExceptionDomainBus } from './ddd-exceptions';
 
@@ -27,6 +29,8 @@ import { UnhandledExceptionDomainBus } from './ddd-exceptions';
     DomainEventBus,
     DomainEventPublisher,
     UnhandledExceptionDomainBus,
+    DomainEventSerializer,
+    DomainEventDeserializer,
   ],
   exports: [
     DddService,
@@ -34,6 +38,8 @@ import { UnhandledExceptionDomainBus } from './ddd-exceptions';
     DomainEventBus,
     DomainEventPublisher,
     UnhandledExceptionDomainBus,
+    DomainEventSerializer,
+    DomainEventDeserializer,
   ],
 })
 export class DddModule<DomainEventBase extends IDomainEvent>
