@@ -1,0 +1,25 @@
+{
+  "name": "@nestjslatam/ddd-lib",
+  "version": "1.0.49",
+  "description": "A simple Domain-Driven Library for NESTJS",
+  "main": "index.js",
+  "private": false,
+  "keywords": [
+    "nestjs",
+    "ddd"
+  ],
+  "author": {
+    "name": "Alberto Arroyo Raygada",
+    "email": "beyondnet.peru@gmail.com",
+    "url": "http://nestjslatam.org/"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@nestjs/cli": "^11.0.6",
+    "@nestjs/common": "^11.0.20",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.0.20",
+    "rxjs": "^7.8.2",
+    "uuid": "^11.1.0"
+  }
+}
