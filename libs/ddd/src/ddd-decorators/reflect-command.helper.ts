@@ -19,8 +19,7 @@ export class ReflectCommandHelper {
    * @returns The command id.
    */
   static getCommandId(command: IDomainCommand): string {
-    const { constructor: commandType } =
-      Object.getPrototypeOf(command).constructor;
+    const commandType = command.constructor;
 
     const commandMetadata: IDomainCommandMetadata = Reflect.getMetadata(
       DOMAIN_COMMAND_METADATA,

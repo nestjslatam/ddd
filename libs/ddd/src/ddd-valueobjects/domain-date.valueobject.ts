@@ -3,7 +3,7 @@ import { ValueObjectValidator } from '../ddd-validators';
 import {
   AbstractDomainValueObject,
   IDomainPrimitive,
-} from '../ddd-valueobject';
+} from '../ddd-core/ddd-base-classes';
 
 /**
  * Abstract base class for domain date value objects.

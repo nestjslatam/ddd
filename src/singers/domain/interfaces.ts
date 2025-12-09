@@ -7,6 +7,7 @@ import { DomainAudit, IDomainAuditProps } from '@nestjslatam/ddd-lib';
 export enum eSingerStatus {
   Registered = 'registered',
   Subscribed = 'subscribed',
+  Deleted = 'deleted',
 }
 
 export interface ISongRaw {

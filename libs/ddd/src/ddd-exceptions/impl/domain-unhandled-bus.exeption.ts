@@ -9,7 +9,7 @@ import {
 } from '../interfaces';
 
 import { IDomainCommand } from '../../ddd-commands';
-import { ObservableBus } from '../../ddd-core';
+import { ObservableBus } from '../../ddd-core/impl/observable-bus';
 import { DefaultUnhandledExceptionPublisher } from './domain-publisher.exception';
 
 /**

@@ -1,28 +1,47 @@
-import { DomainEventPublisher } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
+import {
+  DomainAudit,
+  DomainEventBus,
+  DateTimeHelper,
+} from '@nestjslatam/ddd-lib';
 
 import { SingerRepository } from '../../../../infrastructure/db';
-import { AbstractCommandHandler } from '../../../../../shared';
+import {
+  AbstractCommandHandler,
+  ApplicationException,
+  MetaRequestContextService,
+} from '../../../../../shared';
 import { RemoveSingerCommand } from './remove-singer.command';
 
 @CommandHandler(RemoveSingerCommand)
 export class RemoveSingerCommandHandler extends AbstractCommandHandler<RemoveSingerCommand> {
   constructor(
     protected readonly repository: SingerRepository,
-    protected readonly publisher: DomainEventPublisher,
+    protected readonly eventBus: DomainEventBus,
   ) {
-    super(publisher);
+    super(eventBus);
   }
 
   async execute(command: RemoveSingerCommand): Promise<void> {
-    const { singerId } = command;
+    const { id } = command;
 
-    const singer = await this.repository.findById(singerId);
+    const singer = await this.repository.findById(id);
 
-    singer.remove();
+    if (!singer) {
+      throw new ApplicationException(`Singer with id ${id} not found`);
+    }
+
+    singer.remove(
+      DomainAudit.create({
+        updatedBy: MetaRequestContextService.getUser(),
+        updatedAt: DateTimeHelper.getUtcDate(),
+      }),
+    );
 
     this.checkBusinessRules(singer);
 
-    await this.repository.delete(singerId);
+    await this.repository.update(singer);
+
+    this.publish(singer);
   }
 }

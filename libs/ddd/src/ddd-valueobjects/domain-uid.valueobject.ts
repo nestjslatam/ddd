@@ -4,15 +4,12 @@
  */
 import { BrokenRule } from '../ddd-core';
 import { ValueObjectValidator } from '../ddd-validators';
-import {
-  AbstractDomainValueObject,
-  IDomainPrimitive,
-} from '../ddd-valueobject';
+import { AbstractDomainValueObject, IDomainPrimitive } from '../ddd-core/ddd-base-classes';
 
 const UUID_V4_PATTERN =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-export class DomainIdAsString extends AbstractDomainValueObject<string> {
+export class DomainUid extends AbstractDomainValueObject<string> {
   protected constructor(value: string) {
     super({ value });
 
@@ -20,21 +17,21 @@ export class DomainIdAsString extends AbstractDomainValueObject<string> {
   }
 
   /**
-   * Creates a new instance of DomainIdAsString with the provided value.
+   * Creates a new instance of DomainUid with the provided value.
    * @param value - The value of the domain identifier as a string.
-   * @returns A new instance of DomainIdAsString.
+   * @returns A new instance of DomainUid.
    */
-  public static create(value: string): DomainIdAsString {
-    return new DomainIdAsString(value);
+  public static create(value: string): DomainUid {
+    return new DomainUid(value);
   }
 
   /**
-   * Loads an existing instance of DomainIdAsString with the provided value.
+   * Loads an existing instance of DomainUid with the provided value.
    * @param value - The value of the domain identifier as a string.
-   * @returns An existing instance of DomainIdAsString.
+   * @returns An existing instance of DomainUid.
    */
-  public static load(value: string): DomainIdAsString {
-    return new DomainIdAsString(value);
+  public static load(value: string): DomainUid {
+    return new DomainUid(value);
   }
 
   /**
@@ -54,7 +51,7 @@ export class DomainIdAsString extends AbstractDomainValueObject<string> {
 
     const isRegexValid = new RegExp(UUID_V4_PATTERN);
 
-    if (isRegexValid.test(value))
+    if (!isRegexValid.test(value))
       this.addBrokenRule(
         new BrokenRule(this.constructor.name, 'Value is not a valid UUID v4.'),
       );

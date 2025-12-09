@@ -1,4 +1,4 @@
-import { DomainEntity } from '../../ddd-entity';
+import { DomainEntity } from '../../ddd-core/ddd-base-classes';
 import { AbstractValidator } from './domain-abstract.validator';
 
 /**

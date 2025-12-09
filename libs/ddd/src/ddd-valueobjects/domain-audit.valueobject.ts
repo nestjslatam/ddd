@@ -1,5 +1,5 @@
 import { BrokenRule } from '../ddd-core';
-import { AbstractDomainValueObject } from '../ddd-valueobject';
+import { AbstractDomainValueObject } from '../ddd-core/ddd-base-classes';
 
 /**
  * Represents the properties of a domain audit.

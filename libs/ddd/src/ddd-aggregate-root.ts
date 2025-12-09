@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ITrackingProps } from './ddd-core';
-import { DomainEntity } from './ddd-entity';
+import { DomainEntity } from './ddd-core/ddd-base-classes';
 import { IDomainEvent, ISerializableEvent } from './ddd-events';
 import { DomainObjectHelper } from './ddd-helpers';
-import { DomainIdAsString } from './ddd-valueobjects';
+import { DomainUid } from './ddd-valueobjects';
 
 const VERSION = Symbol('version');
 const IS_AUTOCOMMIT_ENABLED = Symbol();
@@ -43,7 +43,7 @@ export abstract class DomainAggregateRoot<
    * @param trackingProps - The tracking properties of the aggregate root.
    */
   constructor(
-    id: DomainIdAsString,
+    id: DomainUid,
     props: TProps,
     trackingProps: ITrackingProps,
   ) {
@@ -90,92 +90,55 @@ export abstract class DomainAggregateRoot<
    */
   public loadFromHistory(history: ISerializableEvent[]): void {
     const domainEvents = history.map((event) => event.data);
-    domainEvents.forEach((event) => this.apply(event, true));
+    domainEvents.forEach((event) => this.applyEventFromHistory(event, { skipHandler: false }));
 
     const lastEvent = history[history.length - 1];
     this.setVersion(lastEvent.position);
   }
 
-  /**
-   * Applies an event.
-   * If auto commit is enabled, the event will be published immediately (note: must be merged with the publisher context in order to work).
-   * Otherwise, the event will be stored in the internal events array, and will be published when the commit method is called.
-   * Also, the corresponding event handler will be called (if exists).
-   * For example, if the event is called UserCreatedEvent, the "onUserCreatedEvent" method will be called.
-   *
-   * @param event The event to apply.
-   * @param isFromHistory Whether the event is from history.
-   */
-  apply<T extends TDomainEventBase = TDomainEventBase>(
+  private applyEvent<T extends TDomainEventBase = TDomainEventBase>(
     event: T,
-    isFromHistory?: boolean,
-  ): void;
-
-  /**
-   * Applies an event.
-   * If auto commit is enabled, the event will be published immediately (note: must be merged with the publisher context in order to work).
-   * Otherwise, the event will be stored in the internal events array, and will be published when the commit method is called.
-   * Also, the corresponding event handler will be called (if exists).
-   * For example, if the event is called UserCreatedEvent, the "onUserCreatedEvent" method will be called.
-   *
-   * @param event The event to apply.
-   * @param options The options.
-   */
-  apply<T extends TDomainEventBase = TDomainEventBase>(
-    event: T,
-    options?: { fromHistory?: boolean; skipHandler?: boolean },
-  ): void;
-
-  apply<T extends TDomainEventBase = TDomainEventBase>(
-    event: T,
-    optionsOrIsFromHistory:
-      | boolean
-      | { fromHistory?: boolean; skipHandler?: boolean } = {},
+    skipHandler?: boolean,
   ): void {
-    const isFromHistory =
-      (typeof optionsOrIsFromHistory === 'boolean'
-        ? optionsOrIsFromHistory
-        : optionsOrIsFromHistory.fromHistory) ?? false;
-    const skipHandler =
-      typeof optionsOrIsFromHistory === 'boolean'
-        ? false
-        : optionsOrIsFromHistory.skipHandler;
-
-    if (!isFromHistory && !this.autoCommit) {
-      this.addDomainEvent(event);
-    }
-    this.autoCommit && this.publish(event);
-
     if (!skipHandler) {
       const handler = DomainObjectHelper.getEventHandler(event);
       handler && handler.call(this, event);
     }
   }
 
-  /**
-   * Publishes a domain event.
-   *
-   * @template T - The type of domain event to publish.
-   * @param domainEvent - The domain event to publish.
-   */
-  publish<T extends TDomainEventBase = TDomainEventBase>(domainEvent: T) {}
+  apply<T extends TDomainEventBase = TDomainEventBase>(
+    event: T,
+    options?: { skipHandler?: boolean },
+  ): void {
+    this.applyNewEvent(event, options);
+  }
 
-  /**
-   * Publishes multiple domain events.
-   *
-   * @template T - The type of domain events to publish.
-   * @param domainEvents - The domain events to publish.
-   */
-  publishAll<T extends TDomainEventBase = TDomainEventBase>(
-    domainEvents: T[],
-  ) {}
+  protected applyNewEvent<T extends TDomainEventBase = TDomainEventBase>(
+    event: T,
+    options?: { skipHandler?: boolean },
+  ): void {
+    if (!this.autoCommit) {
+      this.addDomainEvent(event);
+    }
+    this.applyEvent(event, options?.skipHandler);
+  }
+
+  protected applyEventFromHistory<T extends TDomainEventBase = TDomainEventBase>(
+    event: T,
+    options?: { skipHandler?: boolean },
+  ): void {
+    this.applyEvent(event, options?.skipHandler);
+  }
+
+
 
   /**
    * Commits the domain events by publishing them and clearing the list.
    */
-  commit() {
-    this.publishAll(this._domainEvents);
+  commit(): TDomainEventBase[] {
+    const events = [...this._domainEvents];
     this.clearDomainEvents();
+    return events;
   }
 
   /**
@@ -191,8 +154,8 @@ export abstract class DomainAggregateRoot<
    * @param domainEvent - The domain event to add.
    */
   addDomainEvent(domainEvent: TDomainEventBase): void {
-    if (!this.existsDomainEvent(domainEvent)) {
-      this._domainEvents = [];
+    if (this.existsDomainEvent(domainEvent)) {
+      return;
     }
 
     this._domainEvents.push(domainEvent);
@@ -234,10 +197,5 @@ export abstract class DomainAggregateRoot<
     return this._domainEvents;
   }
 
-  /**
-   * Uncommits the domain events by clearing the list.
-   */
-  uncommit() {
-    this._domainEvents.length = 0;
-  }
+
 }

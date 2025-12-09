@@ -1,8 +1,9 @@
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
 
-import { DomainEntity } from '../ddd-entity';
+import { DomainEntity } from '../ddd-core/ddd-base-classes';
 import { Type } from '../types';
+import { IDomainPrimitive, Primitives } from '../ddd-core/ddd-base-classes';
 import { ValueObjectValidator } from '../ddd-validators';
 import { IDomainEvent, IDomainEventHandler } from '../ddd-events';
 
@@ -22,12 +23,7 @@ export class DomainObjectHelper {
    * @memberof DomainObjectHelper
    */
   static isEntity(obj: unknown): obj is DomainEntity<unknown> {
-    return (
-      Object.prototype.hasOwnProperty.call(obj, 'toObject') &&
-      Object.prototype.hasOwnProperty.call(obj, 'id') &&
-      Object.prototype.hasOwnProperty.call(obj, '_id') &&
-      Object.prototype.hasOwnProperty.call(obj, '_trackingProps')
-    );
+    return obj instanceof DomainEntity;
   }
 
   /**
@@ -50,6 +46,14 @@ export class DomainObjectHelper {
 
   static isDomainEntity(entity: unknown): entity is DomainEntity<unknown> {
     return entity instanceof DomainEntity;
+  }
+
+  static isDomainPrimitive<T>(
+    obj: unknown,
+  ): obj is IDomainPrimitive<T & (Primitives | Date)> {
+    if (!obj) return false;
+
+    return Object.prototype.hasOwnProperty.call(obj, 'value') ? true : false;
   }
 
   /**

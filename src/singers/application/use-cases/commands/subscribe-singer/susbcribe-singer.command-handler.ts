@@ -31,6 +31,7 @@ export class SubscribeSingerCommandHandler extends AbstractCommandHandler<Subscr
 
     this.checkBusinessRules(singer);
 
-    this.repository.update(singerId, singer);
+    await this.repository.update(singerId, singer);
+    this.publish(singer);
   }
 }

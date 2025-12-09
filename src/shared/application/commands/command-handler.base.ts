@@ -2,14 +2,14 @@ import { ICommandHandler } from '@nestjs/cqrs';
 import {
   DomainAggregateRoot,
   DomainEntity,
-  DomainEventPublisher,
+  DomainEventBus,
 } from '@nestjslatam/ddd-lib';
 import { DomainException } from 'src/shared/exceptions';
 
 export abstract class AbstractCommandHandler<TCommand>
   implements ICommandHandler<TCommand>
 {
-  constructor(protected readonly publisher?: DomainEventPublisher) {}
+  constructor(protected readonly eventBus?: DomainEventBus) {}
 
   abstract execute(command: TCommand): Promise<void>;
 
@@ -20,8 +20,7 @@ export abstract class AbstractCommandHandler<TCommand>
   }
 
   publish(domain: DomainAggregateRoot<any>): void {
-    const domainToPublish = this.publisher.mergeObjectContext(domain);
-
-    domainToPublish.commit();
+    const events = domain.commit();
+    this.eventBus.publishAll(events);
   }
 }

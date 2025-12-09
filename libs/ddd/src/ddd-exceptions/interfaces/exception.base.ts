@@ -36,6 +36,7 @@ export abstract class DomainExceptionBase extends Error {
     readonly metadata?: unknown,
   ) {
     super(message);
+    this.name = this.constructor.name;
   }
 
   /**

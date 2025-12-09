@@ -12,6 +12,7 @@ import { PicturePath } from './picture-field';
 import {
   SingerCreatedDomainEvent,
   SingerSubscribedDomainEvent,
+  SingerDeletedDomainEvent,
 } from './events';
 import { ISingerProps, ISingerRaw, eSingerStatus } from './interfaces';
 
@@ -29,7 +30,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
   constructor(id, props: ISingerProps, trackingProps: TrackingProps) {
     super(id, props, trackingProps);
 
-    if (this.trackingProps) {
+    if (this.trackingProps.isNew) {
       this.addDomainEvent(
         new SingerCreatedDomainEvent(this.id, props.fullName.unpack()),
       );
@@ -115,11 +116,20 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
     return this;
   }
 
-  remove(): this {
-    if (this.props.status === eSingerStatus.Subscribed)
+  remove(audit: DomainAudit): this {
+    if (this.props.status === eSingerStatus.Subscribed) {
       this.addBrokenRule(
         new BrokenRule('singer', 'singer is subscribed, cannot remove'),
       );
+      return this;
+    }
+
+    this.props.status = eSingerStatus.Deleted;
+    this.update(audit);
+
+    this.addDomainEvent(
+      new SingerDeletedDomainEvent(this.id, this.props.fullName.unpack()),
+    );
 
     return this;
   }
@@ -131,7 +141,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
   }
 
   removeSong(song: Song, audit: DomainAudit): this {
-    this.removeChild(this, song, this.props.songs);
+    this.props.songs = this.removeChild(this, song, this.props.songs);
     this.update(audit);
     return this;
   }
