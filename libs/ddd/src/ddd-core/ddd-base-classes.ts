@@ -6,7 +6,7 @@
  * @template TProps - The type of the properties of the domain entity.
  */
 import { DomainObjectHelper } from '../ddd-helpers';
-import { ValueObjectValidator } from '../ddd-validators';
+import { ValueObjectValidator } from './ddd-validators';
 import { BrokenRulesException } from '../ddd-exceptions';
 import {
   BrokenRule,
@@ -93,8 +93,6 @@ export abstract class DomainEntity<TProps> {
     return this.getInternalProps();
   }
 
-
-
   /**
    * Retrieves the unique identifier of the domain entity.
    *
@@ -103,8 +101,6 @@ export abstract class DomainEntity<TProps> {
   get id(): string {
     return this._id.unpack();
   }
-
-
 
   /**
    * Retrieves the tracking properties of the domain entity.
@@ -236,8 +232,10 @@ export abstract class DomainEntity<TProps> {
 
     // Use entity equality for DomainEntity, reference equality for ValueObjects
     const index = DomainObjectHelper.isDomainEntity(child)
-      ? childs.findIndex((c) =>
-          DomainObjectHelper.isDomainEntity(c) && (c as DomainEntity<any>).id === (child as DomainEntity<any>).id
+      ? childs.findIndex(
+          (c) =>
+            DomainObjectHelper.isDomainEntity(c) &&
+            (c as DomainEntity<any>).id === (child as DomainEntity<any>).id,
         )
       : childs.indexOf(child);
 
@@ -268,8 +266,10 @@ export abstract class DomainEntity<TProps> {
 
     // Use entity equality for DomainEntity, reference equality for ValueObjects
     const exists = DomainObjectHelper.isDomainEntity(child)
-      ? childs.some((c) =>
-          DomainObjectHelper.isDomainEntity(c) && (c as DomainEntity<any>).id === (child as DomainEntity<any>).id
+      ? childs.some(
+          (c) =>
+            DomainObjectHelper.isDomainEntity(c) &&
+            (c as DomainEntity<any>).id === (child as DomainEntity<any>).id,
         )
       : childs.includes(child);
 
@@ -283,8 +283,6 @@ export abstract class DomainEntity<TProps> {
     return childs;
   }
 }
-
-
 
 /**
  * Represents the properties required to create a domain value object.
@@ -326,13 +324,25 @@ export abstract class AbstractDomainValueObject<T> {
 
   constructor(props: Props<T>) {
     this.guard(props);
-    this.businessRules(props);
+
+    // Only execute business rules if guard didn't find issues
+    // This prevents errors when props is undefined or invalid
+    if (
+      this._brokenRules.getItems().length === 0 &&
+      props !== undefined &&
+      props !== null
+    ) {
+      this.businessRules(props);
+    }
+
     this._isValid = this._brokenRules.getItems().length === 0;
 
     // Fail fast - don't create invalid value objects
     if (!this._isValid) {
       throw new BrokenRulesException(
-        `Invalid value object ${this.constructor.name}: ${this._brokenRules.asString()}`,
+        `Invalid value object ${
+          this.constructor.name
+        }: ${this._brokenRules.asString()}`,
       );
     }
 
@@ -406,7 +416,8 @@ export abstract class AbstractDomainValueObject<T> {
    */
   unpack(): T {
     if (ValueObjectValidator.isDomainPrimitive<T>(this._props)) {
-      return (this._props as IDomainPrimitive<T>).value;
+      return (this._props as IDomainPrimitive<T & (Primitives | Date)>)
+        .value as T;
     }
 
     const propsCopy = DomainObjectHelper.convertPropsToObject(this._props);
@@ -427,14 +438,27 @@ export abstract class AbstractDomainValueObject<T> {
    * @param props - The properties of the value object.
    */
   private guard(props: Props<T>): void {
-    if (ValueObjectValidator.isNotAndObject(props))
+    // Check if props is undefined or null first
+    if (props === undefined || props === null) {
       this.addBrokenRule(
         new BrokenRule(this.constructor.name, 'Props cannot be undefined'),
       );
+      return; // Early return to avoid further checks
+    }
 
-    if (ValueObjectValidator.isEmptyProps(props))
+    // Check if props is not an object (primitive types)
+    if (ValueObjectValidator.isNotAndObject(props)) {
+      this.addBrokenRule(
+        new BrokenRule(this.constructor.name, 'Props cannot be undefined'),
+      );
+      return; // Early return to avoid further checks
+    }
+
+    // Check if props is empty
+    if (ValueObjectValidator.isEmptyProps(props)) {
       this.addBrokenRule(
         new BrokenRule(this.constructor.name, 'Props cannot be empty'),
       );
+    }
   }
 }

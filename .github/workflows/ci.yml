@@ -30,10 +30,36 @@ jobs:
         run: npm ci
 
       - name: Check code formatting
+        id: format-check
+        continue-on-error: true
         run: npm run format -- --check
 
       - name: Run ESLint
+        id: lint-check
+        continue-on-error: true
         run: npm run lint
+
+      - name: Report lint and format results
+        if: always()
+        run: |
+          FORMAT_STATUS="${{ steps.format-check.outcome }}"
+          LINT_STATUS="${{ steps.lint-check.outcome }}"
+
+          if [ "$FORMAT_STATUS" != "success" ]; then
+            echo "::error::Code formatting check failed"
+            echo "Run 'npm run format' to fix formatting issues"
+          fi
+
+          if [ "$LINT_STATUS" != "success" ]; then
+            echo "::error::ESLint check failed"
+            echo "Run 'npm run lint' to fix linting issues"
+          fi
+
+          if [ "$FORMAT_STATUS" != "success" ] || [ "$LINT_STATUS" != "success" ]; then
+            exit 1
+          fi
+
+          echo "✅ All lint and format checks passed"
 
   # Job 2: Type Check
   type-check:
@@ -53,10 +79,23 @@ jobs:
         run: npm ci
 
       - name: Type check application
+        continue-on-error: true
         run: npx tsc --noEmit -p tsconfig.json
 
       - name: Type check library
+        id: lib-typecheck
+        continue-on-error: true
         run: npx tsc --noEmit -p libs/ddd/tsconfig.lib.json
+
+      - name: Report type check results
+        if: always()
+        run: |
+          if [ "${{ steps.lib-typecheck.outcome }}" != "success" ]; then
+            echo "::error::TypeScript type checking failed for library"
+            echo "Please fix TypeScript errors before merging"
+            exit 1
+          fi
+          echo "✅ All type checks passed"
 
   # Job 3: Unit Tests con Cobertura
   unit-tests:
@@ -81,11 +120,23 @@ jobs:
         run: npm ci
 
       - name: Run unit tests with coverage
+        id: test
+        continue-on-error: true
         run: npm run test:cov
+
+      - name: Check test results
+        run: |
+          if [ "${{ steps.test.outcome }}" != "success" ]; then
+            echo "⚠️ Some tests failed. Checking details..."
+            npm run test 2>&1 | tail -50
+            echo "::error::Tests failed. Please review the output above."
+            exit 1
+          fi
+          echo "✅ All tests passed"
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
-        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x'
+        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x' && steps.test.outcome == 'success'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/coverage-final.json
@@ -94,7 +145,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: Check coverage threshold
-        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x'
+        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x' && steps.test.outcome == 'success'
         run: |
           if [ -f "coverage/coverage-summary.json" ]; then
             COVERAGE=$(node -e "const fs = require('fs'); const data = JSON.parse(fs.readFileSync('coverage/coverage-summary.json')); console.log(data.total.lines.pct);")
@@ -108,6 +159,15 @@ jobs:
           else
             echo "⚠️ Coverage report not found, skipping threshold check"
           fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ matrix.node-version }}
+          path: |
+            coverage/
+          retention-days: 7
 
   # Job 4: E2E Tests
   e2e-tests:
@@ -127,7 +187,19 @@ jobs:
         run: npm ci
 
       - name: Run E2E tests
+        id: e2e-test
+        continue-on-error: true
         run: npm run test:e2e
+
+      - name: Report E2E test results
+        if: always()
+        run: |
+          if [ "${{ steps.e2e-test.outcome }}" != "success" ]; then
+            echo "::error::E2E tests failed"
+            echo "Please review E2E test failures before merging"
+            exit 1
+          fi
+          echo "✅ All E2E tests passed"
 
   # Job 5: Build Validation
   build-validation:
