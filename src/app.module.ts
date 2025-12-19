@@ -22,7 +22,9 @@ const requestContextInterceptors = [
   imports: [
     ConfigModule.forRoot(),
     DevtoolsModule.register({
-      http: process.env.NODE_ENV !== 'production',
+      http:
+        process.env.NODE_ENV !== 'production' &&
+        process.env.NODE_ENV !== 'test',
     }),
     RequestContextModule,
     SharedModule,

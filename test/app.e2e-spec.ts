@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe, Module } from '@nestjs/common';
 import { ModulesContainer } from '@nestjs/core';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
@@ -10,6 +10,7 @@ import {
   DomainEventBus,
   UnhandledExceptionDomainBus,
 } from '@nestjslatam/ddd-lib';
+import { DevtoolsModule } from '@nestjs/devtools-integration';
 
 /**
  * Mock DddService for E2E testing that doesn't require ModulesContainer
@@ -70,6 +71,12 @@ class MockUnhandledExceptionDomainBus {
   }
 }
 
+/**
+ * Empty module to replace DevtoolsModule in E2E tests
+ */
+@Module({})
+class EmptyModule {}
+
 describe('App (e2e)', () => {
   let app: INestApplication;
 
@@ -77,6 +84,8 @@ describe('App (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     })
+      .overrideModule(DevtoolsModule)
+      .useModule(EmptyModule)
       .overrideProvider(ModulesContainer)
       .useValue(new ModulesContainer() as any)
       .overrideProvider(DddService)
@@ -106,6 +115,8 @@ describe('App (e2e)', () => {
     if (app) {
       await app.close();
     }
+    // Give time for any async operations to complete before Jest tears down
+    await new Promise((resolve) => setTimeout(resolve, 100));
   });
 
   it('/singers (GET) - should return empty array or singers list', () => {
