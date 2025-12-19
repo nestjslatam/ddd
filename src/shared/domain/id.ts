@@ -1,23 +1,18 @@
-import { DomainIdAsString, IDomainPrimitive } from '@nestjslatam/ddd-lib';
+import { DomainUid } from '@nestjslatam/ddd-lib';
 
 import { v4 } from 'uuid';
 
-export class Id extends DomainIdAsString {
-  protected constructor(value: string) {
-    super(value);
-
-    this.businessRules({ value });
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected businessRules(props: IDomainPrimitive<string>): void {
-    //
-  }
-
+// Id is an alias for DomainUid to maintain compatibility
+export class Id extends DomainUid {
   static create(): Id {
     return new Id(v4().toString());
   }
 
   static fromRaw(value: string): Id {
+    return new Id(value);
+  }
+
+  static load(value: string): Id {
     return new Id(value);
   }
 }

@@ -1,8 +1,10 @@
-
-import { jest } from '@jest/globals';
 import { DateTimeHelper } from './datetime.helper';
 import { DomainObjectHelper } from './domain-object.helper';
-import { DomainEntity, AbstractDomainValueObject, IDomainPrimitive } from '../ddd-core/ddd-base-classes';
+import {
+  DomainEntity,
+  AbstractDomainValueObject,
+  IDomainPrimitive,
+} from '../ddd-core/ddd-base-classes';
 
 describe('DateTimeHelper', () => {
   it('should return a UTC date', () => {
@@ -20,16 +22,22 @@ describe('DateTimeHelper', () => {
 });
 
 describe('DomainObjectHelper', () => {
-  class TestEntity extends DomainEntity<{}> {
-    protected businessRules(props: {}): void {}
+  class TestEntity extends DomainEntity<Record<string, never>> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    protected businessRules(_props: Record<string, never>): void {}
   }
 
   class TestValueObject extends AbstractDomainValueObject<string> {
-    protected businessRules(props: IDomainPrimitive<string>): void {}
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    protected businessRules(_props: IDomainPrimitive<string>): void {}
   }
 
   it('should identify an entity', () => {
-    const entity = new TestEntity({ id: '1' as any, props: {}, trackingProps: {} as any });
+    const entity = new TestEntity({
+      id: '1' as any,
+      props: {},
+      trackingProps: {} as any,
+    });
     expect(DomainObjectHelper.isDomainEntity(entity)).toBe(true);
     expect(DomainObjectHelper.isEntity(entity)).toBe(true);
   });

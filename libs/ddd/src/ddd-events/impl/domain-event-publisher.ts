@@ -47,11 +47,11 @@ export class DomainEventPublisher<
     object: T,
   ): T {
     const eventBus = this.eventBus;
-    object.publish = (event: DomainEventBase) => {
+    (object as any).publish = (event: DomainEventBase) => {
       eventBus.publish(event);
     };
 
-    object.publishAll = (events: DomainEventBase[]) => {
+    (object as any).publishAll = (events: DomainEventBase[]) => {
       eventBus.publishAll(events);
     };
     return object;

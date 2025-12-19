@@ -1,4 +1,3 @@
-import { Id } from '../../../shared';
 import { Singer } from '../../domain';
 import { SingerTable } from '../db';
 import { SongMapper } from './song.mapper';
@@ -76,8 +75,7 @@ export class SingerMapper {
       });
     }
 
-    domain.id = Id.load(table.id);
-
+    // Note: id is set in the constructor, no need to assign it here
     domain.markAsDirty();
 
     return domain;

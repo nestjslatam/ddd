@@ -1,9 +1,11 @@
-
 import { jest } from '@jest/globals';
 import { ModuleRef } from '@nestjs/core';
 import { ReflectCommandHelper } from '../../ddd-decorators/reflect-command.helper';
 import { DomainCommandHandler } from '../../ddd-decorators';
-import { DomainCommandHandlerNotFoundException, DomainInvalidCommandHandlerException } from '../../ddd-exceptions';
+import {
+  DomainCommandHandlerNotFoundException,
+  DomainInvalidCommandHandlerException,
+} from '../../ddd-exceptions';
 import { IDomainCommand, IDomainCommandHandler } from '../interfaces';
 import { DomainCommandBus } from './domain-command-bus';
 
@@ -42,7 +44,9 @@ describe('DomainCommandBus', () => {
     const command = new TestCommand();
     const commandId = ReflectCommandHelper.getCommandId(command);
     expect(() => commandBus.execute(command)).toThrow(
-      new DomainCommandHandlerNotFoundException(`Command Id: ${commandId}, does not have a command handler assigned`),
+      new DomainCommandHandlerNotFoundException(
+        `Command Id: ${commandId}, does not have a command handler assigned`,
+      ),
     );
   });
 
@@ -52,7 +56,9 @@ describe('DomainCommandBus', () => {
     const commandId = ReflectCommandHelper.getCommandId(command);
     commandBus.bind(handler, commandId);
     expect(() => commandBus.bind(handler, commandId)).toThrow(
-      new DomainInvalidCommandHandlerException(`Command Id: ${commandId}, already has a command handler assigned`),
+      new DomainInvalidCommandHandlerException(
+        `Command Id: ${commandId}, already has a command handler assigned`,
+      ),
     );
   });
 

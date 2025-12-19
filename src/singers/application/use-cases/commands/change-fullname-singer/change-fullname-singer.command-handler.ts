@@ -1,4 +1,4 @@
-import { DateTimeHelper, DomainEventPublisher } from '@nestjslatam/ddd-lib';
+import { DateTimeHelper, DomainEventBus } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
 
 import {
@@ -13,9 +13,9 @@ import { FullName } from 'src/singers/domain';
 export class ChangeFullNameSingerCommandHandler extends AbstractCommandHandler<ChangeFullNameSingerCommand> {
   constructor(
     protected readonly repository: SingerRepository,
-    protected readonly publisher: DomainEventPublisher,
+    protected readonly eventBus: DomainEventBus,
   ) {
-    super(publisher);
+    super(eventBus);
   }
 
   async execute(command: ChangeFullNameSingerCommand): Promise<void> {

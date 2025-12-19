@@ -10,14 +10,6 @@ export enum eSingerStatus {
   Deleted = 'deleted',
 }
 
-export interface ISongRaw {
-  songId: string;
-  songName: string;
-  singerId: string;
-  status: string;
-  audit: IDomainAuditProps;
-}
-
 export interface ISingerRaw {
   id: string;
   fullName: string;

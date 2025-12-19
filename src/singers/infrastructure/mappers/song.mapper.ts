@@ -1,4 +1,3 @@
-import { Id } from 'src/shared/domain';
 import { SingerTable, SongTable } from '../db/tables';
 import { ISongRaw, Song } from '../../domain';
 
@@ -30,9 +29,9 @@ export class SongMapper {
   static toDomain(table: SongTable): Song {
     const { singerId, name, status, audit } = table;
 
-    const songRaw = {
+    const songRaw: ISongRaw = {
       id: table.id,
-      songName: name,
+      name: name,
       singerId: singerId,
       status,
       audit: {
@@ -42,11 +41,9 @@ export class SongMapper {
         updatedBy: audit.updatedBy,
         timestamp: audit.timestamp,
       },
-    } as ISongRaw;
+    };
 
     const domain = Song.fromRaw(songRaw);
-
-    domain.id = Id.load(table.id);
 
     domain.markAsDirty();
 

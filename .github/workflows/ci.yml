@@ -44,18 +44,21 @@ jobs:
         run: |
           FORMAT_STATUS="${{ steps.format-check.outcome }}"
           LINT_STATUS="${{ steps.lint-check.outcome }}"
+          HAS_ERRORS=false
 
           if [ "$FORMAT_STATUS" != "success" ]; then
             echo "::error::Code formatting check failed"
             echo "Run 'npm run format' to fix formatting issues"
+            HAS_ERRORS=true
           fi
 
           if [ "$LINT_STATUS" != "success" ]; then
             echo "::error::ESLint check failed"
             echo "Run 'npm run lint' to fix linting issues"
+            HAS_ERRORS=true
           fi
 
-          if [ "$FORMAT_STATUS" != "success" ] || [ "$LINT_STATUS" != "success" ]; then
+          if [ "$HAS_ERRORS" = "true" ]; then
             exit 1
           fi
 
@@ -79,6 +82,7 @@ jobs:
         run: npm ci
 
       - name: Type check application
+        id: app-typecheck
         continue-on-error: true
         run: npx tsc --noEmit -p tsconfig.json
 
@@ -90,11 +94,26 @@ jobs:
       - name: Report type check results
         if: always()
         run: |
-          if [ "${{ steps.lib-typecheck.outcome }}" != "success" ]; then
+          APP_TYPE_CHECK="${{ steps.app-typecheck.outcome }}"
+          LIB_TYPE_CHECK="${{ steps.lib-typecheck.outcome }}"
+          HAS_ERRORS=false
+
+          if [ "$APP_TYPE_CHECK" != "success" ]; then
+            echo "::error::TypeScript type checking failed for application"
+            echo "Please fix TypeScript errors in application code before merging"
+            HAS_ERRORS=true
+          fi
+
+          if [ "$LIB_TYPE_CHECK" != "success" ]; then
             echo "::error::TypeScript type checking failed for library"
-            echo "Please fix TypeScript errors before merging"
+            echo "Please fix TypeScript errors in library code before merging"
+            HAS_ERRORS=true
+          fi
+
+          if [ "$HAS_ERRORS" = "true" ]; then
             exit 1
           fi
+
           echo "✅ All type checks passed"
 
   # Job 3: Unit Tests con Cobertura
@@ -125,10 +144,12 @@ jobs:
         run: npm run test:cov
 
       - name: Check test results
+        if: always()
         run: |
-          if [ "${{ steps.test.outcome }}" != "success" ]; then
+          TEST_OUTCOME="${{ steps.test.outcome }}"
+          if [ "$TEST_OUTCOME" != "success" ]; then
             echo "⚠️ Some tests failed. Checking details..."
-            npm run test 2>&1 | tail -50
+            npm run test 2>&1 | tail -50 || true
             echo "::error::Tests failed. Please review the output above."
             exit 1
           fi
@@ -148,14 +169,18 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x' && steps.test.outcome == 'success'
         run: |
           if [ -f "coverage/coverage-summary.json" ]; then
-            COVERAGE=$(node -e "const fs = require('fs'); const data = JSON.parse(fs.readFileSync('coverage/coverage-summary.json')); console.log(data.total.lines.pct);")
+            COVERAGE=$(node -e "try { const fs = require('fs'); const data = JSON.parse(fs.readFileSync('coverage/coverage-summary.json')); console.log(data.total.lines.pct || 0); } catch(e) { console.log(0); }")
+            THRESHOLD="${{ env.COVERAGE_THRESHOLD }}"
             echo "Current coverage: ${COVERAGE}%"
-            echo "Required threshold: ${{ env.COVERAGE_THRESHOLD }}%"
-            if (( $(echo "$COVERAGE < ${{ env.COVERAGE_THRESHOLD }}" | bc -l) )); then
-              echo "❌ Coverage ${COVERAGE}% is below threshold ${{ env.COVERAGE_THRESHOLD }}%"
+            echo "Required threshold: ${THRESHOLD}%"
+            
+            # Use Node.js for comparison instead of bc
+            COVERAGE_CHECK=$(node -e "const cov = parseFloat('${COVERAGE}'); const thresh = parseFloat('${THRESHOLD}'); console.log(cov < thresh ? 'true' : 'false');")
+            if [ "$COVERAGE_CHECK" = "true" ]; then
+              echo "::error::Coverage ${COVERAGE}% is below threshold ${THRESHOLD}%"
               exit 1
             fi
-            echo "✅ Coverage ${COVERAGE}% meets threshold ${{ env.COVERAGE_THRESHOLD }}%"
+            echo "✅ Coverage ${COVERAGE}% meets threshold ${THRESHOLD}%"
           else
             echo "⚠️ Coverage report not found, skipping threshold check"
           fi
@@ -194,7 +219,8 @@ jobs:
       - name: Report E2E test results
         if: always()
         run: |
-          if [ "${{ steps.e2e-test.outcome }}" != "success" ]; then
+          E2E_OUTCOME="${{ steps.e2e-test.outcome }}"
+          if [ "$E2E_OUTCOME" != "success" ]; then
             echo "::error::E2E tests failed"
             echo "Please review E2E test failures before merging"
             exit 1

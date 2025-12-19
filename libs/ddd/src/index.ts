@@ -10,4 +10,4 @@ export * from './ddd-commands';
 export * from './ddd-exceptions';
 export * from './ddd-validators';
 export * from './ddd-aggregate-root';
-
+export * from './ddd.module';

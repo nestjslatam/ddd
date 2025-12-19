@@ -1,4 +1,3 @@
-
 import { DomainAggregateRoot } from './ddd-aggregate-root';
 import { DomainUid } from './ddd-valueobjects';
 import { TrackingProps, ITrackingProps } from './ddd-core';
@@ -12,9 +11,14 @@ class TestEvent implements IDomainEvent {
 
 // Mock Aggregate Root
 class TestAggregate extends DomainAggregateRoot<{ prop1: string }> {
-  protected businessRules(props: { prop1: string }): void {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected businessRules(_props: { prop1: string }): void {}
 
-  constructor(id: DomainUid, props: { prop1: string }, trackingProps: ITrackingProps) {
+  constructor(
+    id: DomainUid,
+    props: { prop1: string },
+    trackingProps: ITrackingProps,
+  ) {
     super(id, props, trackingProps);
   }
 
@@ -35,7 +39,11 @@ describe('DomainAggregateRoot', () => {
   });
 
   const createTestAggregate = () => {
-    return new TestAggregate(DomainUid.create(crypto.randomUUID()), { prop1: 'test' }, trackingProps);
+    return new TestAggregate(
+      DomainUid.create(crypto.randomUUID()),
+      { prop1: 'test' },
+      trackingProps,
+    );
   };
 
   it('should be defined', () => {
@@ -77,12 +85,25 @@ describe('DomainAggregateRoot', () => {
   it('should load from history and apply events', () => {
     const aggregate = createTestAggregate();
     const history: ISerializableEvent[] = [
-      { aggregateId: aggregate.id, type: 'TestEvent', data: new TestEvent(aggregate.id), position: 1 },
-      { aggregateId: aggregate.id, type: 'TestEvent', data: new TestEvent(aggregate.id), position: 2 },
+      {
+        aggregateId: aggregate.id,
+        type: 'TestEvent',
+        data: new TestEvent(aggregate.id),
+        position: 1,
+      },
+      {
+        aggregateId: aggregate.id,
+        type: 'TestEvent',
+        data: new TestEvent(aggregate.id),
+        position: 2,
+      },
     ];
 
     // Mock the event handler
-    const applyEventFromHistorySpy = jest.spyOn(aggregate as any, 'applyEventFromHistory');
+    const applyEventFromHistorySpy = jest.spyOn(
+      aggregate as any,
+      'applyEventFromHistory',
+    );
 
     aggregate.loadFromHistory(history);
 

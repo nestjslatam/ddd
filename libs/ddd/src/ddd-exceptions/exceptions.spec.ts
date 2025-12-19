@@ -1,5 +1,3 @@
-
-import { jest } from '@jest/globals';
 import { Subject } from 'rxjs';
 import {
   DomainArgumentInvalidException,
@@ -97,7 +95,10 @@ describe('DefaultUnhandledExceptionPublisher', () => {
   it('should publish an exception', (done) => {
     const subject = new Subject<UnhandledExceptionInfo>();
     const publisher = new DefaultUnhandledExceptionPublisher(subject);
-    const exceptionInfo: UnhandledExceptionInfo = { cause: {}, exception: new Error('test') };
+    const exceptionInfo: UnhandledExceptionInfo = {
+      cause: {},
+      exception: new Error('test'),
+    };
 
     subject.subscribe((info) => {
       expect(info).toBe(exceptionInfo);
@@ -111,7 +112,10 @@ describe('DefaultUnhandledExceptionPublisher', () => {
 describe('UnhandledExceptionDomainBus', () => {
   it('should publish an exception', (done) => {
     const bus = new UnhandledExceptionDomainBus();
-    const exceptionInfo: UnhandledExceptionInfo = { cause: {}, exception: new Error('test') };
+    const exceptionInfo: UnhandledExceptionInfo = {
+      cause: {},
+      exception: new Error('test'),
+    };
 
     bus.subscribe((info) => {
       expect(info).toBe(exceptionInfo);
@@ -124,7 +128,10 @@ describe('UnhandledExceptionDomainBus', () => {
   it('should filter exceptions by type', (done) => {
     const bus = new UnhandledExceptionDomainBus();
     class MyError extends Error {}
-    const exceptionInfo: UnhandledExceptionInfo = { cause: {}, exception: new MyError('test') };
+    const exceptionInfo: UnhandledExceptionInfo = {
+      cause: {},
+      exception: new MyError('test'),
+    };
 
     const stream = UnhandledExceptionDomainBus.ofType(MyError)(bus);
 

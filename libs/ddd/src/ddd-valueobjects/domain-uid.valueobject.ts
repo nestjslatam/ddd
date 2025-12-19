@@ -4,7 +4,10 @@
  */
 import { BrokenRule } from '../ddd-core';
 import { ValueObjectValidator } from '../ddd-validators';
-import { AbstractDomainValueObject, IDomainPrimitive } from '../ddd-core/ddd-base-classes';
+import {
+  AbstractDomainValueObject,
+  IDomainPrimitive,
+} from '../ddd-core/ddd-base-classes';
 
 const UUID_V4_PATTERN =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;

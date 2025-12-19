@@ -1,4 +1,4 @@
-import { DateTimeHelper, DomainEventPublisher } from '@nestjslatam/ddd-lib';
+import { DateTimeHelper, DomainEventBus } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
 
 import {
@@ -16,9 +16,9 @@ export class RemoveSongToSingerCommandHandler extends AbstractCommandHandler<Rem
   constructor(
     protected readonly repository: SingerRepository,
     protected readonly songRepository: SongRepository,
-    protected readonly publisher: DomainEventPublisher,
+    protected readonly eventBus: DomainEventBus,
   ) {
-    super(publisher);
+    super(eventBus);
   }
 
   async execute(command: RemoveSongToSingerCommand): Promise<void> {

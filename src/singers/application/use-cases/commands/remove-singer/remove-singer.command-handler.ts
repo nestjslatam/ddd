@@ -1,9 +1,5 @@
 import { CommandHandler } from '@nestjs/cqrs';
-import {
-  DomainAudit,
-  DomainEventBus,
-  DateTimeHelper,
-} from '@nestjslatam/ddd-lib';
+import { DomainEventBus, DateTimeHelper } from '@nestjslatam/ddd-lib';
 
 import { SingerRepository } from '../../../../infrastructure/db';
 import {
@@ -31,16 +27,16 @@ export class RemoveSingerCommandHandler extends AbstractCommandHandler<RemoveSin
       throw new ApplicationException(`Singer with id ${id} not found`);
     }
 
-    singer.remove(
-      DomainAudit.create({
-        updatedBy: MetaRequestContextService.getUser(),
-        updatedAt: DateTimeHelper.getUtcDate(),
-      }),
+    const audit = singer.props.audit.update(
+      MetaRequestContextService.getUser(),
+      DateTimeHelper.getUtcDate(),
     );
+
+    singer.remove(audit);
 
     this.checkBusinessRules(singer);
 
-    await this.repository.update(singer);
+    await this.repository.update(id, singer);
 
     this.publish(singer);
   }

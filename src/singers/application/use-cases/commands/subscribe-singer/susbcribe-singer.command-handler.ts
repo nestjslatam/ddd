@@ -1,4 +1,4 @@
-import { DateTimeHelper, DomainEventPublisher } from '@nestjslatam/ddd-lib';
+import { DateTimeHelper, DomainEventBus } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
 
 import { SingerRepository } from '../../../../infrastructure/db';
@@ -12,9 +12,9 @@ import { SubscribeSingerCommand } from './susbcribe-singer.command';
 export class SubscribeSingerCommandHandler extends AbstractCommandHandler<SubscribeSingerCommand> {
   constructor(
     protected readonly repository: SingerRepository,
-    protected readonly publisher: DomainEventPublisher,
+    protected readonly eventBus: DomainEventBus,
   ) {
-    super(publisher);
+    super(eventBus);
   }
 
   async execute(command: SubscribeSingerCommand): Promise<void> {

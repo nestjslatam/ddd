@@ -1,4 +1,3 @@
-
 import { DomainEntity, IDomainEntityProps } from './ddd-core/ddd-base-classes';
 import { DomainUid } from './ddd-valueobjects';
 import { TrackingProps, ITrackingProps } from './ddd-core';
@@ -6,7 +5,8 @@ import * as crypto from 'crypto';
 
 // Mock concrete implementation of DomainEntity for testing
 class TestEntity extends DomainEntity<{ prop1: string }> {
-  protected businessRules(props: { prop1: string }): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected businessRules(_props: { prop1: string }): void {
     // No business rules for this test
   }
 }
@@ -88,7 +88,8 @@ describe('DomainEntity', () => {
 
   describe('addChild and removeChild', () => {
     class ChildEntity extends DomainEntity<{ childProp: string }> {
-      protected businessRules(props: { childProp: string }): void {}
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      protected businessRules(_props: { childProp: string }): void {}
     }
 
     const createChildEntity = (id?: DomainUid) => {

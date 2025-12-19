@@ -1,7 +1,13 @@
-
-import { jest } from '@jest/globals';
-import { AbstractValidator, DomainValidator, ValueObjectValidator } from './impl';
-import { DomainEntity, AbstractDomainValueObject, IDomainPrimitive } from '../ddd-core/ddd-base-classes';
+import {
+  AbstractValidator,
+  DomainValidator,
+  ValueObjectValidator,
+} from './impl';
+import {
+  DomainEntity,
+  AbstractDomainValueObject,
+  IDomainPrimitive,
+} from '../ddd-core/ddd-base-classes';
 
 describe('AbstractValidator', () => {
   it('should check if a value is not an object', () => {
@@ -30,12 +36,17 @@ describe('AbstractValidator', () => {
 });
 
 describe('DomainValidator', () => {
-  class TestEntity extends DomainEntity<{}> {
-    protected businessRules(props: {}): void {}
+  class TestEntity extends DomainEntity<Record<string, never>> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    protected businessRules(_props: Record<string, never>): void {}
   }
 
   it('should check if an object is an instance of DomainEntity', () => {
-    const entity = new TestEntity({ id: '1' as any, props: {}, trackingProps: {} as any });
+    const entity = new TestEntity({
+      id: '1' as any,
+      props: {},
+      trackingProps: {} as any,
+    });
     expect(DomainValidator.isInstanceof(entity)).toBe(true);
     expect(DomainValidator.isInstanceof({})).toBe(false);
   });
@@ -43,7 +54,8 @@ describe('DomainValidator', () => {
 
 describe('ValueObjectValidator', () => {
   class TestValueObject extends AbstractDomainValueObject<string> {
-    protected businessRules(props: IDomainPrimitive<string>): void {}
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    protected businessRules(_props: IDomainPrimitive<string>): void {}
   }
 
   it('should validate props', () => {

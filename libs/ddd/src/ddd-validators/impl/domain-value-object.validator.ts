@@ -3,7 +3,11 @@
  */
 import { AbstractValidator } from './domain-abstract.validator';
 import { BrokenRule, BrokenRuleCollection } from '../../ddd-core';
-import { AbstractDomainValueObject, IDomainPrimitive, Primitives } from '../../ddd-core/ddd-base-classes';
+import {
+  AbstractDomainValueObject,
+  IDomainPrimitive,
+  Primitives,
+} from '../../ddd-core/ddd-base-classes';
 
 /**
  * Error message for guard length check.
@@ -72,7 +76,8 @@ export class ValueObjectValidator extends AbstractValidator {
     obj: unknown,
   ): obj is AbstractDomainValueObject<unknown> {
     return obj instanceof AbstractDomainValueObject;
-  }  static isDomainPrimitive<T>(
+  }
+  static isDomainPrimitive<T>(
     obj: unknown,
   ): obj is IDomainPrimitive<T & (Primitives | Date)> {
     if (!obj) return false;

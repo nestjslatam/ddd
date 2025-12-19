@@ -22,9 +22,9 @@ export class Song extends DomainEntity<ISongProps> {
     }
   }
 
-  constructor(props: ISongProps, trackingProps: TrackingProps) {
+  constructor(id: Id, props: ISongProps, trackingProps: TrackingProps) {
     super({
-      id: Id.create(),
+      id,
       props,
       trackingProps,
     });
@@ -32,6 +32,7 @@ export class Song extends DomainEntity<ISongProps> {
 
   static create(singerId: Id, name: Name, audit: DomainAudit): Song {
     const song = new Song(
+      Id.create(),
       { singerId, name, status: eSongStatus.ACTIVE, audit },
       TrackingProps.setNew(),
     );
@@ -40,11 +41,12 @@ export class Song extends DomainEntity<ISongProps> {
   }
 
   static fromRaw(props: ISongRaw): Song {
-    const { singerId, name, status } = props;
+    const { id, singerId, name, status } = props;
 
     const audit = DomainAudit.getFromRaw(props.audit);
 
     return new Song(
+      Id.fromRaw(id),
       {
         singerId: Id.fromRaw(singerId),
         name: Name.create(name),

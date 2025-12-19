@@ -32,7 +32,9 @@ describe('BrokenRuleCollection', () => {
   it('should not add a duplicate rule', () => {
     const rule = new BrokenRule('code', 'description');
     collection.add(rule);
-    expect(() => collection.add(rule)).toThrow('This broken rule already exists');
+    expect(() => collection.add(rule)).toThrow(
+      'This broken rule already exists',
+    );
   });
 
   it('should remove a broken rule', () => {
@@ -44,7 +46,9 @@ describe('BrokenRuleCollection', () => {
 
   it('should throw when removing a non-existent rule', () => {
     const rule = new BrokenRule('code', 'description');
-    expect(() => collection.remove(rule)).toThrow('This broken rule does not exist');
+    expect(() => collection.remove(rule)).toThrow(
+      'This broken rule does not exist',
+    );
   });
 
   it('should clear all rules', () => {

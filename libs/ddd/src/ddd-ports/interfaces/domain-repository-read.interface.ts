@@ -1,6 +1,5 @@
 import { DomainAggregateRoot } from '../../ddd-aggregate-root';
-import { DomainEntity } from '../../ddd-entity';
-import { Primitives } from '../../ddd-valueobject';
+import { DomainEntity, Primitives } from '../../ddd-core/ddd-base-classes';
 
 /**
  * Represents a read repository interface for a domain entity or aggregate root.

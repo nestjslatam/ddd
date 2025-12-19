@@ -1,5 +1,3 @@
-
-import { jest } from '@jest/globals';
 import { DomainCommandHandler, DomainEventHandler } from './index';
 import { IDomainCommand } from '../ddd-commands';
 import { IDomainEvent } from '../ddd-events';
@@ -33,7 +31,8 @@ describe('Reflect Helpers', () => {
     });
 
     it('should reflect the command id from a handler', () => {
-      const commandId = ReflectCommandHelper.reflectCommandId(TestCommandHandler);
+      const commandId =
+        ReflectCommandHelper.reflectCommandId(TestCommandHandler);
       expect(commandId).toBeDefined();
     });
   });

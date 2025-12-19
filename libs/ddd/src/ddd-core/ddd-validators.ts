@@ -56,7 +56,11 @@ export abstract class AbstractValidator {
 }
 
 import { BrokenRule, BrokenRuleCollection } from './broken-rules';
-import { AbstractDomainValueObject, IDomainPrimitive, Primitives } from './ddd-base-classes';
+import {
+  AbstractDomainValueObject,
+  IDomainPrimitive,
+  Primitives,
+} from './ddd-base-classes';
 
 /**
  * Error message for guard length check.
@@ -125,7 +129,8 @@ export class ValueObjectValidator extends AbstractValidator {
     obj: unknown,
   ): obj is AbstractDomainValueObject<unknown> {
     return obj instanceof AbstractDomainValueObject;
-  }  static isDomainPrimitive<T>(
+  }
+  static isDomainPrimitive<T>(
     obj: unknown,
   ): obj is IDomainPrimitive<T & (Primitives | Date)> {
     if (!obj) return false;

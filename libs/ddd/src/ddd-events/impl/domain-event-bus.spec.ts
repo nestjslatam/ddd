@@ -1,12 +1,18 @@
-
 import { jest } from '@jest/globals';
-import { Logger, Type } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { Observable, of, Subject, throwError } from 'rxjs';
-import { DomainCommandBus, IDomainCommand, IDomainCommandMetadata } from '../../ddd-commands';
+import { Observable, of } from 'rxjs';
+import {
+  DomainCommandBus,
+  IDomainCommand,
+  IDomainCommandMetadata,
+} from '../../ddd-commands';
 import { ISaga } from '../../ddd-core';
 import { DomainEventHandler } from '../../ddd-decorators';
-import { UnhandledExceptionDomainBus, UnhandledExceptionInfo } from '../../ddd-exceptions';
+import {
+  UnhandledExceptionDomainBus,
+  UnhandledExceptionInfo,
+} from '../../ddd-exceptions';
 import { ReflectEventHelper } from '../../ddd-decorators';
 import { DomainEventBus } from './domain-event-bus';
 import { IDomainEvent, IDomainEventHandler } from '../interfaces';
@@ -27,7 +33,8 @@ class TestEventHandler implements IDomainEventHandler<TestEvent> {
   handle = jest.fn();
 }
 
-const testSaga: ISaga<TestEvent> = (events$) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const testSaga: ISaga<TestEvent> = (_events$) => {
   return new Observable<IDomainCommand>();
 };
 
@@ -71,7 +78,8 @@ describe('DomainEventBus', () => {
   });
 
   it('should register a saga', () => {
-    const saga: ISaga<TestEvent> = (events$) => of(new TestCommand());
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const saga: ISaga<TestEvent> = (_events$) => of(new TestCommand());
     eventBus['registerSaga'](saga);
     const event = new TestEvent('123');
     eventBus.publish(event);
@@ -89,13 +97,17 @@ describe('DomainEventBus', () => {
 
   it('should handle exceptions in event handlers and publish to unhandledExceptionBus', async () => {
     const error = new Error('Test Error');
-    const handler = { handle: jest.fn().mockImplementation(() => Promise.reject(error)) };
+    const handler = {
+      handle: jest.fn().mockImplementation(() => Promise.reject(error)),
+    };
     const event = new TestEvent('123');
 
     let caughtError: UnhandledExceptionInfo | undefined;
-    jest.spyOn(unhandledExceptionBus, 'publish').mockImplementation((info: UnhandledExceptionInfo) => {
-      caughtError = info;
-    });
+    jest
+      .spyOn(unhandledExceptionBus, 'publish')
+      .mockImplementation((info: UnhandledExceptionInfo) => {
+        caughtError = info;
+      });
 
     eventBus.bind(handler as any, ReflectEventHelper.getDomainEventId(event)!);
     eventBus.publish(event);

@@ -42,11 +42,7 @@ export abstract class DomainAggregateRoot<
    * @param props - The properties of the aggregate root.
    * @param trackingProps - The tracking properties of the aggregate root.
    */
-  constructor(
-    id: DomainUid,
-    props: TProps,
-    trackingProps: ITrackingProps,
-  ) {
+  constructor(id: DomainUid, props: TProps, trackingProps: ITrackingProps) {
     super({ id, props, trackingProps });
 
     this.setVersion(0);
@@ -90,7 +86,9 @@ export abstract class DomainAggregateRoot<
    */
   public loadFromHistory(history: ISerializableEvent[]): void {
     const domainEvents = history.map((event) => event.data);
-    domainEvents.forEach((event) => this.applyEventFromHistory(event, { skipHandler: false }));
+    domainEvents.forEach((event) =>
+      this.applyEventFromHistory(event, { skipHandler: false }),
+    );
 
     const lastEvent = history[history.length - 1];
     this.setVersion(lastEvent.position);
@@ -123,14 +121,11 @@ export abstract class DomainAggregateRoot<
     this.applyEvent(event, options?.skipHandler);
   }
 
-  protected applyEventFromHistory<T extends TDomainEventBase = TDomainEventBase>(
-    event: T,
-    options?: { skipHandler?: boolean },
-  ): void {
+  protected applyEventFromHistory<
+    T extends TDomainEventBase = TDomainEventBase,
+  >(event: T, options?: { skipHandler?: boolean }): void {
     this.applyEvent(event, options?.skipHandler);
   }
-
-
 
   /**
    * Commits the domain events by publishing them and clearing the list.
@@ -196,6 +191,4 @@ export abstract class DomainAggregateRoot<
   get DomainEvents(): TDomainEventBase[] {
     return this._domainEvents;
   }
-
-
 }

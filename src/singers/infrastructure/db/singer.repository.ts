@@ -72,9 +72,7 @@ export class SingerRepository
       const table = SingerMapper.toTable(singer);
       await this.repository.save(table);
     } catch (error) {
-      throw new DatabaseException(
-        `Failed to insert singer: ${error.message}`,
-      );
+      throw new DatabaseException(`Failed to insert singer: ${error.message}`);
     }
   }
 
@@ -100,10 +98,15 @@ export class SingerRepository
       const result = await this.repository.update(id, table);
 
       if (result.affected === 0) {
-        throw new DatabaseException(`Singer with ID ${id} not found for update`);
+        throw new DatabaseException(
+          `Singer with ID ${id} not found for update`,
+        );
       }
     } catch (error) {
-      if (error instanceof DatabaseException || error instanceof BrokenRulesException) {
+      if (
+        error instanceof DatabaseException ||
+        error instanceof BrokenRulesException
+      ) {
         throw error;
       }
       throw new DatabaseException(

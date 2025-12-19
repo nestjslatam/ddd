@@ -1,7 +1,7 @@
 import {
   DateTimeHelper,
   DomainAudit,
-  DomainEventPublisher,
+  DomainEventBus,
 } from '@nestjslatam/ddd-lib';
 import { CommandHandler } from '@nestjs/cqrs';
 
@@ -19,9 +19,9 @@ import { Song } from '../../../../domain';
 export class AddSongToSingerCommandHandler extends AbstractCommandHandler<AddSongToSingerCommand> {
   constructor(
     protected readonly repository: SingerRepository,
-    protected readonly publisher: DomainEventPublisher,
+    protected readonly eventBus: DomainEventBus,
   ) {
-    super(publisher);
+    super(eventBus);
   }
 
   async execute(command: AddSongToSingerCommand): Promise<void> {

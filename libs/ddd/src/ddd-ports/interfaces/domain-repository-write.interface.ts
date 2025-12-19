@@ -1,6 +1,5 @@
 import { DomainAggregateRoot } from '../../ddd-aggregate-root';
-import { DomainEntity } from '../../ddd-entity';
-import { Primitives } from '../../ddd-valueobject';
+import { DomainEntity, Primitives } from '../../ddd-core/ddd-base-classes';
 
 export interface IDomainWriteRepository<
   TKey extends Primitives,

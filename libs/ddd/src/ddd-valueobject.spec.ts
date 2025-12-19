@@ -1,5 +1,4 @@
-
-import { AbstractDomainValueObject, IDomainPrimitive, Props } from './ddd-core/ddd-base-classes';
+import { AbstractDomainValueObject, Props } from './ddd-core/ddd-base-classes';
 import { BrokenRule } from './ddd-core';
 
 // Mock concrete implementations of AbstractDomainValueObject for testing
@@ -7,7 +6,12 @@ import { BrokenRule } from './ddd-core';
 class TestValueObject extends AbstractDomainValueObject<string> {
   protected businessRules(props: Props<string>): void {
     if (props.value.length < 2) {
-      this.addBrokenRule(new BrokenRule('TestValueObject', 'Value must be at least 2 characters long.'));
+      this.addBrokenRule(
+        new BrokenRule(
+          'TestValueObject',
+          'Value must be at least 2 characters long.',
+        ),
+      );
     }
   }
 }
@@ -15,7 +19,12 @@ class TestValueObject extends AbstractDomainValueObject<string> {
 class TestComplexValueObject extends AbstractDomainValueObject<any> {
   protected businessRules(props: Props<any>): void {
     if (props.prop1.length < 2) {
-      this.addBrokenRule(new BrokenRule('TestComplexValueObject', 'prop1 must be at least 2 characters long.'));
+      this.addBrokenRule(
+        new BrokenRule(
+          'TestComplexValueObject',
+          'prop1 must be at least 2 characters long.',
+        ),
+      );
     }
   }
 }
@@ -58,7 +67,9 @@ describe('AbstractDomainValueObject', () => {
     });
 
     it('should throw an error for an invalid complex value object', () => {
-      expect(() => new TestComplexValueObject({ prop1: 'a', prop2: 123 })).toThrow(
+      expect(
+        () => new TestComplexValueObject({ prop1: 'a', prop2: 123 }),
+      ).toThrow(
         'Invalid value object TestComplexValueObject: TestComplexValueObject-prop1 must be at least 2 characters long.',
       );
     });
@@ -77,7 +88,10 @@ describe('AbstractDomainValueObject', () => {
 
     it('should not be equal to another complex value object with different props', () => {
       const vo1 = new TestComplexValueObject({ prop1: 'valid', prop2: 123 });
-      const vo2 = new TestComplexValueObject({ prop1: 'different', prop2: 456 });
+      const vo2 = new TestComplexValueObject({
+        prop1: 'different',
+        prop2: 456,
+      });
       expect(vo1.equals(vo2)).toBe(false);
     });
   });
