@@ -13,12 +13,22 @@ Use este checklist para configurar el sistema CI/CD después de la implementaci�
 
 ### NPM_TOKEN (Requerido)
 
+**IMPORTANTE**: Debe ser un token de tipo **Automation** (no requiere 2FA)
+
 - [ ] Ir a [npmjs.com](https://www.npmjs.com/settings/YOUR_USERNAME/tokens)
-- [ ] Crear nuevo token (Automation type)
-- [ ] Copiar token
+- [ ] Click en "Generate New Token"
+- [ ] Seleccionar tipo: **"Automation"** (NO "Granular" ni "Classic")
+- [ ] Configurar permisos:
+  - ✅ Read packages
+  - ✅ Publish packages
+- [ ] Copiar el token generado (solo se muestra una vez)
 - [ ] En GitHub: `Settings > Secrets and variables > Actions`
-- [ ] Agregar nuevo secret: `NPM_TOKEN`
-- [ ] Pegar token y guardar
+- [ ] Click en "New repository secret"
+- [ ] Nombre: `NPM_TOKEN`
+- [ ] Valor: Pegar el token copiado
+- [ ] Click en "Add secret"
+
+**Nota**: Los tokens de tipo "Automation" no requieren 2FA y son ideales para CI/CD.
 
 ### CODECOV_TOKEN (Opcional)
 
@@ -123,6 +133,23 @@ Use este checklist para configurar el sistema CI/CD después de la implementaci�
 - [ ] Verificar permisos del token
 - [ ] Verificar que la versión no existe ya en NPM
 - [ ] Verificar `package.json` en `libs/ddd/`
+
+### Error EOTP (One-Time Password Required)
+
+**Síntoma**: `npm error code EOTP - This operation requires a one-time password from your authenticator`
+
+**Causa**: El token NPM que estás usando requiere 2FA (two-factor authentication), pero los tokens Automation no deberían requerirlo.
+
+**Solución**:
+
+1. Ir a [npmjs.com/tokens](https://www.npmjs.com/settings/YOUR_USERNAME/tokens)
+2. Eliminar el token actual (si es necesario)
+3. Crear un **nuevo token de tipo "Automation"** (NO "Granular" ni "Classic")
+4. Copiar el nuevo token
+5. Actualizar el secret `NPM_TOKEN` en GitHub con el nuevo token
+6. Volver a ejecutar el workflow
+
+**Nota**: Los tokens Automation están diseñados específicamente para CI/CD y no requieren 2FA.
 
 ## 📝 Notas
 

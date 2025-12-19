@@ -47,6 +47,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: ${{ env.REGISTRY_URL }}
           scope: ${{ env.SCOPE }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Install dependencies
         run: npm ci
@@ -120,9 +122,16 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: ${{ env.REGISTRY_URL }}
           scope: ${{ env.SCOPE }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Run tests
         run: |
@@ -139,6 +148,9 @@ jobs:
           echo "✅ Build validation passed"
 
       - name: Publish to NPM
+        # Note: NPM_TOKEN must be an Automation token (doesn't require 2FA)
+        # Create at: https://www.npmjs.com/settings/YOUR_USERNAME/tokens
+        # Token type: Automation (not Granular or Classic)
         run: |
           cd dist/libs/ddd
           npm publish --access public
@@ -155,6 +167,10 @@ jobs:
       - name: Create Git Tag
         if: needs.version-and-prepare.outputs.should_publish == 'true'
         run: |
+          # Ensure git config is set (in case it wasn't set earlier)
+          git config user.name "github-actions[bot]" || true
+          git config user.email "github-actions[bot]@users.noreply.github.com" || true
+          # Create and push tag
           git tag -a "v${{ needs.version-and-prepare.outputs.version }}" -m "Release v${{ needs.version-and-prepare.outputs.version }}"
           git push origin "v${{ needs.version-and-prepare.outputs.version }}"
 

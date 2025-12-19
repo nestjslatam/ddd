@@ -68,11 +68,21 @@ Ir a: `Settings > Secrets and variables > Actions`
 
 #### NPM_TOKEN (Requerido)
 
-1. Crear token en [npmjs.com](https://www.npmjs.com/settings/YOUR_USERNAME/tokens)
-2. Permisos necesarios:
+**⚠️ IMPORTANTE**: Debe ser un token de tipo **Automation** para evitar errores de 2FA.
+
+1. Ir a [npmjs.com](https://www.npmjs.com/settings/YOUR_USERNAME/tokens)
+2. Click en "Generate New Token"
+3. **Seleccionar tipo: "Automation"** (NO "Granular" ni "Classic")
+   - Los tokens Automation no requieren 2FA y son ideales para CI/CD
+4. Configurar permisos:
    - ✅ Read packages
    - ✅ Publish packages
-3. Agregar como secret `NPM_TOKEN`
+5. Copiar el token (solo se muestra una vez)
+6. En GitHub: `Settings > Secrets and variables > Actions`
+7. Agregar nuevo secret: `NPM_TOKEN`
+8. Pegar el token y guardar
+
+**Si obtienes error EOTP (one-time password)**: Significa que estás usando un token que requiere 2FA. Debes crear un token de tipo "Automation" en su lugar.
 
 #### CODECOV_TOKEN (Opcional)
 
