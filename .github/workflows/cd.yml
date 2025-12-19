@@ -1,0 +1,182 @@
+name: CD - Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'libs/ddd/**'
+      - '.github/workflows/cd.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version type (patch, minor, major)'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+env:
+  NODE_VERSION: '20'
+  REGISTRY_URL: 'https://registry.npmjs.org'
+  SCOPE: '@nestjslatam'
+
+jobs:
+  # Job 1: Version Detection y Preparación
+  version-and-prepare:
+    name: Version Detection
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      should_publish: ${{ steps.check.outputs.should_publish }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: ${{ env.REGISTRY_URL }}
+          scope: ${{ env.SCOPE }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get current version
+        id: current_version
+        run: |
+          VERSION=$(node -p "require('./libs/ddd/package.json').version")
+          echo "current=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+
+      - name: Determine version bump
+        id: version
+        run: |
+          cd libs/ddd
+          if [ "${{ github.event.inputs.version_type }}" != "" ]; then
+            npm version ${{ github.event.inputs.version_type }} --no-git-tag-version
+          else
+            # Auto-detect based on commit messages (simplified)
+            LAST_COMMIT=$(git log -1 --pretty=%B)
+            if echo "$LAST_COMMIT" | grep -qE "^(feat|feature)"; then
+              npm version minor --no-git-tag-version
+            elif echo "$LAST_COMMIT" | grep -qE "^(fix|bugfix)"; then
+              npm version patch --no-git-tag-version
+            elif echo "$LAST_COMMIT" | grep -qE "BREAKING CHANGE"; then
+              npm version major --no-git-tag-version
+            else
+              npm version patch --no-git-tag-version
+            fi
+          fi
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+
+      - name: Check if version changed
+        id: check
+        run: |
+          NEW_VERSION=$(node -p "require('./libs/ddd/package.json').version")
+          OLD_VERSION="${{ steps.current_version.outputs.current }}"
+          if [ "$NEW_VERSION" != "$OLD_VERSION" ]; then
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "✅ Version will change from $OLD_VERSION to $NEW_VERSION"
+          else
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No version change detected"
+          fi
+
+  # Job 2: Build y Publish
+  build-and-publish:
+    name: Build & Publish to NPM
+    needs: version-and-prepare
+    if: needs.version-and-prepare.outputs.should_publish == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: npm-publish
+      url: https://www.npmjs.com/package/@nestjslatam/ddd-lib
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: ${{ env.REGISTRY_URL }}
+          scope: ${{ env.SCOPE }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: |
+          npm run test:cov
+          npm run test:e2e
+
+      - name: Build library
+        run: npm run build:lib
+
+      - name: Validate build
+        run: |
+          cd dist/libs/ddd
+          npm pack --dry-run
+          echo "✅ Build validation passed"
+
+      - name: Publish to NPM
+        run: |
+          cd dist/libs/ddd
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Commit version bump
+        if: needs.version-and-prepare.outputs.should_publish == 'true'
+        run: |
+          git add libs/ddd/package.json
+          git commit -m "chore: bump version to ${{ needs.version-and-prepare.outputs.version }}" || exit 0
+          git push || echo "Nothing to commit"
+
+      - name: Create Git Tag
+        if: needs.version-and-prepare.outputs.should_publish == 'true'
+        run: |
+          git tag -a "v${{ needs.version-and-prepare.outputs.version }}" -m "Release v${{ needs.version-and-prepare.outputs.version }}"
+          git push origin "v${{ needs.version-and-prepare.outputs.version }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        if: needs.version-and-prepare.outputs.should_publish == 'true'
+        with:
+          tag_name: v${{ needs.version-and-prepare.outputs.version }}
+          name: Release v${{ needs.version-and-prepare.outputs.version }}
+          body: |
+            ## Release v${{ needs.version-and-prepare.outputs.version }}
+
+            Automated release from CI/CD pipeline.
+
+            ### Installation
+            ```bash
+            npm install @nestjslatam/ddd-lib@${{ needs.version-and-prepare.outputs.version }}
+            ```
+
+            ### Changes
+            See commit history for detailed changes.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

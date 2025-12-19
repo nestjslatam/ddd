@@ -1,0 +1,16 @@
+# Global owners
+* @beyondnet
+
+# Library specific
+/libs/ddd/ @beyondnet
+
+# Documentation
+/docs/ @beyondnet
+
+# CI/CD
+/.github/ @beyondnet
+
+# Configuration files
+package.json @beyondnet
+tsconfig.json @beyondnet
+nest-cli.json @beyondnet

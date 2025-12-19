@@ -1,0 +1,196 @@
+name: CI - Continuous Integration
+
+on:
+  push:
+    branches: [main, master, develop, 'feature/**']
+  pull_request:
+    branches: [main, master, develop]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  COVERAGE_THRESHOLD: 80
+
+jobs:
+  # Job 1: Lint y Format Check
+  lint-and-format:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check code formatting
+        run: npm run format -- --check
+
+      - name: Run ESLint
+        run: npm run lint
+
+  # Job 2: Type Check
+  type-check:
+    name: TypeScript Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check application
+        run: npx tsc --noEmit -p tsconfig.json
+
+      - name: Type check library
+        run: npx tsc --noEmit -p libs/ddd/tsconfig.lib.json
+
+  # Job 3: Unit Tests con Cobertura
+  unit-tests:
+    name: Unit Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [18.x, 20.x, 22.x]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests with coverage
+        run: npm run test:cov
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x'
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/coverage-final.json
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+      - name: Check coverage threshold
+        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x'
+        run: |
+          if [ -f "coverage/coverage-summary.json" ]; then
+            COVERAGE=$(node -e "const fs = require('fs'); const data = JSON.parse(fs.readFileSync('coverage/coverage-summary.json')); console.log(data.total.lines.pct);")
+            echo "Current coverage: ${COVERAGE}%"
+            echo "Required threshold: ${{ env.COVERAGE_THRESHOLD }}%"
+            if (( $(echo "$COVERAGE < ${{ env.COVERAGE_THRESHOLD }}" | bc -l) )); then
+              echo "❌ Coverage ${COVERAGE}% is below threshold ${{ env.COVERAGE_THRESHOLD }}%"
+              exit 1
+            fi
+            echo "✅ Coverage ${COVERAGE}% meets threshold ${{ env.COVERAGE_THRESHOLD }}%"
+          else
+            echo "⚠️ Coverage report not found, skipping threshold check"
+          fi
+
+  # Job 4: E2E Tests
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+  # Job 5: Build Validation
+  build-validation:
+    name: Build Library
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build library
+        run: npm run build:lib
+
+      - name: Validate build output
+        run: |
+          echo "Validating build output..."
+          if [ ! -f "dist/libs/ddd/index.js" ]; then
+            echo "❌ Error: index.js not found in build output"
+            exit 1
+          fi
+          if [ ! -f "dist/libs/ddd/package.json" ]; then
+            echo "❌ Error: package.json not found in build output"
+            exit 1
+          fi
+          echo "✅ Build output validated successfully"
+
+      - name: Validate package.json
+        run: |
+          cd dist/libs/ddd
+          node -e "const pkg = require('./package.json'); if (!pkg.name || !pkg.version) { console.error('❌ Invalid package.json'); process.exit(1); } else { console.log('✅ package.json is valid'); console.log('Package:', pkg.name); console.log('Version:', pkg.version); }"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: library-build
+          path: dist/libs/ddd
+          retention-days: 7
+
+  # Job 6: Security Scan
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true

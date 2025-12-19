@@ -1,0 +1,22 @@
+codecov:
+  token: ${{ secrets.CODECOV_TOKEN }}
+  files:
+    - ./coverage/coverage-final.json
+  flags:
+    unittests:
+      paths:
+        - src/
+        - libs/ddd/src/
+  coverage:
+    status:
+      project:
+        default:
+          target: 80%
+          threshold: 1%
+      patch:
+        default:
+          target: 80%
+  comment:
+    layout: 'reach, diff, flags, files'
+    behavior: default
+    require_changes: false

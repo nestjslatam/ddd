@@ -1,0 +1,136 @@
+name: Release Management
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+      prerelease_id:
+        description: 'Prerelease ID (alpha, beta, rc)'
+        required: false
+        type: string
+        default: 'beta'
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@nestjslatam'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get current version
+        id: current_version
+        run: |
+          VERSION=$(node -p "require('./libs/ddd/package.json').version")
+          echo "current=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+
+      - name: Bump version
+        run: |
+          cd libs/ddd
+          if [ "${{ github.event.inputs.release_type }}" == "prerelease" ]; then
+            npm version prerelease --preid=${{ github.event.inputs.prerelease_id || 'beta' }} --no-git-tag-version
+          else
+            npm version ${{ github.event.inputs.release_type }} --no-git-tag-version
+          fi
+        continue-on-error: false
+
+      - name: Get new version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./libs/ddd/package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $VERSION"
+
+      - name: Build library
+        run: npm run build:lib
+
+      - name: Run tests
+        run: |
+          npm run test:cov
+          npm run test:e2e
+
+      - name: Validate build
+        run: |
+          cd dist/libs/ddd
+          npm pack --dry-run
+          echo "✅ Build validation passed"
+
+      - name: Commit version bump
+        run: |
+          git add libs/ddd/package.json
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
+          git push
+
+      - name: Create Git tag
+        run: |
+          git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.version.outputs.version }}"
+
+      - name: Publish to NPM
+        run: |
+          cd dist/libs/ddd
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          echo "Generating changelog..."
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          body: |
+            ## Release v${{ steps.version.outputs.version }}
+
+            ### Changes in this Release
+
+            ${{ steps.changelog.outputs.changelog }}
+
+            ### Installation
+            ```bash
+            npm install @nestjslatam/ddd-lib@${{ steps.version.outputs.version }}
+            ```
+          draft: false
+          prerelease: ${{ github.event.inputs.release_type == 'prerelease' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
