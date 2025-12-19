@@ -187,7 +187,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.node-version }}
           path: |
@@ -224,8 +224,9 @@ jobs:
             echo "::error::E2E tests failed"
             echo "Please review E2E test failures before merging"
             exit 1
+          else
+            echo "✅ All E2E tests passed"
           fi
-          echo "✅ All E2E tests passed"
 
   # Job 5: Build Validation
   build-validation:
@@ -266,7 +267,7 @@ jobs:
           node -e "const pkg = require('./package.json'); if (!pkg.name || !pkg.version) { console.error('❌ Invalid package.json'); process.exit(1); } else { console.log('✅ package.json is valid'); console.log('Package:', pkg.name); console.log('Version:', pkg.version); }"
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: library-build
           path: dist/libs/ddd

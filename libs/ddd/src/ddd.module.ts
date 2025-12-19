@@ -6,6 +6,7 @@
  * @template DomainEventBase - The base type for domain events.
  */
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import { ModulesContainer } from '@nestjs/core';
 
 import { DddService } from './ddd.service';
 import { DomainCommandBus } from './ddd-commands';
@@ -24,7 +25,13 @@ import { UnhandledExceptionDomainBus } from './ddd-exceptions';
 @Module({
   imports: [],
   providers: [
-    DddService,
+    {
+      provide: DddService,
+      useFactory: (modulesContainer: ModulesContainer) => {
+        return new DddService(modulesContainer);
+      },
+      inject: [ModulesContainer],
+    },
     DomainCommandBus,
     DomainEventBus,
     DomainEventPublisher,
