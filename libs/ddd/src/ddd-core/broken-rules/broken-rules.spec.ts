@@ -29,6 +29,10 @@ describe('BrokenRuleCollection', () => {
     expect(collection.getItems()[0]).toBe(rule);
   });
 
+  it('should throw when adding a null broken rule', () => {
+    expect(() => collection.add(null as any)).toThrow('BrokenRule is required');
+  });
+
   it('should not add a duplicate rule', () => {
     const rule = new BrokenRule('code', 'description');
     collection.add(rule);
@@ -64,6 +68,10 @@ describe('BrokenRuleCollection', () => {
     collection.add(new BrokenRule('1', 'one'));
     collection.merge(otherCollection);
     expect(collection.getItems()).toHaveLength(2);
+  });
+
+  it('should throw when merging a null collection', () => {
+    expect(() => collection.merge(null as any)).toThrow('BrokenRuleCollection is required');
   });
 
   it('should return a formatted string of rules', () => {

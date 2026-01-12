@@ -1,4 +1,5 @@
 import { BrokenRule } from '../ddd-core';
+import { BrokenRulesException } from '../ddd-exceptions';
 import { ValueObjectValidator } from '../ddd-validators';
 import {
   AbstractDomainValueObject,
@@ -27,7 +28,12 @@ export abstract class AsbtractDomainDate extends AbstractDomainValueObject<Date>
     super({ value });
 
     this.internalRules({ value });
+    this.internalRules({ value });
     this.businessRules({ value });
+
+    if (!this.isValid) {
+      throw new BrokenRulesException(this.getBrokenRules.asString());
+    }
   }
 
   /**
@@ -39,7 +45,7 @@ export abstract class AsbtractDomainDate extends AbstractDomainValueObject<Date>
   protected internalRules(props: IDomainPrimitive<Date>): void {
     const { value } = props;
 
-    if (!ValueObjectValidator.isUndefinedOrNull(value))
+    if (!(value instanceof Date))
       this.addBrokenRule(
         new BrokenRule(this.constructor.name, 'Value must be a date'),
       );

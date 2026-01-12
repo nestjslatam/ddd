@@ -98,18 +98,18 @@ export class DomainAudit extends AbstractDomainValueObject<IDomainAuditProps> {
         new BrokenRule(this.constructor.name, 'CreatedAt should be a Date'),
       );
 
-    if (updatedAt !== null && updatedBy !== null) {
-      if (
-        typeof updatedBy !== 'string' ||
-        updatedBy === null ||
-        updatedBy === '' ||
-        updatedBy === undefined
-      )
+    if (
+      updatedAt !== null &&
+      updatedAt !== undefined &&
+      updatedBy !== null &&
+      updatedBy !== undefined
+    ) {
+      if (typeof updatedBy !== 'string' || updatedBy === '')
         this.addBrokenRule(
           new BrokenRule(this.constructor.name, 'UpdatedBy should be a string'),
         );
 
-      if (!(updatedAt instanceof Date) || updatedAt === null)
+      if (!(updatedAt instanceof Date))
         this.addBrokenRule(
           new BrokenRule(this.constructor.name, 'UpdateAt should be a Date'),
         );

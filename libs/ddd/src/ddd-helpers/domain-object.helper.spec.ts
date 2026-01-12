@@ -24,12 +24,12 @@ describe('DateTimeHelper', () => {
 describe('DomainObjectHelper', () => {
   class TestEntity extends DomainEntity<Record<string, never>> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected businessRules(_props: Record<string, never>): void {}
+    protected businessRules(_props: Record<string, never>): void { }
   }
 
   class TestValueObject extends AbstractDomainValueObject<string> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected businessRules(_props: IDomainPrimitive<string>): void {}
+    protected businessRules(_props: IDomainPrimitive<string>): void { }
   }
 
   it('should identify an entity', () => {
@@ -55,8 +55,31 @@ describe('DomainObjectHelper', () => {
   });
 
   it('should get event name from an event', () => {
-    class MyEvent {}
+    class MyEvent { }
     const event = new MyEvent();
     expect(DomainObjectHelper.getEventName(event)).toBe('MyEvent');
+  });
+
+  describe('flatMap', () => {
+    it('should return empty array given no modules', () => {
+      const result = DomainObjectHelper.flatMap({
+        modules: [],
+        callback: () => undefined,
+      });
+      expect(result).toEqual([]);
+    });
+
+    it('should map and filter items', () => {
+      const mockProvider = { instance: { constructor: class A { } } };
+      const mockModule = {
+        providers: new Map([['key', mockProvider]]),
+      };
+      const modules: any[] = [mockModule];
+
+      const callback = (wrapper: any) => wrapper.instance.constructor;
+
+      const result = DomainObjectHelper.flatMap({ modules, callback });
+      expect(result).toHaveLength(1);
+    });
   });
 });

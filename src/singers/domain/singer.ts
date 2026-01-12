@@ -1,5 +1,6 @@
 import {
   BrokenRule,
+  BrokenRulesException,
   DomainAggregateRoot,
   DomainAudit,
   TrackingProps,
@@ -44,7 +45,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
       Id.create(),
       {
         ...props,
-        status: eSingerStatus[status],
+        status: status,
         audit,
       },
       TrackingProps.setNew(),
@@ -74,7 +75,7 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
         subscribedDate: subscribedDate
           ? SubscribedDate.create(subscribedDate)
           : null,
-        status: eSingerStatus[status],
+        status: status as eSingerStatus,
         audit: DomainAudit.getFromRaw(props.audit),
       },
       TrackingProps.setDirty(),
@@ -82,32 +83,34 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
   }
 
   private update(audit: DomainAudit): void {
-    this.props.audit.update(audit.unpack().updatedBy, audit.unpack().updatedAt);
+    this._props.audit.update(audit.unpack().updatedBy, audit.unpack().updatedAt);
     this.markAsDirty();
   }
 
   changeFullName(fullName: FullName, audit: DomainAudit): this {
-    this.props.fullName = fullName;
+    this._props.fullName = fullName;
     this.update(audit);
     return this;
   }
 
   changePicture(picture: PicturePath, audit: DomainAudit): this {
-    this.props.picture = picture;
+    this._props.picture = picture;
     this.update(audit);
     return this;
   }
 
   subscribe(audit: DomainAudit): this {
-    if (this.props.isSubscribed)
+    if (this._props.isSubscribed) {
       this.addBrokenRule(new BrokenRule('singer', 'singer already subscribed'));
+      throw new BrokenRulesException(this.BrokenRules.asString());
+    }
 
-    this.props.isSubscribed = true;
-    this.props.subscribedDate = SubscribedDate.create(new Date());
-    this.props.status = eSingerStatus.Subscribed;
+    this._props.isSubscribed = true;
+    this._props.subscribedDate = SubscribedDate.create(new Date());
+    this._props.status = eSingerStatus.Subscribed;
     this.update(audit);
 
-    const { subscribedDate } = this.props;
+    const { subscribedDate } = this._props;
 
     this.addDomainEvent(
       new SingerSubscribedDomainEvent(this.id, subscribedDate.unpack()),
@@ -117,31 +120,31 @@ export class Singer extends DomainAggregateRoot<ISingerProps> {
   }
 
   remove(audit: DomainAudit): this {
-    if (this.props.status === eSingerStatus.Subscribed) {
+    if (this._props.status === eSingerStatus.Subscribed) {
       this.addBrokenRule(
         new BrokenRule('singer', 'singer is subscribed, cannot remove'),
       );
-      return this;
+      throw new BrokenRulesException(this.BrokenRules.asString());
     }
 
-    this.props.status = eSingerStatus.Deleted;
+    this._props.status = eSingerStatus.Deleted;
     this.update(audit);
 
     this.addDomainEvent(
-      new SingerDeletedDomainEvent(this.id, this.props.fullName.unpack()),
+      new SingerDeletedDomainEvent(this.id, this._props.fullName.unpack()),
     );
 
     return this;
   }
 
   addSong(song: Song, audit: DomainAudit): this {
-    this.props.songs = this.addChild(this, song, this.props.songs);
+    this._props.songs = this.addChild(this, song, this._props.songs);
     this.update(audit);
     return this;
   }
 
   removeSong(song: Song, audit: DomainAudit): this {
-    this.props.songs = this.removeChild(this, song, this.props.songs);
+    this._props.songs = this.removeChild(this, song, this._props.songs);
     this.update(audit);
     return this;
   }

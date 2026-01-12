@@ -7,7 +7,7 @@ import {
 } from '../../../../../shared';
 import { SingerRepository } from '../../../../infrastructure/db';
 import { ChangeFullNameSingerCommand } from './change-fullname-singer.command';
-import { FullName } from 'src/singers/domain';
+import { FullName } from '../../../../domain';
 
 @CommandHandler(ChangeFullNameSingerCommand)
 export class ChangeFullNameSingerCommandHandler extends AbstractCommandHandler<ChangeFullNameSingerCommand> {

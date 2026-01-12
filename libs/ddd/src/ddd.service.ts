@@ -19,14 +19,21 @@ export class DddService<EventBase extends IDomainEvent = IDomainEvent> {
    * Creates an instance of DddService.
    * @param modulesContainer - The container holding all the modules in the application.
    */
-  constructor(private readonly modulesContainer: ModulesContainer) {}
+  constructor(private readonly modulesContainer: ModulesContainer) { }
 
   /**
    * Explores the modules and extracts the domain commands, domain events, and sagas.
    * @returns An object containing the extracted domain commands, domain events, and sagas.
    */
   explore(): IDddOptions {
-    const modules = [...this.modulesContainer.values()];
+
+    var moduleList = this.modulesContainer.values();
+
+    if (moduleList.return.length === 0) {
+      throw new Error('No modules found in the application.');
+    }
+
+    const modules = [...moduleList];
 
     const domainCommands = this.flatMap<IDomainCommandHandler>(
       modules,
@@ -57,7 +64,7 @@ export class DddService<EventBase extends IDomainEvent = IDomainEvent> {
     modules: Module[],
     callback: (instance: InstanceWrapper) => Type<any> | undefined,
   ): Type<T>[] {
-    return DomainObjectHelper.flatMap<T>(modules, callback);
+    return DomainObjectHelper.flatMap<T>({ modules, callback });
   }
 
   /**

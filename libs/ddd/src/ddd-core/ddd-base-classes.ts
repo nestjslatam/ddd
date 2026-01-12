@@ -233,10 +233,10 @@ export abstract class DomainEntity<TProps> {
     // Use entity equality for DomainEntity, reference equality for ValueObjects
     const index = DomainObjectHelper.isDomainEntity(child)
       ? childs.findIndex(
-          (c) =>
-            DomainObjectHelper.isDomainEntity(c) &&
-            (c as DomainEntity<any>).id === (child as DomainEntity<any>).id,
-        )
+        (c) =>
+          DomainObjectHelper.isDomainEntity(c) &&
+          (c as DomainEntity<any>).id === (child as DomainEntity<any>).id,
+      )
       : childs.indexOf(child);
 
     if (index > -1) {
@@ -267,10 +267,10 @@ export abstract class DomainEntity<TProps> {
     // Use entity equality for DomainEntity, reference equality for ValueObjects
     const exists = DomainObjectHelper.isDomainEntity(child)
       ? childs.some(
-          (c) =>
-            DomainObjectHelper.isDomainEntity(c) &&
-            (c as DomainEntity<any>).id === (child as DomainEntity<any>).id,
-        )
+        (c) =>
+          DomainObjectHelper.isDomainEntity(c) &&
+          (c as DomainEntity<any>).id === (child as DomainEntity<any>).id,
+      )
       : childs.includes(child);
 
     if (exists) {
@@ -320,8 +320,6 @@ export abstract class AbstractDomainValueObject<T> {
   /**
    * Indicates whether the value object is valid or not.
    */
-  private _isValid: boolean = true;
-
   constructor(props: Props<T>) {
     this.guard(props);
 
@@ -335,13 +333,10 @@ export abstract class AbstractDomainValueObject<T> {
       this.businessRules(props);
     }
 
-    this._isValid = this._brokenRules.getItems().length === 0;
-
     // Fail fast - don't create invalid value objects
-    if (!this._isValid) {
+    if (!this.isValid) {
       throw new BrokenRulesException(
-        `Invalid value object ${
-          this.constructor.name
+        `Invalid value object ${this.constructor.name
         }: ${this._brokenRules.asString()}`,
       );
     }
@@ -353,7 +348,7 @@ export abstract class AbstractDomainValueObject<T> {
    * Gets a value indicating whether the value object is valid or not.
    */
   get isValid(): boolean {
-    return this._isValid;
+    return this._brokenRules.getItems().length === 0;
   }
 
   /**

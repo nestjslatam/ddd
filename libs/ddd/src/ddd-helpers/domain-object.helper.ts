@@ -92,10 +92,11 @@ export class DomainObjectHelper {
    * @returns {obj is DomainValueObject<unknown>} True if the object is a domain value object, false otherwise.
    * @memberof DomainObjectHelper
    */
-  static flatMap<T>(
-    modules: Module[],
-    callback: (instance: InstanceWrapper) => Type<any> | undefined,
-  ): Type<T>[] {
+  static flatMap<T>(options: {
+    modules: Module[];
+    callback: (instance: InstanceWrapper) => Type<any> | undefined;
+  }): Type<T>[] {
+    const { modules, callback } = options;
     const items = modules
       .map((module) => [...module.providers.values()].map(callback))
       .reduce((a, b) => a.concat(b), []);

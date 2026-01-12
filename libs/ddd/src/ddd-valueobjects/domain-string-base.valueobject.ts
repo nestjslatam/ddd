@@ -1,4 +1,5 @@
 import { BrokenRule } from '../ddd-core';
+import { BrokenRulesException } from '../ddd-exceptions';
 import { ValueObjectValidator } from '../ddd-validators';
 import {
   AbstractDomainValueObject,
@@ -27,6 +28,13 @@ export abstract class AbstractDomainString extends AbstractDomainValueObject<str
     this.internalRules({ value });
 
     this.businessRules({ value });
+
+    if (!this.isValid) {
+      throw new BrokenRulesException(
+        `Invalid value object ${this.constructor.name
+        }: ${this.getBrokenRules.asString()}`,
+      );
+    }
   }
 
   /**

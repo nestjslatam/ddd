@@ -4,12 +4,11 @@ import {
   DomainEntity,
   DomainEventBus,
 } from '@nestjslatam/ddd-lib';
-import { DomainException } from 'src/shared/exceptions';
+import { DomainException } from '../../exceptions';
 
 export abstract class AbstractCommandHandler<TCommand>
-  implements ICommandHandler<TCommand>
-{
-  constructor(protected readonly eventBus?: DomainEventBus) {}
+  implements ICommandHandler<TCommand> {
+  constructor(protected readonly eventBus?: DomainEventBus) { }
 
   abstract execute(command: TCommand): Promise<void>;
 
