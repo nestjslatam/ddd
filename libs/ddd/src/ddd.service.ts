@@ -19,15 +19,14 @@ export class DddService<EventBase extends IDomainEvent = IDomainEvent> {
    * Creates an instance of DddService.
    * @param modulesContainer - The container holding all the modules in the application.
    */
-  constructor(private readonly modulesContainer: ModulesContainer) { }
+  constructor(private readonly modulesContainer: ModulesContainer) {}
 
   /**
    * Explores the modules and extracts the domain commands, domain events, and sagas.
    * @returns An object containing the extracted domain commands, domain events, and sagas.
    */
   explore(): IDddOptions {
-
-    var moduleList = this.modulesContainer.values();
+    const moduleList = this.modulesContainer.values();
 
     if (moduleList.return.length === 0) {
       throw new Error('No modules found in the application.');
