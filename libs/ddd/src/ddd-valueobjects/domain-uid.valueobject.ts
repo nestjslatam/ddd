@@ -1,62 +1,54 @@
+import { v4 as uuidv4, validate as validateUuid } from 'uuid';
+import { ValueObject } from '../ddd-valueobject';
+
 /**
- * Represents a domain value object that holds a unique identifier as a string.
- * This value object ensures that the provided value is not null, undefined, and follows the UUID v4 pattern.
+ * Representa un identificador único de dominio (UUID).
+ * Compatible con DomainUid de versiones anteriores.
  */
-import { BrokenRule } from '../ddd-core';
-import { ValueObjectValidator } from '../ddd-validators';
-import {
-  AbstractDomainValueObject,
-  IDomainPrimitive,
-} from '../ddd-core/ddd-base-classes';
-
-const UUID_V4_PATTERN =
-  /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
-
-export class DomainUid extends AbstractDomainValueObject<string> {
+export class DomainUid extends ValueObject<string> {
+  /**
+   * Constructor protegido.
+   */
   protected constructor(value: string) {
-    super({ value });
-
-    this.businessRules({ value });
+    super(value);
   }
 
   /**
-   * Creates a new instance of DomainUid with the provided value.
-   * @param value - The value of the domain identifier as a string.
-   * @returns A new instance of DomainUid.
+   * Crea una nueva instancia de DomainUid con un identificador específico.
+   * @param value El valor UUID del identificador.
    */
   public static create(value: string): DomainUid {
+    if (value === null || value === undefined) {
+      throw new Error('ArgumentNullException: El valor no puede ser nulo.');
+    }
+
+    if (!validateUuid(value)) {
+      throw new Error(
+        'ArgumentException: La cadena proporcionada no es un UUID válido.',
+      );
+    }
+
     return new DomainUid(value);
   }
 
   /**
-   * Loads an existing instance of DomainUid with the provided value.
-   * @param value - The value of the domain identifier as a string.
-   * @returns An existing instance of DomainUid.
+   * Crea una nueva instancia de DomainUid con un identificador generado aleatoriamente.
    */
-  public static load(value: string): DomainUid {
-    return new DomainUid(value);
+  public static createNew(): DomainUid {
+    return new DomainUid(uuidv4());
   }
 
   /**
-   * Gets the value of the domain identifier as a string.
-   * @returns The value of the domain identifier as a string.
+   * Retorna los componentes utilizados para determinar la igualdad.
    */
-  protected businessRules(props: IDomainPrimitive<string>): void {
-    const { value } = props;
+  protected getEqualityComponents(): Iterable<any> {
+    return [this.getValue()];
+  }
 
-    if (ValueObjectValidator.isUndefinedOrNull(value))
-      this.addBrokenRule(
-        new BrokenRule(
-          this.constructor.name,
-          'Value is required and cannot be null or undefined.',
-        ),
-      );
-
-    const isRegexValid = new RegExp(UUID_V4_PATTERN);
-
-    if (!isRegexValid.test(value))
-      this.addBrokenRule(
-        new BrokenRule(this.constructor.name, 'Value is not a valid UUID v4.'),
-      );
+  /**
+   * Obtiene el valor del identificador (alias de getValue para compatibilidad).
+   */
+  public unpack(): string {
+    return this.getValue();
   }
 }

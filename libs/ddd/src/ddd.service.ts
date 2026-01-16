@@ -6,7 +6,7 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { DomainObjectHelper } from './ddd-helpers';
 import { IDomainCommandHandler } from './ddd-commands';
 import { IDomainEvent, IDomainEventHandler } from './ddd-events';
-import { IDddOptions } from './ddd-core/interfaces/ddd.options';
+import { IDddOptions, ISaga } from './ddd-core';
 import {
   DOMAIN_COMMAND_HANDLER_METADATA,
   DOMAIN_EVENTS_HANDLER_METADATA,
@@ -47,7 +47,7 @@ export class DddService<EventBase extends IDomainEvent = IDomainEvent> {
         this.filterProvider(instance, DOMAIN_EVENTS_HANDLER_METADATA),
     );
 
-    const sagas = this.flatMap(modules, (instance) =>
+    const sagas = this.flatMap<ISaga>(modules, (instance) =>
       this.filterProvider(instance, DOMAIN_SAGA_METADATA),
     );
 

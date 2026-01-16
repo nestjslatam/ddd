@@ -10,7 +10,7 @@ import {
   throwError,
 } from 'rxjs';
 
-import { ISaga, ObservableBus } from './../../ddd-core';
+import { ISaga, ObservableBus } from '../../ddd-core';
 import { DomainCommandBus, IDomainCommand } from '../../ddd-commands';
 
 import {
@@ -25,7 +25,7 @@ import {
   DomainInvalidSagaException,
   UnhandledExceptionDomainBus,
   UnhandledExceptionInfo,
-} from '../../ddd-exceptions/';
+} from '../../ddd-exceptions';
 import { DOMAIN_SAGA_METADATA, ReflectEventHelper } from '../../ddd-decorators';
 import { DefaultDomainEventPublisher } from './default-event-publisher';
 import { DomainEventHandlerType } from './domain-event-types';
@@ -291,7 +291,8 @@ export class DomainEventBus<DomainEventBase extends IDomainEvent = IDomainEvent>
   ): UnhandledExceptionInfo {
     return {
       cause: eventOrCommand,
-      exception,
+      exception:
+        exception instanceof Error ? exception : new Error(String(exception)),
     };
   }
 

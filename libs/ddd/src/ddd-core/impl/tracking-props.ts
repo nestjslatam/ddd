@@ -20,6 +20,11 @@ export class TrackingProps implements ITrackingProps {
   isDeleted: boolean;
 
   /**
+   * Indicates whether the entity has been self-deleted.
+   */
+  isSelfDeleted: boolean;
+
+  /**
    * Creates a new instance of TrackingProps with isNew set to true and other properties set to false.
    * @returns A new instance of TrackingProps.
    */
@@ -28,6 +33,7 @@ export class TrackingProps implements ITrackingProps {
       isDirty: false,
       isNew: true,
       isDeleted: false,
+      isSelfDeleted: false,
     };
   }
 
@@ -40,6 +46,7 @@ export class TrackingProps implements ITrackingProps {
       isDirty: true,
       isNew: false,
       isDeleted: false,
+      isSelfDeleted: false,
     };
   }
 
@@ -52,6 +59,20 @@ export class TrackingProps implements ITrackingProps {
       isDirty: false,
       isNew: false,
       isDeleted: true,
+      isSelfDeleted: false,
+    };
+  }
+
+  /**
+   * Creates a new instance of TrackingProps with isSelfDeleted set to true and other properties set to false.
+   * @returns A new instance of TrackingProps.
+   */
+  static setSelfDeleted(): TrackingProps {
+    return {
+      isDirty: false,
+      isNew: false,
+      isDeleted: false,
+      isSelfDeleted: true,
     };
   }
 }

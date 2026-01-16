@@ -1,9 +1,10 @@
 import { DomainAggregateRoot } from '../../ddd-aggregate-root';
-import { DomainEntity, Primitives } from '../../ddd-core/ddd-base-classes';
+import { DomainEntity } from '../../ddd-entity';
+import { Primitives } from '../../ddd-core';
 
 export interface IDomainWriteRepository<
   TKey extends Primitives,
-  TDomain extends DomainAggregateRoot<any> | DomainEntity<any>,
+  TDomain extends DomainAggregateRoot<any, any> | DomainEntity<any, any>,
 > {
   /**
    * Inserts a single entity into the repository.

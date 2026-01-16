@@ -7,14 +7,14 @@ import { ISerializableEvent } from '../interfaces';
 export class DomainEventSerializer {
   serialize<T>(
     event: T,
-    dispatcher: DomainAggregateRoot<any>,
+    dispatcher: DomainAggregateRoot<any, any>,
   ): ISerializableEvent<T> {
     const eventType = event.constructor?.name;
     if (!eventType) {
       throw new Error('Incompatible event type');
     }
 
-    const aggregateId = dispatcher.id;
+    const aggregateId = dispatcher.Id.getValue();
 
     return {
       aggregateId,

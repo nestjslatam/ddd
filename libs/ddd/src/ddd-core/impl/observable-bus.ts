@@ -7,8 +7,9 @@ export class ObservableBus<T> extends Observable<T> {
   protected _subject$ = new Subject<T>();
 
   constructor() {
-    super();
-    this.source = this._subject$;
+    super((subscriber) => {
+      return this._subject$.subscribe(subscriber);
+    });
   }
 
   /**

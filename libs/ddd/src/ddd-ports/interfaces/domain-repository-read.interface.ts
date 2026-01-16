@@ -1,5 +1,6 @@
 import { DomainAggregateRoot } from '../../ddd-aggregate-root';
-import { DomainEntity, Primitives } from '../../ddd-core/ddd-base-classes';
+import { DomainEntity } from '../../ddd-entity';
+import { Primitives } from '../../ddd-core';
 
 /**
  * Represents a read repository interface for a domain entity or aggregate root.
@@ -8,7 +9,7 @@ import { DomainEntity, Primitives } from '../../ddd-core/ddd-base-classes';
  */
 export interface IDomainReadRepository<
   TKey extends Primitives,
-  TDomain extends DomainAggregateRoot<any> | DomainEntity<any>,
+  TDomain extends DomainAggregateRoot<any, any> | DomainEntity<any, any>,
 > {
   /**
    * Retrieves all domain entities or aggregate roots.

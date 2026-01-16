@@ -1,16 +1,11 @@
-import { DomainEntity } from '../../ddd-core/ddd-base-classes';
-import { AbstractValidator } from './domain-abstract.validator';
+import { DomainEntity } from '../../ddd-entity';
+import { DomainAbstractValidator } from './domain-abstract.validator';
 
 /**
- * Validates if an object is an instance of DomainEntity.
+ * Validador para entidades de dominio.
  */
-export class DomainValidator extends AbstractValidator {
-  /**
-   * Checks if the given object is an instance of DomainEntity.
-   * @param obj - The object to be checked.
-   * @returns True if the object is an instance of DomainEntity, false otherwise.
-   */
-  static isInstanceof(obj: unknown): obj is DomainEntity<unknown> {
+export class DomainEntityValidator extends DomainAbstractValidator {
+  validate(obj: unknown): boolean {
     return obj instanceof DomainEntity;
   }
 }

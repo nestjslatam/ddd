@@ -1,9 +1,9 @@
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
 
-import { DomainEntity } from '../ddd-core/ddd-base-classes';
+import { DomainEntity } from '../ddd-entity';
 import { Type } from '../types';
-import { IDomainPrimitive, Primitives } from '../ddd-core/ddd-base-classes';
+import { IDomainPrimitive, Primitives } from '../ddd-core';
 import { ValueObjectValidator } from '../ddd-validators';
 import { IDomainEvent, IDomainEventHandler } from '../ddd-events';
 
@@ -22,7 +22,7 @@ export class DomainObjectHelper {
    * @returns {obj is DomainEntity<unknown>} True if the object is a domain entity, false otherwise.
    * @memberof DomainObjectHelper
    */
-  static isEntity(obj: unknown): obj is DomainEntity<unknown> {
+  static isEntity(obj: unknown): obj is DomainEntity<any, any> {
     return obj instanceof DomainEntity;
   }
 
@@ -36,7 +36,7 @@ export class DomainObjectHelper {
    */
   static convertToPlainObject(item: any): any {
     if (ValueObjectValidator.isValueObject(item)) {
-      return item.unpack();
+      return item.getValue ? item.getValue() : (item as any).unpack?.() || item;
     }
     if (this.isEntity(item)) {
       return item.toObject();
@@ -44,7 +44,7 @@ export class DomainObjectHelper {
     return item;
   }
 
-  static isDomainEntity(entity: unknown): entity is DomainEntity<unknown> {
+  static isDomainEntity(entity: unknown): entity is DomainEntity<any, any> {
     return entity instanceof DomainEntity;
   }
 
