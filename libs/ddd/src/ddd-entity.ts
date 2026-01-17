@@ -6,8 +6,8 @@ import {
   BrokenRulesManager,
 } from './ddd-rules';
 import { ValidatorRuleManager } from './ddd-rules/validator-rule.manager';
-import { DomainUid } from './ddd-valueobjects';
 import { TrackingProps } from './ddd-core';
+import { IdValueObject } from './ddd-valueobjects';
 
 export abstract class DomainEntity<TEntity, TProps> {
   private readonly _props: TProps;
@@ -16,7 +16,7 @@ export abstract class DomainEntity<TEntity, TProps> {
   private readonly _validatorRuleManager: ValidatorRuleManager<
     AbstractRuleValidator<TEntity>
   >;
-  private _id!: DomainUid; // Usamos ! porque se asigna vía setter en el constructor
+  private _id!: IdValueObject; // Usamos ! porque se asigna vía setter en el constructor
 
   constructor(props: TProps) {
     this._trackingStateManager = new TrackingStateManager();
@@ -27,7 +27,7 @@ export abstract class DomainEntity<TEntity, TProps> {
     >();
 
     // Asignación inicial de identidad
-    this.Id = DomainUid.create(v4());
+    this.Id = IdValueObject.create();
     this._props = props;
 
     // Ejecutamos validaciones iniciales
@@ -52,11 +52,11 @@ export abstract class DomainEntity<TEntity, TProps> {
     }
   }
 
-  public get Id(): DomainUid {
+  public get Id(): IdValueObject {
     return this._id;
   }
 
-  public set Id(value: DomainUid) {
+  public set Id(value: IdValueObject) {
     this._id = value;
   }
 
@@ -69,14 +69,18 @@ export abstract class DomainEntity<TEntity, TProps> {
    * Útil para cuando necesitas enviar datos a la interfaz de usuario.
    */
   public get propsCopy(): Readonly<
-    TProps & { id: DomainUid; props: TProps; trackingState: TrackingProps }
+    TProps & { id: IdValueObject; props: TProps; trackingState: TrackingProps }
   > {
     return Object.freeze({
       props: this._props,
       id: this.Id,
       trackingState: this.trackingState,
     } as Readonly<
-      TProps & { id: DomainUid; props: TProps; trackingState: TrackingProps }
+      TProps & {
+        id: IdValueObject;
+        props: TProps;
+        trackingState: TrackingProps;
+      }
     >);
   }
 
@@ -309,7 +313,7 @@ export abstract class DomainEntity<TEntity, TProps> {
    * UI Testing Only: Expone el estado completo de la entidad para testing.
    */
   public get _uiTestingFullState(): {
-    id: DomainUid;
+    id: IdValueObject;
     props: TProps;
     trackingState: TrackingProps;
     brokenRules: ReadonlyArray<BrokenRule>;

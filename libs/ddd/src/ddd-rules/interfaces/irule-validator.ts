@@ -33,5 +33,5 @@ export interface IRuleValidator {
    * Valida la regla contra el contexto especificado.
    * Devuelve un array de solo lectura (ReadonlyArray) de reglas rotas.
    */
-  validate(context: RuleContext): ReadonlyArray<BrokenRule>;
+  validate(): ReadonlyArray<BrokenRule>;
 }

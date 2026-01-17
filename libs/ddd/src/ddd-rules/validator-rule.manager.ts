@@ -1,5 +1,5 @@
-import { BrokenRule } from "./broken-rule";
-import { IRuleValidator, RuleContext } from "./Interfaces";
+import { BrokenRule } from './broken-rule';
+import { IRuleValidator, RuleContext } from './Interfaces';
 
 /**
  * Representa una colección de reglas de validación para un tipo específico.
@@ -14,12 +14,12 @@ export class ValidatorRuleManager<TValidator extends IRuleValidator> {
    */
   public add(rule: TValidator): void {
     if (!rule) {
-      throw new Error("ArgumentNullException: rule cannot be null"); //
+      throw new Error('ArgumentNullException: rule cannot be null'); //
     }
 
     // Comprobamos si ya existe una regla del mismo tipo de clase
     const exists = this._businessRules.some(
-      (x) => x.constructor === rule.constructor
+      (x) => x.constructor === rule.constructor,
     );
 
     if (!exists) {
@@ -32,7 +32,7 @@ export class ValidatorRuleManager<TValidator extends IRuleValidator> {
    */
   public addRange(rules: TValidator[]): void {
     if (!rules) {
-      throw new Error("ArgumentNullException: rules cannot be null"); //
+      throw new Error('ArgumentNullException: rules cannot be null'); //
     }
 
     rules.forEach((rule) => this.add(rule)); //
@@ -43,7 +43,7 @@ export class ValidatorRuleManager<TValidator extends IRuleValidator> {
    */
   public remove(rule: TValidator): void {
     if (!rule) {
-      throw new Error("ArgumentNullException: rule cannot be null"); //
+      throw new Error('ArgumentNullException: rule cannot be null'); //
     }
 
     const index = this._businessRules.indexOf(rule); //
@@ -71,20 +71,22 @@ export class ValidatorRuleManager<TValidator extends IRuleValidator> {
   /**
    * Ejecuta todos los validadores y consolida las reglas rotas sin duplicados.
    */
-  public getBrokenRules(context: RuleContext | null = null): ReadonlyArray<BrokenRule> {
+  public getBrokenRules(): ReadonlyArray<BrokenRule> {
     const result: BrokenRule[] = []; //
 
     for (const rule of this._businessRules) {
       // Ejecutamos la validación de la regla individual
-      const brokenRules = rule.validate(context!); //
+      const brokenRules = rule.validate(); //
 
       if (brokenRules && brokenRules.length > 0) {
         for (const brokenRule of brokenRules) {
           // Normalización para comparación (Trim + UpperCase) como en C#
           const isDuplicate = result.some(
             (x) =>
-              x.property.trim().toUpperCase() === brokenRule.property.trim().toUpperCase() &&
-              x.message.trim().toUpperCase() === brokenRule.message.trim().toUpperCase()
+              x.property.trim().toUpperCase() ===
+                brokenRule.property.trim().toUpperCase() &&
+              x.message.trim().toUpperCase() ===
+                brokenRule.message.trim().toUpperCase(),
           );
 
           if (!isDuplicate) {

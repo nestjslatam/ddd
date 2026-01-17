@@ -19,6 +19,6 @@ export class DateTimeHelper {
    * @returns The current timestamp.
    */
   static getTimeStamp(): number {
-    return +new Date();
+    return Date.now();
   }
 }

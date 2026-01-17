@@ -1,17 +1,20 @@
-import { NotifyPropertyChangedContextArgs } from "./notify-property-changed.context-args";
-import { AbstractNotifyPropertyChanged, NotifyPropertyChangedHandler } from "./notify-property-changed.base";
+import { NotifyPropertyChangedContextArgs } from './notify-property-changed.context-args';
+import {
+  AbstractNotifyPropertyChanged,
+  NotifyPropertyChangedHandler,
+} from './notify-property-changed.base';
 
 export class NotifyPropertyChangedContext {
   public value: any;
   public readonly type: any; // En TS, el 'Type' es el constructor o el nombre del tipo
-  
+
   // Usamos un Set para evitar callbacks duplicados, similar al += de C#
   private readonly callbacks: Set<NotifyPropertyChangedHandler> = new Set();
 
   constructor(
     defaultValue: any,
     type: any,
-    handler?: NotifyPropertyChangedHandler
+    handler?: NotifyPropertyChangedHandler,
   ) {
     this.value = defaultValue;
     this.type = type;
@@ -29,9 +32,9 @@ export class NotifyPropertyChangedContext {
   }
 
   public invokePropertyChangedCallback(
-    sender: AbstractNotifyPropertyChanged, 
-    e: NotifyPropertyChangedContextArgs
+    sender: AbstractNotifyPropertyChanged,
+    e: NotifyPropertyChangedContextArgs,
   ): void {
-    this.callbacks.forEach(callback => callback(sender, e));
+    this.callbacks.forEach((callback) => callback(sender, e));
   }
 }

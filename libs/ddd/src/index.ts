@@ -13,3 +13,6 @@ export * from './ddd.service';
 export * from './ddd-entity';
 export * from './ddd-valueobject';
 export * from './ddd-enum';
+export * from './ddd-rules';
+export { TrackingStateManager, DomainEventsManager } from './ddd-managers';
+export * from './ddd-managers/interfaces';

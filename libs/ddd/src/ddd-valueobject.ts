@@ -144,7 +144,7 @@ export abstract class ValueObject<
     }
 
     // Si el valor tiene un constructor, lo usamos
-    if (value && value.constructor) {
+    if (value?.constructor) {
       return value.constructor;
     }
 

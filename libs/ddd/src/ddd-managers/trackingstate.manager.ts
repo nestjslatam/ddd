@@ -1,8 +1,4 @@
-import {
-  ITrackingStateManager,
-  IChangeDetector,
-  IProps,
-} from './interfaces';
+import { ITrackingStateManager, IChangeDetector, IProps } from './interfaces';
 import { ITrackingProps } from '../ddd-core';
 import { NestedPropertyChangeDetector } from '../ddd-core/impl/nested-property-change-detector';
 import {
@@ -55,8 +51,7 @@ export class TrackingStateManager
    * @param changeDetector Opcional. Si no se proporciona, usa NestedPropertyChangeDetector por defecto.
    */
   constructor(changeDetector?: IChangeDetector) {
-    this.changeDetector =
-      changeDetector || new NestedPropertyChangeDetector();
+    this.changeDetector = changeDetector || new NestedPropertyChangeDetector();
     this.markAsClean();
   }
 
@@ -75,9 +70,7 @@ export class TrackingStateManager
    * @param props Las propiedades a analizar.
    * @returns Esta instancia de TrackingStateManager (fluent interface).
    */
-  public getTracking<TProp extends IProps>(
-    props: TProp,
-  ): this {
+  public getTracking<TProp extends IProps>(props: TProp): this {
     this.changeDetector.detectChanges(props, this);
     return this;
   }

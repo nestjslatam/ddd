@@ -1,4 +1,4 @@
-import { BrokenRule } from "./broken-rule";
+import { BrokenRule } from './broken-rule';
 
 /**
  * Interface para representar el manejador de reglas rotas.
@@ -13,7 +13,7 @@ interface IBrokenRulesManager {
  * Traducido de BrokenRulesExtension.cs
  */
 export class BrokenRulesExtension {
-  private static readonly BrokenRulesPropertyName = "brokenRules";
+  private static readonly BrokenRulesPropertyName = 'brokenRules';
 
   /**
    * Obtiene las reglas rotas de las propiedades de una instancia de entidad.
@@ -21,15 +21,16 @@ export class BrokenRulesExtension {
    */
   public static getPropertiesBrokenRules<T extends object>(
     instance: T,
-    properties: Array<keyof T>
+    properties: Array<keyof T>,
   ): ReadonlyArray<BrokenRule> {
-    
     if (instance === null || instance === undefined) {
-      throw new Error("ArgumentNullException: instance cannot be null or undefined");
+      throw new Error(
+        'ArgumentNullException: instance cannot be null or undefined',
+      );
     }
 
     if (!properties) {
-      throw new Error("ArgumentNullException: properties cannot be null");
+      throw new Error('ArgumentNullException: properties cannot be null');
     }
 
     const result: BrokenRule[] = [];
@@ -43,12 +44,17 @@ export class BrokenRulesExtension {
 
       // Intentamos obtener la propiedad 'brokenRules' del objeto (ValueObject)
       // Usamos 'any' para acceder dinámicamente, similar a GetProperty() en C#
-      const brokenRulesManager = (valueObject as any)[this.BrokenRulesPropertyName] as IBrokenRulesManager;
+      const brokenRulesManager = (valueObject as any)[
+        this.BrokenRulesPropertyName
+      ] as IBrokenRulesManager;
 
       // Verificamos si existe el manager y si tiene el método getBrokenRules
-      if (brokenRulesManager && typeof brokenRulesManager.getBrokenRules === 'function') {
+      if (
+        brokenRulesManager &&
+        typeof brokenRulesManager.getBrokenRules === 'function'
+      ) {
         const brokenRules = brokenRulesManager.getBrokenRules();
-        
+
         if (brokenRules.length > 0) {
           result.push(...brokenRules);
         }

@@ -1,4 +1,4 @@
-import { BrokenRule } from "./broken-rule";
+import { BrokenRule } from './broken-rule';
 
 interface IBrokenRulesManager {
   getBrokenRules(): ReadonlyArray<BrokenRule>;
@@ -17,14 +17,14 @@ export class BrokenRulesManager implements IBrokenRulesManager {
    */
   public add(brokenRule: BrokenRule): void {
     if (!brokenRule) {
-      throw new Error("ArgumentNullException: brokenRule cannot be null");
+      throw new Error('ArgumentNullException: brokenRule cannot be null');
     }
 
     // Lógica de existencia: compara Propiedad y Mensaje ignorando mayúsculas
     const exists = this._brokenRules.some(
       (x) =>
         x.property.toLowerCase() === brokenRule.property.toLowerCase() &&
-        x.message.toLowerCase() === brokenRule.message.toLowerCase()
+        x.message.toLowerCase() === brokenRule.message.toLowerCase(),
     );
 
     if (!exists) {
@@ -37,7 +37,7 @@ export class BrokenRulesManager implements IBrokenRulesManager {
    */
   public addRange(brokenRules: ReadonlyArray<BrokenRule>): void {
     if (!brokenRules) {
-      throw new Error("ArgumentNullException: brokenRules cannot be null");
+      throw new Error('ArgumentNullException: brokenRules cannot be null');
     }
 
     brokenRules.forEach((rule) => this.add(rule));
@@ -48,7 +48,7 @@ export class BrokenRulesManager implements IBrokenRulesManager {
    */
   public remove(brokenRule: BrokenRule): void {
     if (!brokenRule) {
-      throw new Error("ArgumentNullException: brokenRule cannot be null");
+      throw new Error('ArgumentNullException: brokenRule cannot be null');
     }
 
     const index = this._brokenRules.indexOf(brokenRule);
@@ -76,31 +76,32 @@ export class BrokenRulesManager implements IBrokenRulesManager {
    */
   public getBrokenRulesAsString(): string {
     if (this._brokenRules.length === 0) {
-      return "";
+      return '';
     }
     // Usamos map y join para emular el comportamiento de StringBuilder.AppendLine
     return this._brokenRules
       .map((rule) => `Property: ${rule.property}, Message: ${rule.message}`)
-      .join("\n");
+      .join('\n');
   }
 
-  private static readonly BrokenRulesPropertyName = "brokenRules";
-  
+  private static readonly BrokenRulesPropertyName = 'brokenRules';
+
   /**
    * Obtiene las reglas rotas de las propiedades de una instancia.
    * En TS, usamos un array de claves (keyof T) en lugar de PropertyInfo[].
    */
   public static getPropertiesBrokenRules<T extends object>(
     instance: T,
-    properties: Array<keyof T>
+    properties: Array<keyof T>,
   ): ReadonlyArray<BrokenRule> {
-    
     if (instance === null || instance === undefined) {
-      throw new Error("ArgumentNullException: la instancia no puede ser nula.");
+      throw new Error('ArgumentNullException: la instancia no puede ser nula.');
     }
 
     if (!properties) {
-      throw new Error("ArgumentNullException: las propiedades no pueden ser nulas.");
+      throw new Error(
+        'ArgumentNullException: las propiedades no pueden ser nulas.',
+      );
     }
 
     const result: BrokenRule[] = [];
@@ -114,12 +115,17 @@ export class BrokenRulesManager implements IBrokenRulesManager {
 
       // Intentamos acceder a 'brokenRules' dinámicamente.
       // Similar al GetProperty() de C#.
-      const brokenRulesManager = (valueObject as any)[this.BrokenRulesPropertyName] as IBrokenRulesManager;
+      const brokenRulesManager = (valueObject as any)[
+        this.BrokenRulesPropertyName
+      ] as IBrokenRulesManager;
 
       // Verificamos si existe el manejador y si tiene el método de obtención.
-      if (brokenRulesManager && typeof brokenRulesManager.getBrokenRules === 'function') {
+      if (
+        brokenRulesManager &&
+        typeof brokenRulesManager.getBrokenRules === 'function'
+      ) {
         const brokenRules = brokenRulesManager.getBrokenRules();
-        
+
         if (brokenRules.length > 0) {
           result.push(...brokenRules);
         }
@@ -129,5 +135,4 @@ export class BrokenRulesManager implements IBrokenRulesManager {
     // Retornamos una versión inmutable para proteger el estado.
     return Object.freeze(result);
   }
-  
 }

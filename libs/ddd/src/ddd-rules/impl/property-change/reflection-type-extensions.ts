@@ -4,7 +4,6 @@
  * que verifica si un formato de video es compatible con un codec específico.
  */
 export class ReflectionTypeExtensions {
-  
   /**
    * Determina si el tipo especificado es un "Value Type" (primitivo).
    * En JS: string, number, boolean, symbol, bigint.
@@ -15,7 +14,7 @@ export class ReflectionTypeExtensions {
 
     // Si el tipo es una de las funciones constructoras nativas de primitivos
     const valueTypes = [String, Number, Boolean, Symbol, BigInt];
-    
+
     return valueTypes.includes(type);
   }
 

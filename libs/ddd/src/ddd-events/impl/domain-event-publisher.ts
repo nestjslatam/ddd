@@ -5,9 +5,7 @@ import { IDomainEvent } from '../interfaces';
 import { DomainEventBus } from './domain-event-bus';
 import { DomainAggregateRoot } from '../../ddd-aggregate-root';
 
-export interface Constructor<T> {
-  new (...args: any[]): T;
-}
+export type Constructor<T> = new (...args: any[]) => T;
 
 @Injectable()
 export class DomainEventPublisher<

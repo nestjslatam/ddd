@@ -22,6 +22,35 @@ export class NestedPropertyChangeDetector implements IChangeDetector {
   }
 
   /**
+   * Procesa un valor individual y aplica su estado de tracking al manager principal.
+   * @param value El valor a procesar.
+   * @param trackingStateManager El manager de estado de tracking principal.
+   */
+  private processTrackingValue(
+    value: unknown,
+    trackingStateManager: ITrackingStateManager,
+  ): void {
+    if (value === null || typeof value !== 'object') {
+      return;
+    }
+
+    // Buscamos si el objeto hijo tiene la propiedad "Tracking"
+    const trackingValue = value[
+      NestedPropertyChangeDetector.TrackingKeyName
+    ] as ITrackingStateManager;
+
+    if (!trackingValue) {
+      return;
+    }
+
+    // Aplicamos el estado más prioritario encontrado
+    if (trackingValue.isDirty) trackingStateManager.markAsDirty();
+    if (trackingValue.isNew) trackingStateManager.markAsNew();
+    if (trackingValue.isSelfDeleted) trackingStateManager.markAsSelfDeleted();
+    if (trackingValue.isDeleted) trackingStateManager.markAsDeleted();
+  }
+
+  /**
    * Detecta cambios en las propiedades especificadas.
    * Itera sobre las propiedades y busca instancias de TrackingStateManager anidadas.
    */
@@ -36,23 +65,7 @@ export class NestedPropertyChangeDetector implements IChangeDetector {
 
     // Iteramos por las propiedades del objeto
     Object.keys(props).forEach((key) => {
-      const value = props[key];
-
-      if (value !== null && typeof value === 'object') {
-        // Buscamos si el objeto hijo tiene la propiedad "Tracking"
-        const trackingValue = value[
-          NestedPropertyChangeDetector.TrackingKeyName
-        ] as ITrackingStateManager;
-
-        if (trackingValue) {
-          // Aplicamos el estado más prioritario encontrado
-          if (trackingValue.isDirty) trackingStateManager.markAsDirty();
-          if (trackingValue.isNew) trackingStateManager.markAsNew();
-          if (trackingValue.isSelfDeleted)
-            trackingStateManager.markAsSelfDeleted();
-          if (trackingValue.isDeleted) trackingStateManager.markAsDeleted();
-        }
-      }
+      this.processTrackingValue(props[key], trackingStateManager);
     });
 
     return trackingStateManager;

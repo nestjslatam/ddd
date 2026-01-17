@@ -62,7 +62,7 @@ export class DomainEventsManager {
     const target = this.aggregateRoot as any;
 
     if (typeof target[methodName] !== 'function') {
-      throw new Error(
+      throw new TypeError(
         `InvalidOperationException: Missing ${methodName} method on ${target.constructor.name}`,
       );
     }

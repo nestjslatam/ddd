@@ -6,7 +6,7 @@ import {
 } from './constants';
 
 export class ReflectEventHelper {
-  static getDomainEventId = <
+  static readonly getDomainEventId = <
     TDomainEventBase extends IDomainEvent = IDomainEvent,
   >(
     event: TDomainEventBase,
@@ -15,7 +15,7 @@ export class ReflectEventHelper {
     return Reflect.getMetadata(DOMAIN_EVENT_METADATA, constructor)?.id ?? null;
   };
 
-  static getReflectDomainEventId = <
+  static readonly getReflectDomainEventId = <
     TDomainEventBase extends Type<IDomainEvent> = Type<IDomainEvent>,
   >(
     event: TDomainEventBase,

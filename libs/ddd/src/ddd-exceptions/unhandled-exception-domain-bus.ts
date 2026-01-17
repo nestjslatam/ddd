@@ -1,6 +1,6 @@
-import { ObservableBus } from '../../ddd-core';
-import { IDomainEvent } from '../../ddd-events';
-import { IDomainCommand } from '../../ddd-commands';
+import { ObservableBus } from '../ddd-core';
+import { IDomainEvent } from '../ddd-events';
+import { IDomainCommand } from '../ddd-commands';
 
 /**
  * Información sobre una excepción no manejada.

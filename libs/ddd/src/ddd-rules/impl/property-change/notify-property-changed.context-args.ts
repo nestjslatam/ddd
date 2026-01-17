@@ -3,6 +3,6 @@ export class NotifyPropertyChangedContextArgs {
 
   constructor(
     public readonly previousValue: any,
-    public readonly newValue: any
+    public readonly newValue: any,
   ) {}
 }

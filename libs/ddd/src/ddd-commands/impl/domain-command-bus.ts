@@ -34,7 +34,7 @@ export class DomainCommandBus<
   /**
    * A map that stores the command handlers associated with their command IDs.
    */
-  private _handlers = new Map<
+  private readonly _handlers = new Map<
     string,
     IDomainCommandHandler<TDomainCommandBase>
   >();

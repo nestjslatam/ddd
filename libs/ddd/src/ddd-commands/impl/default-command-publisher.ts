@@ -16,7 +16,7 @@ export class DefaultCommandPublisher<TDomainCommandBase extends IDomainCommand>
    *
    * @param subject$ - The subject to which the domain commands will be published.
    */
-  constructor(private subject$: Subject<TDomainCommandBase>) {}
+  constructor(private readonly subject$: Subject<TDomainCommandBase>) {}
 
   /**
    * Publishes a domain command to the subject.

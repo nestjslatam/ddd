@@ -15,7 +15,7 @@ export class ObservableBus<T> extends Observable<T> {
   /**
    * Gets the subject of the observable bus.
    */
-  public get subject$() {
+  public get subject$(): Subject<T> {
     return this._subject$;
   }
 }

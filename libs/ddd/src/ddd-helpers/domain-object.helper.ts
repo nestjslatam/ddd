@@ -51,9 +51,9 @@ export class DomainObjectHelper {
   static isDomainPrimitive<T>(
     obj: unknown,
   ): obj is IDomainPrimitive<T & (Primitives | Date)> {
-    if (!obj) return false;
+    if (!obj || typeof obj !== 'object') return false;
 
-    return Object.prototype.hasOwnProperty.call(obj, 'value') ? true : false;
+    return Object.hasOwn(obj, 'value');
   }
 
   /**
@@ -97,9 +97,9 @@ export class DomainObjectHelper {
     callback: (instance: InstanceWrapper) => Type<any> | undefined;
   }): Type<T>[] {
     const { modules, callback } = options;
-    const items = modules
-      .map((module) => [...module.providers.values()].map(callback))
-      .reduce((a, b) => a.concat(b), []);
+    const items = modules.flatMap((module) =>
+      [...module.providers.values()].map(callback),
+    );
     return items.filter((element) => !!element) as Type<T>[];
   }
 
