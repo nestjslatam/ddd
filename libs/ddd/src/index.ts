@@ -1,18 +1,16 @@
-export * from './ddd-core';
-export * from './ddd-exceptions';
-export * from './ddd-helpers';
-export * from './ddd-ports';
-export * from './ddd-valueobjects';
-export * from './ddd-decorators';
-export * from './ddd-events';
-export * from './ddd-commands';
-export * from './ddd-validators';
-export * from './ddd-aggregate-root';
-export * from './ddd.module';
-export * from './ddd.service';
-export * from './ddd-entity';
-export * from './ddd-valueobject';
-export * from './ddd-enum';
-export * from './ddd-rules';
-export { TrackingStateManager, DomainEventsManager } from './ddd-managers';
-export * from './ddd-managers/interfaces';
+/* eslint-disable prettier/prettier */
+export * from './enum';
+export * from './valueobject';
+export * from './validator-rule.manager';
+export * from './broken-rules.manager';
+export * from './tracking-state-manager';
+export * from './valueobjects';
+export * from './core';
+export * from './helpers';
+export * from './domain-event';
+export * from './aggregate-root';
+
+
+
+
+
