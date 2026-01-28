@@ -1,0 +1,1 @@
+{"version":3,"file":"itracking-props.d.ts","sourceRoot":"","sources":["../../../../src/core/tracking-state/interfaces/itracking-props.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,cAAc;IAC7B,OAAO,EAAE,OAAO,CAAC;IACjB,KAAK,EAAE,OAAO,CAAC;IACf,SAAS,EAAE,OAAO,CAAC;IACnB,aAAa,EAAE,OAAO,CAAC;CACxB"}

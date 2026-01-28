@@ -1,107 +1,237 @@
-import { BrokenRule } from './core';
+import { BrokenRule } from './core/business-rules';
+import { ArgumentNullException } from './exceptions/domain.exception';
 
-interface IBrokenRulesManager {
+/**
+ * Interface for managing broken business rules.
+ * Defines the contract for accessing validation errors.
+ */
+export interface IBrokenRulesManager {
+  /**
+   * Gets all broken rules as a readonly array.
+   * @returns Array of broken rules
+   */
   getBrokenRules(): ReadonlyArray<BrokenRule>;
 }
 
 /**
- * Representa una colección de reglas rotas.
- * Traducido de BrokenRulesManager.cs
+ * Manages a collection of broken business rules (validation errors).
+ *
+ * This class provides functionality to:
+ * - Add and remove broken rules with deduplication
+ * - Clear all rules
+ * - Format rules as human-readable strings
+ * - Extract rules from nested value objects
+ *
+ * @remarks
+ * Rules are deduplicated based on case-insensitive comparison of property names and messages.
+ * The collection is immutable from outside the class to prevent unintended modifications.
+ *
+ * @example
+ * ```typescript
+ * const manager = new BrokenRulesManager();
+ * manager.add(new BrokenRule('price', 'Price must be positive'));
+ * manager.add(new BrokenRule('name', 'Name is required'));
+ *
+ * if (manager.getBrokenRules().length > 0) {
+ *   console.log(manager.getBrokenRulesAsString());
+ * }
+ * ```
  */
 export class BrokenRulesManager implements IBrokenRulesManager {
+  /** Internal collection of broken rules */
   private _brokenRules: BrokenRule[] = [];
 
+  /** Property name to look for when extracting nested broken rules */
+  private static readonly BROKEN_RULES_PROPERTY_NAME = 'brokenRules' as const;
+
   /**
-   * Agrega una regla rota a la colección si no existe una idéntica.
-   * Realiza una comparación insensible a mayúsculas/minúsculas.
+   * Adds a broken rule to the collection if it doesn't already exist.
+   *
+   * @param brokenRule - The broken rule to add
+   * @throws {ArgumentNullException} If brokenRule is null or undefined
+   *
+   * @remarks
+   * Deduplication is performed using case-insensitive comparison of both
+   * property name and message. This prevents duplicate error messages for
+   * the same validation failure.
+   *
+   * @example
+   * ```typescript
+   * manager.add(new BrokenRule('email', 'Invalid email format'));
+   * manager.add(new BrokenRule('EMAIL', 'Invalid email format')); // Won't be added (duplicate)
+   * ```
    */
   public add(brokenRule: BrokenRule): void {
-    if (!brokenRule) {
-      throw new Error('ArgumentNullException: brokenRule cannot be null');
-    }
+    this.validateNotNull(brokenRule, 'brokenRule');
 
-    // Lógica de existencia: compara Propiedad y Mensaje ignorando mayúsculas
-    const exists = this._brokenRules.some(
-      (x) =>
-        x.property.toLowerCase() === brokenRule.property.toLowerCase() &&
-        x.message.toLowerCase() === brokenRule.message.toLowerCase(),
-    );
-
-    if (!exists) {
+    if (!this.exists(brokenRule)) {
       this._brokenRules.push(brokenRule);
     }
   }
 
   /**
-   * Agrega una colección de reglas rotas.
+   * Adds multiple broken rules to the collection.
+   *
+   * @param brokenRules - Array of broken rules to add
+   * @throws {ArgumentNullException} If brokenRules is null or undefined
+   *
+   * @remarks
+   * Each rule is added individually, so deduplication logic applies to each one.
+   *
+   * @example
+   * ```typescript
+   * const rules = [
+   *   new BrokenRule('name', 'Name is required'),
+   *   new BrokenRule('age', 'Age must be positive')
+   * ];
+   * manager.addRange(rules);
+   * ```
    */
   public addRange(brokenRules: ReadonlyArray<BrokenRule>): void {
-    if (!brokenRules) {
-      throw new Error('ArgumentNullException: brokenRules cannot be null');
-    }
-
+    this.validateNotNull(brokenRules, 'brokenRules');
     brokenRules.forEach((rule) => this.add(rule));
   }
 
   /**
-   * Elimina una regla rota de la colección.
+   * Removes a broken rule from the collection.
+   *
+   * @param brokenRule - The broken rule to remove
+   * @throws {ArgumentNullException} If brokenRule is null or undefined
+   *
+   * @remarks
+   * Removal uses the same case-insensitive comparison as add() for consistency.
+   * If the rule doesn't exist, the method does nothing.
+   *
+   * @example
+   * ```typescript
+   * const rule = new BrokenRule('price', 'Invalid price');
+   * manager.add(rule);
+   * manager.remove(rule);
+   * ```
    */
   public remove(brokenRule: BrokenRule): void {
-    if (!brokenRule) {
-      throw new Error('ArgumentNullException: brokenRule cannot be null');
-    }
+    this.validateNotNull(brokenRule, 'brokenRule');
 
-    const index = this._brokenRules.indexOf(brokenRule);
+    const index = this._brokenRules.findIndex((rule) =>
+      this.isSameRule(rule, brokenRule),
+    );
+
     if (index !== -1) {
       this._brokenRules.splice(index, 1);
     }
   }
 
   /**
-   * Limpia todas las reglas rotas de la colección.
+   * Removes all broken rules from the collection.
+   *
+   * @remarks
+   * Typically called before re-validating an aggregate to clear previous validation errors.
+   *
+   * @example
+   * ```typescript
+   * manager.clear();
+   * // Re-validate and add new rules
+   * aggregate.validate();
+   * ```
    */
   public clear(): void {
     this._brokenRules = [];
   }
 
   /**
-   * Obtiene la colección de solo lectura de reglas rotas.
+   * Gets all broken rules as a readonly array.
+   *
+   * @returns Frozen array of broken rules (immutable)
+   *
+   * @remarks
+   * Returns a frozen copy to prevent external modifications.
+   * The array is recreated on each call to ensure immutability.
    */
   public getBrokenRules(): ReadonlyArray<BrokenRule> {
     return Object.freeze([...this._brokenRules]);
   }
 
   /**
-   * Devuelve las reglas rotas formateadas como un string, simulando el StringBuilder.
+   * Checks if there are any broken rules.
+   *
+   * @returns true if there are no broken rules, false otherwise
+   *
+   * @example
+   * ```typescript
+   * if (manager.hasErrors()) {
+   *   throw new ValidationException(manager.getBrokenRules());
+   * }
+   * ```
+   */
+  public hasErrors(): boolean {
+    return this._brokenRules.length > 0;
+  }
+
+  /**
+   * Formats all broken rules as a human-readable string.
+   *
+   * @returns String with each rule on a new line, or empty string if no rules
+   *
+   * @remarks
+   * Useful for logging or displaying validation errors to users.
+   * Format: "Property: {property}, Message: {message}"
+   *
+   * @example
+   * ```typescript
+   * console.error('Validation failed:\n' + manager.getBrokenRulesAsString());
+   * // Output:
+   * // Validation failed:
+   * // Property: price, Message: Price must be positive
+   * // Property: name, Message: Name is required
+   * ```
    */
   public getBrokenRulesAsString(): string {
     if (this._brokenRules.length === 0) {
       return '';
     }
-    // Usamos map y join para emular el comportamiento de StringBuilder.AppendLine
     return this._brokenRules
       .map((rule) => `Property: ${rule.property}, Message: ${rule.message}`)
       .join('\n');
   }
 
-  private static readonly BrokenRulesPropertyName = 'brokenRules';
-
   /**
-   * Obtiene las reglas rotas de las propiedades de una instancia.
-   * En TS, usamos un array de claves (keyof T) en lugar de PropertyInfo[].
+   * Extracts broken rules from properties of an instance that contain nested BrokenRulesManager.
+   *
+   * @param instance - The object instance to extract rules from
+   * @param properties - Array of property keys to check
+   * @returns Frozen array of all broken rules found in nested properties
+   * @throws {ArgumentNullException} If instance or properties is null/undefined
+   *
+   * @remarks
+   * This method is useful for aggregates containing value objects that have their own
+   * validation rules. It recursively collects all broken rules from nested objects.
+   *
+   * Looks for a 'brokenRules' property that implements IBrokenRulesManager interface.
+   *
+   * @example
+   * ```typescript
+   * class Order {
+   *   shippingAddress: Address; // Address has its own brokenRules
+   *   billingAddress: Address;
+   * }
+   *
+   * const order = new Order();
+   * const nestedRules = BrokenRulesManager.getPropertiesBrokenRules(
+   *   order,
+   *   ['shippingAddress', 'billingAddress']
+   * );
+   * ```
    */
   public static getPropertiesBrokenRules<T extends object>(
     instance: T,
     properties: Array<keyof T>,
   ): ReadonlyArray<BrokenRule> {
     if (instance === null || instance === undefined) {
-      throw new Error('ArgumentNullException: la instancia no puede ser nula.');
+      throw new ArgumentNullException('instance');
     }
 
     if (!properties) {
-      throw new Error(
-        'ArgumentNullException: las propiedades no pueden ser nulas.',
-      );
+      throw new ArgumentNullException('properties');
     }
 
     const result: BrokenRule[] = [];
@@ -113,26 +243,86 @@ export class BrokenRulesManager implements IBrokenRulesManager {
         continue;
       }
 
-      // Intentamos acceder a 'brokenRules' dinámicamente.
-      // Similar al GetProperty() de C#.
-      const brokenRulesManager = (valueObject as any)[
-        this.BrokenRulesPropertyName
-      ] as IBrokenRulesManager;
+      // Check if the property has a brokenRules manager
+      const brokenRulesManager = this.extractBrokenRulesManager(valueObject);
 
-      // Verificamos si existe el manejador y si tiene el método de obtención.
-      if (
-        brokenRulesManager &&
-        typeof brokenRulesManager.getBrokenRules === 'function'
-      ) {
+      if (brokenRulesManager) {
         const brokenRules = brokenRulesManager.getBrokenRules();
-
         if (brokenRules.length > 0) {
           result.push(...brokenRules);
         }
       }
     }
 
-    // Retornamos una versión inmutable para proteger el estado.
     return Object.freeze(result);
+  }
+
+  /**
+   * Private helper to validate that a value is not null or undefined.
+   *
+   * @param value - The value to check
+   * @param parameterName - Name of the parameter for the error message
+   * @throws {ArgumentNullException} If value is null or undefined
+   */
+  private validateNotNull(value: any, parameterName: string): void {
+    if (value === null || value === undefined) {
+      throw new ArgumentNullException(parameterName);
+    }
+  }
+
+  /**
+   * Private helper to check if a rule already exists in the collection.
+   *
+   * @param brokenRule - The rule to check for
+   * @returns true if the rule exists (case-insensitive), false otherwise
+   */
+  private exists(brokenRule: BrokenRule): boolean {
+    return this._brokenRules.some((rule) => this.isSameRule(rule, brokenRule));
+  }
+
+  /**
+   * Private helper to compare two rules for equality.
+   * Uses case-insensitive comparison of property and message.
+   *
+   * @param rule1 - First rule
+   * @param rule2 - Second rule
+   * @returns true if rules are considered the same
+   */
+  private isSameRule(rule1: BrokenRule, rule2: BrokenRule): boolean {
+    return (
+      rule1.property.toLowerCase() === rule2.property.toLowerCase() &&
+      rule1.message.toLowerCase() === rule2.message.toLowerCase()
+    );
+  }
+
+  /**
+   * Private helper to extract BrokenRulesManager from a value object.
+   *
+   * @param valueObject - The object to extract from
+   * @returns The broken rules manager if found, null otherwise
+   */
+  private static extractBrokenRulesManager(
+    valueObject: unknown,
+  ): IBrokenRulesManager | null {
+    if (
+      typeof valueObject === 'object' &&
+      valueObject !== null &&
+      BrokenRulesManager.BROKEN_RULES_PROPERTY_NAME in valueObject
+    ) {
+      const manager = (valueObject as Record<string, unknown>)[
+        BrokenRulesManager.BROKEN_RULES_PROPERTY_NAME
+      ];
+
+      if (
+        manager &&
+        typeof manager === 'object' &&
+        'getBrokenRules' in manager &&
+        typeof (manager as any).getBrokenRules === 'function'
+      ) {
+        return manager as IBrokenRulesManager;
+      }
+    }
+
+    return null;
   }
 }

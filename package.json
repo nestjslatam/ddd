@@ -20,6 +20,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
+    "test:cov:lib": "jest --testPathPattern=libs/ddd --coverage --coveragePathIgnorePatterns=node_modules",
+    "test:cov:lib:html": "jest --testPathPattern=libs/ddd --coverage --coveragePathIgnorePatterns=node_modules --coverageReporters=text --coverageReporters=html --coverageReporters=lcov",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
@@ -38,7 +40,7 @@
     "@nestjs/swagger": "^7.1.16",
     "@nestjs/testing": "^10.3.0",
     "@nestjs/typeorm": "^10.0.1",
-    "@nestjslatam/ddd-lib": "^1.0.0",
+    "@nestjslatam/ddd-lib": "^2.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "graphql": "^16.8.1",
@@ -89,17 +91,135 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s",
+      "libs/ddd/src/**/*.(t|j)s",
       "!**/*.module.ts",
       "!**/*.dto.ts",
       "!**/*.entity.ts",
       "!**/*.interface.ts",
       "!**/*.mock.ts",
+      "!**/*.spec.ts",
+      "!**/*.test.ts",
       "!**/main.ts",
       "!**/index.ts",
-      "!**/node_modules/**"
+      "!**/node_modules/**",
+      "!**/helpers/**",
+      "!**/valueobjects/**",
+      "!**/aggregate-root.ts",
+      "!**/domain-event.ts",
+      "!**/enum.ts",
+      "!**/tracking-state-manager.ts",
+      "!**/valueobject.ts",
+      "!**/ddd.service.ts",
+      "!**/ddd.module.ts",
+      "!**/types.d.ts"
     ],
     "coverageDirectory": "./coverage",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/",
+      "/coverage/",
+      "\\.spec\\.ts$",
+      "\\.test\\.ts$"
+    ],
+    "coverageReporters": [
+      "text",
+      "text-summary",
+      "html",
+      "lcov",
+      "json"
+    ],
+    "coverageThreshold": {
+      "libs/ddd/src/core/business-rules/impl/property-change/notify-property-changed.base.ts": {
+        "branches": 85,
+        "functions": 100,
+        "lines": 95,
+        "statements": 95
+      },
+      "libs/ddd/src/core/business-rules/impl/property-change/reflection-type-extensions.ts": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 85,
+        "statements": 90
+      },
+      "libs/ddd/src/core/business-rules/impl/property-change/notify-property-changed.context.ts": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      },
+      "libs/ddd/src/core/business-rules/impl/property-change/notify-property-changed.context-args.ts": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      },
+      "libs/ddd/src/core/business-rules/impl/broken-rule.ts": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      },
+      "libs/ddd/src/core/business-rules/impl/broken-rules-extension.ts": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      },
+      "libs/ddd/src/broken-rules.manager.ts": {
+        "branches": 90,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      },
+      "libs/ddd/src/validator-rule.manager.ts": {
+        "branches": 90,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      },
+      "libs/ddd/src/core/validator-rules/impl/abstract-rule-validator.ts": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      },
+      "libs/ddd/src/core/tracking-state/impl/nested-property-change-detector.ts": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      },
+      "libs/ddd/src/core/tracking-state/impl/tracking-props.ts": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      },
+      "libs/ddd/src/core/tracking-state/impl/tracking-state-transition.ts": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      },
+      "libs/ddd/src/core/validator-rules/impl/abstract-validator.ts": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      },
+      "libs/ddd/src/core/validator-rules/impl/entity-validator.ts": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      },
+      "libs/ddd/src/core/validator-rules/impl/value-object-validator.ts": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      }
+    },
     "testEnvironment": "node",
     "roots": [
       "<rootDir>/src/",

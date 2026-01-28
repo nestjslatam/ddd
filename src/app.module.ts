@@ -5,9 +5,9 @@ import { CqrsModule } from '@nestjs/cqrs';
 
 import { RequestContextModule } from 'nestjs-request-context';
 import { ProductsModule } from './products/products.module';
+import { OrdersModule } from './orders/orders.module';
 import { SharedModule } from './shared/shared.module';
-import { DddModule } from '@nestjslatam/ddd-lib/ddd.module';
-
+import { DddModule } from '@nestjslatam/ddd-lib';
 
 @Module({
   imports: [
@@ -21,6 +21,7 @@ import { DddModule } from '@nestjslatam/ddd-lib/ddd.module';
     }),
     RequestContextModule,
     ProductsModule,
+    OrdersModule,
     SharedModule,
   ],
   providers: [],

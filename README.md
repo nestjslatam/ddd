@@ -2,9 +2,16 @@
 
 Welcome to the DDD Library for NestJS sample application. This project demonstrates how to implement Domain-Driven Design (DDD) principles in a NestJS application using the `@nestjslatam/ddd-lib` library.
 
-## ⚠️ Disclaimer
+## ⚠️ Important Version Information
 
-**This library is not ready to be used in production environments.**
+**Version 2.0.0** represents a major architectural change from version 1.x.x:
+
+- The DDD library is now **published as an independent NPM package** (`@nestjslatam/ddd-lib`)
+- **Eliminates circular dependency issues** that plagued version 1.x.x
+- **Pre-compiled TypeScript modules** ensure reliable runtime behavior
+- **Cleaner module resolution** using standard Node.js package resolution
+
+**This library is still in active development and not recommended for production environments.**
 
 ## 📋 Table of Contents
 
@@ -107,42 +114,122 @@ Once the application is running, you can access:
 ## Project Structure
 
 ```
-src/
-├── app.module.ts              # Root application module
-├── main.ts                    # Application entry point
-├── shared/                    # Shared module
-│   ├── application/           # Base command handlers, context
-│   ├── domain/               # Shared value objects (Id, Name, etc.)
-│   └── exceptions/           # Custom exception classes
-└── singers/                   # Singers domain module
-    ├── application/          # Application layer
-    │   ├── dto/              # Data Transfer Objects
-    │   ├── sagas/            # Long-running processes
-    │   └── use-cases/        # Commands and Queries
-    ├── domain/               # Domain layer
-    │   ├── events/           # Domain events
-    │   ├── singer.ts         # Singer aggregate root
-    │   └── song.ts           # Song entity
-    └── infrastructure/       # Infrastructure layer
-        ├── db/               # Database tables and repositories
-        └── mappers/          # Domain ↔ Database mappers
+ddd/
+├── libs/ddd/                    # DDD Library source (published to NPM)
+│   ├── src/                     # Library source code
+│   │   ├── core/                # Core DDD building blocks
+│   │   │   ├── aggregate/       # Aggregate utilities
+│   │   │   ├── business-rules/  # Business rules and broken rules
+│   │   │   ├── repositories/    # Repository interfaces
+│   │   │   ├── tracking-state/  # State tracking (new, dirty, deleted)
+│   │   │   └── validator-rules/ # Validation framework
+│   │   ├── valueobjects/        # Base value object classes
+│   │   │   ├── id.valueobject.ts           # ID value object
+│   │   │   ├── string.valueobject.ts       # String base class
+│   │   │   ├── number.valueobject.ts       # Number base class
+│   │   │   └── validators/                 # Built-in validators
+│   │   ├── aggregate-root.ts    # AggregateRoot base class
+│   │   ├── valueobject.ts       # ValueObject base class
+│   │   ├── domain-event.ts      # Domain event base class
+│   │   └── index.ts             # Library exports
+│   ├── dist/                    # Compiled JavaScript (published)
+│   ├── package.json             # Library package configuration
+│   └── tsconfig.lib.json        # Library TypeScript config
+│
+├── src/                         # Sample application
+│   ├── app.module.ts            # Root application module
+│   ├── main.ts                  # Application entry point
+│   │
+│   ├── shared/                  # Shared domain primitives
+│   │   ├── valueobjects/        # Reusable value objects
+│   │   │   ├── Name.ts          # Name value object with validation
+│   │   │   ├── Description.ts   # Description value object
+│   │   │   ├── Price.ts         # Price value object
+│   │   │   └── validators/      # Custom validators
+│   │   └── shared.module.ts
+│   │
+│   ├── products/                # Products bounded context
+│   │   ├── products.module.ts
+│   │   ├── application/         # Application layer
+│   │   │   ├── commands/        # Command handlers
+│   │   │   ├── queries/         # Query handlers
+│   │   │   └── dto/             # Data Transfer Objects
+│   │   ├── domain/              # Domain layer
+│   │   │   └── product-aggregate/
+│   │   │       ├── product.ts   # Product aggregate root
+│   │   │       ├── product.status.ts
+│   │   │       └── validators/  # Product business rules
+│   │   └── infrastructure/      # Infrastructure layer
+│   │       └── repositories/    # Repository implementations
+│   │
+│   └── orders/                  # Orders bounded context
+│       ├── orders.module.ts
+│       ├── domain/
+│       │   ├── order-aggregate/
+│       │   │   ├── order.ts     # Order aggregate root
+│       │   │   └── validators/
+│       │   ├── entities/
+│       │   │   └── order-item.entity.ts
+│       │   └── value-objects/
+│       │       ├── customer-info.vo.ts
+│       │       └── shipping-address.vo.ts
+│       └── infrastructure/
+│
+├── docs/                        # Documentation
+├── test/                        # E2E tests
+├── package.json                 # App dependencies (@nestjslatam/ddd-lib: ^1.0.56)
+└── tsconfig.json                # App TypeScript config
 ```
 
-For detailed information about each layer, see:
+### Key Directory Explanations
 
-- [Domain Layer Documentation](docs/domain-layer.md)
-- [Application Layer Documentation](docs/application-layer.md)
-- [Infrastructure Layer Documentation](docs/infrastructure-layer.md)
+**`libs/ddd/`** - The DDD library that is published to NPM as `@nestjslatam/ddd-lib`. This library provides:
+
+- Base classes for aggregates, entities, and value objects
+- Validation framework with `AbstractRuleValidator`
+- State tracking (new, dirty, deleted)
+- Business rules management
+- Domain event support
+
+**`src/shared/`** - Application-level shared code that uses the DDD library:
+
+- Custom value objects (Name, Description, Price)
+- Custom validators specific to the application
+- Reusable domain primitives
+
+**`src/products/` & `src/orders/`** - Bounded contexts that demonstrate:
+
+- Aggregate roots extending `DddAggregateRoot`
+- Custom business rule validators
+- Value objects extending `StringValueObject`, `NumberValueObject`
+- Domain events and state management
 
 ## Key Features
 
 ### 🏗️ Domain-Driven Design
 
-- **Aggregate Roots**: `Singer` aggregate manages its consistency boundary
-- **Entities**: `Song` entity within the Singer aggregate
-- **Value Objects**: `FullName`, `PicturePath`, `Id`, `Name`, etc.
-- **Domain Events**: `SingerCreatedDomainEvent`, `SingerSubscribedDomainEvent`, etc.
-- **Business Rules**: Enforced at the domain level with validation
+The `@nestjslatam/ddd-lib` library provides powerful building blocks for implementing DDD:
+
+- **Aggregate Roots**: `Product`, `Order` aggregates manage their consistency boundaries
+  - Extend `DddAggregateRoot` from the library
+  - Automatic state tracking (new, dirty, deleted)
+  - Built-in validation orchestration
+- **Value Objects**: `Name`, `Description`, `Price`, `CustomerInfo`, `ShippingAddress`
+
+  - Extend `StringValueObject` or `NumberValueObject`
+  - Immutable by design
+  - Custom validation rules
+  - Type-safe value access
+
+- **Custom Validators**: Business rules enforced through `AbstractRuleValidator`
+
+  - `ProductNameValidator`, `ProductPriceValidator`
+  - `OrderTotalValidator`, `OrderItemQuantityValidator`
+  - Automatic validation on aggregate changes
+
+- **Domain Events**: Events published when domain state changes
+  - `ProductCreatedEvent`, `OrderPlacedEvent`
+  - Event-driven workflows
 
 ### 🔄 CQRS Pattern
 
@@ -151,17 +238,258 @@ For detailed information about each layer, see:
 - **Command Handlers**: Process commands and modify domain state
 - **Query Handlers**: Retrieve and return data
 
-### 📡 Event-Driven Architecture
+### 📡 State Tracking
 
-- **Domain Events**: Published when domain state changes
-- **Event Handlers**: React to domain events
-- **Sagas**: Long-running processes that coordinate multiple operations
+The library provides automatic state tracking for all aggregates:
+
+- **isNew**: Newly created aggregates
+- **isDirty**: Modified aggregates
+- **isDeleted**: Soft-deleted aggregates
+- **hasErrors**: Validation errors detected
 
 ### 🗄️ Repository Pattern
 
 - **Read/Write Separation**: `IDomainReadRepository` and `IDomainWriteRepository`
-- **TypeORM Integration**: Database persistence with TypeORM
-- **Mappers**: Convert between domain models and database tables
+- **In-Memory Implementation**: For development and testing
+- **Easy Integration**: Works with any data persistence layer
+
+## Using the DDD Library
+
+### Installation
+
+```bash
+npm install @nestjslatam/ddd-lib
+```
+
+### Example: Creating a Value Object
+
+```typescript
+import { StringValueObject } from '@nestjslatam/ddd-lib';
+import { NameLengthValidator } from './validators';
+
+export class Name extends StringValueObject {
+  private constructor(value: string) {
+    super(value);
+  }
+
+  static create(value: string): Name {
+    const name = new Name(value);
+    if (!name.isValid) {
+      const errors = name.brokenRules.getBrokenRules();
+      throw new Error(
+        `Invalid name: ${errors.map((e) => e.message).join(', ')}`,
+      );
+    }
+    return name;
+  }
+
+  protected override addValidators(): void {
+    super.addValidators();
+    this.validatorRules.add(new NameLengthValidator(this));
+  }
+}
+```
+
+### Example: Creating a Custom Validator
+
+```typescript
+import { AbstractRuleValidator } from '@nestjslatam/ddd-lib';
+import { Name } from '../Name';
+
+export class NameLengthValidator extends AbstractRuleValidator<Name> {
+  constructor(subject: Name) {
+    super(subject);
+  }
+
+  public addRules(): void {
+    const value = this.subject.getValue();
+
+    if (!value || value.trim().length === 0) {
+      this.addBrokenRule('value', 'Name cannot be empty');
+    }
+
+    if (value && value.length < 3) {
+      this.addBrokenRule('value', 'Name must be at least 3 characters');
+    }
+
+    if (value && value.length > 100) {
+      this.addBrokenRule('value', 'Name must not exceed 100 characters');
+    }
+  }
+}
+```
+
+### Example: Creating an Aggregate Root
+
+```typescript
+import { DddAggregateRoot, IdValueObject } from '@nestjslatam/ddd-lib';
+import { Name } from '../../shared/valueobjects/Name';
+import { Price } from '../../shared/valueobjects/Price';
+import { Description } from '../../shared/valueobjects/Description';
+import { ProductStatus } from './product.status';
+import {
+  ProductNameValidator,
+  ProductPriceValidator,
+  ProductStatusValidator,
+} from './validators';
+
+interface ProductProps {
+  name: Name;
+  description: Description;
+  price: Price;
+  status: ProductStatus;
+}
+
+export class Product extends DddAggregateRoot<ProductProps> {
+  private constructor(
+    id: IdValueObject,
+    props: ProductProps,
+    createdAt?: Date,
+    updatedAt?: Date,
+  ) {
+    super(id, props, createdAt, updatedAt);
+  }
+
+  static create(name: Name, description: Description, price: Price): Product {
+    const id = IdValueObject.create();
+    const product = new Product(id, {
+      name,
+      description,
+      price,
+      status: ProductStatus.INACTIVE,
+    });
+
+    // Validate on creation
+    product.validate();
+
+    if (!product.isValid()) {
+      throw new Error('Invalid product');
+    }
+
+    return product;
+  }
+
+  // Business methods
+  ChangePrice(price: Price): void {
+    if (!price.isValid) {
+      throw new Error('Invalid price');
+    }
+
+    this.props.price = price;
+    this.trackingState.markAsDirty();
+    this.validate();
+  }
+
+  ChangeStatus(status: ProductStatus): void {
+    if (status === ProductStatus.ACTIVE && this.props.price.getValue() === 0) {
+      throw new Error('Cannot activate product with zero price');
+    }
+
+    this.props.status = status;
+    this.trackingState.markAsDirty();
+  }
+
+  // Validation
+  protected override addValidators(): void {
+    super.addValidators();
+    this.validatorRules.add(new ProductNameValidator(this));
+    this.validatorRules.add(new ProductPriceValidator(this));
+    this.validatorRules.add(new ProductStatusValidator(this));
+  }
+
+  // Getters
+  get name(): Name {
+    return this.props.name;
+  }
+
+  get price(): Price {
+    return this.props.price;
+  }
+
+  get status(): ProductStatus {
+    return this.props.status;
+  }
+}
+```
+
+## What's New in Version 2.0.0
+
+### Major Changes from 1.x.x
+
+**🎯 NPM Package Distribution**
+
+- **Before (1.x.x)**: Library was part of the monorepo using TypeScript path mappings
+- **After (2.0.0)**: Library is published as an independent NPM package `@nestjslatam/ddd-lib`
+- **Benefit**: Standard Node.js module resolution, works in any NestJS project
+
+**🔧 Eliminated Circular Dependencies**
+
+- **Before (1.x.x)**: Circular dependency issues caused runtime errors like "Class extends value undefined"
+- **After (2.0.0)**: Direct imports from specific files eliminate circular dependencies
+- **Example**: `import { AbstractNotifyPropertyChanged } from './core/business-rules/impl/property-change'`
+
+**📦 Pre-compiled Distribution**
+
+- **Before (1.x.x)**: TypeScript source files with on-the-fly compilation
+- **After (2.0.0)**: Pre-compiled JavaScript with TypeScript declarations
+- **Benefit**: Faster application startup, reliable runtime behavior
+
+**🎨 Cleaner Imports**
+
+- **Before (1.x.x)**: Required path mappings in `tsconfig.json`
+  ```json
+  "paths": {
+    "@nestjslatam/ddd-lib": ["libs/ddd/src"],
+    "@nestjslatam/ddd-lib/*": ["libs/ddd/src/*"]
+  }
+  ```
+- **After (2.0.0)**: Standard NPM imports
+  ```typescript
+  import { DddAggregateRoot, StringValueObject } from '@nestjslatam/ddd-lib';
+  ```
+
+**🚀 Improved Module Exports**
+
+- All core classes properly exported through `index.ts`
+- No need for deep imports into library internals
+- Better tree-shaking support
+
+**📚 Enhanced Type Definitions**
+
+- Complete `.d.ts` files for all exported classes
+- Better IDE autocomplete and type checking
+- Source maps for debugging
+
+### Migration from 1.x.x to 2.0.0
+
+1. **Remove path mappings** from `tsconfig.json`:
+
+   ```diff
+   - "paths": {
+   -   "@nestjslatam/ddd-lib": ["libs/ddd/src"]
+   - }
+   ```
+
+2. **Install the NPM package**:
+
+   ```bash
+   npm install @nestjslatam/ddd-lib
+   ```
+
+3. **Update imports** to use the published package:
+
+   ```typescript
+   // All imports now come from the package
+   import {
+     DddAggregateRoot,
+     StringValueObject,
+     NumberValueObject,
+     AbstractRuleValidator,
+     IdValueObject,
+   } from '@nestjslatam/ddd-lib';
+   ```
+
+4. **No webpack configuration needed** - Standard module resolution works out of the box
 
 ## Documentation
 

@@ -7,8 +7,8 @@ import { CreateProductCommand } from './create-product.command';
 export class CreateProductService {
   constructor(private readonly commandBus: CommandBus) {}
 
-  async execute(dto: CreateProductDto) {
+  async execute(dto: CreateProductDto): Promise<string> {
     const command = new CreateProductCommand(dto);
-    await this.commandBus.execute(command);
+    return await this.commandBus.execute<CreateProductCommand, string>(command);
   }
 }

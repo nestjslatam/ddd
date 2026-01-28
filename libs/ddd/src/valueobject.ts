@@ -1,53 +1,146 @@
 import { BrokenRulesManager } from './broken-rules.manager';
-import {
-  AbstractNotifyPropertyChanged,
-  AbstractRuleValidator,
-  NotifyPropertyChangedContextArgs,
-} from './core';
+import { AbstractNotifyPropertyChanged } from './core/business-rules/impl/property-change';
+import { AbstractRuleValidator } from './core/validator-rules';
+import { ArgumentNullException } from './exceptions/domain.exception';
 import { TrackingStateManager } from './tracking-state-manager';
 import { ValidatorRuleManager } from './validator-rule.manager';
 
 /**
- * Clase base para Objetos de Valor (Value Objects) en DDD.
- * Los objetos de valor se comparan por sus propiedades, no por un ID.
+ * Base class for Value Objects in Domain-Driven Design.
+ * Value Objects are compared by their properties, not by identity (ID).
+ *
+ * @template TValue - The type of the internal value
+ *
+ * @remarks
+ * Value Objects are immutable domain concepts that describe characteristics or attributes.
+ * They have no conceptual identity and are defined entirely by their attributes.
+ *
+ * Key characteristics:
+ * - Equality based on structural comparison of all properties
+ * - Should be immutable (use setValue cautiously)
+ * - No identity (no ID)
+ * - Side-effect free behavior
+ *
+ * @example
+ * ```typescript
+ * // Defining a value object for email
+ * class Email extends DddValueObject<string> {
+ *   private constructor(value: string) {
+ *     super(value);
+ *   }
+ *
+ *   override addValidators(): void {
+ *     super.addValidators();
+ *     this.validatorRules.add(new EmailFormatValidator(this));
+ *   }
+ *
+ *   protected getEqualityComponents(): Iterable<any> {
+ *     return [this.getValue()];
+ *   }
+ *
+ *   public static create(value: string): Email {
+ *     return new Email(value);
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Defining a complex value object with multiple properties
+ * class Address extends DddValueObject<AddressValue> {
+ *   private constructor(value: AddressValue) {
+ *     super(value);
+ *   }
+ *
+ *   protected getEqualityComponents(): Iterable<any> {
+ *     const val = this.getValue();
+ *     return [val.street, val.city, val.postalCode, val.country];
+ *   }
+ *
+ *   public static create(street: string, city: string, postalCode: string, country: string): Address {
+ *     return new Address({ street, city, postalCode, country });
+ *   }
+ * }
+ * ```
  */
 export abstract class DddValueObject<
   TValue,
 > extends AbstractNotifyPropertyChanged {
-  // Members
+  /**
+   * Manages change tracking state for the value object.
+   * Tracks whether the value object is new, modified, or deleted.
+   */
   public readonly trackingState: TrackingStateManager;
+
+  /**
+   * Manages validation rules for the value object.
+   * Add validators in the {@link addValidators} method.
+   */
   public readonly validatorRules: ValidatorRuleManager<
     AbstractRuleValidator<DddValueObject<TValue>>
   >;
+
+  /**
+   * Manages broken business rules (validation errors).
+   * Populated automatically when validation fails.
+   */
   public readonly brokenRules: BrokenRulesManager;
 
   /**
-   * Indica si el objeto de valor es válido (sin reglas rotas).
+   * Indicates if the value object is valid (no broken business rules).
+   * @returns true if no validation errors exist, false otherwise
+   *
+   * @example
+   * ```typescript
+   * const email = Email.create('test@example.com');
+   * if (!email.isValid) {
+   *   console.error('Validation errors:', email.brokenRules.getBrokenRules());
+   * }
+   * ```
    */
   public get isValid(): boolean {
     return this.brokenRules.getBrokenRules().length === 0;
   }
 
   /**
-   * Inicializa una nueva instancia de ValueObject.
-   * @param value El valor interno del objeto.
+   * Initializes a new instance of a value object.
+   *
+   * @param value The internal value of the value object
+   * @throws {ArgumentNullException} If value is null or undefined
+   *
+   * @remarks
+   * The constructor:
+   * 1. Validates the value is not null/undefined
+   * 2. Initializes managers (broken rules, validators, tracking state)
+   * 3. Registers the internal value for change detection
+   * 4. Marks the value object as new
+   * 5. Runs initial validation
+   *
+   * @example
+   * ```typescript
+   * class ProductName extends DddValueObject<string> {
+   *   private constructor(value: string) {
+   *     super(value); // Calls this base constructor
+   *   }
+   * }
+   * ```
    */
   protected constructor(value: TValue) {
     super();
 
     if (value === null || value === undefined) {
-      throw new Error('ArgumentNullException: value cannot be null.');
+      throw new ArgumentNullException('value');
     }
 
-    // Inicialización de gestores (Equivalente al TODO de IoC en C#)
+    // Initialize managers (equivalent to IoC container setup in C#)
     this.brokenRules = new BrokenRulesManager();
     this.validatorRules = new ValidatorRuleManager<
       AbstractRuleValidator<DddValueObject<TValue>>
     >();
     this.trackingState = new TrackingStateManager();
 
-    // Registro de la propiedad interna para observación de cambios
-    // Mapeamos typeof a constructores para la validación de tipos
+    // Register internal property for change observation
+    // Map typeof to constructors for type validation
     const valueType = this.getTypeConstructor(typeof value, value);
     this.registerProperty(
       'internalValue',
@@ -63,71 +156,154 @@ export abstract class DddValueObject<
   }
 
   /**
-   * Manejador que se dispara cuando el valor interno cambia.
+   * Handler triggered when the internal value changes.
+   * Marks the value object as dirty and re-runs validation.
+   *
+   * @remarks
+   * This is part of the property change notification pattern.
+   * Called automatically when setValue() is invoked.
    */
-  private valuePropertyChanged(
-    sender: AbstractNotifyPropertyChanged,
-    e: NotifyPropertyChangedContextArgs,
-  ): void {
-    console.log('valuePropertyChanged', sender, e);
+  private valuePropertyChanged(): void {
     this.trackingState.markAsDirty();
     this.validate();
   }
 
   /**
-   * Cambia el valor del objeto y dispara la validación.
+   * Changes the internal value and triggers validation.
+   *
+   * @param value The new value to set
+   * @throws {ArgumentNullException} If value is null or undefined
+   *
+   * @remarks
+   * ⚠️ **Immutability Concern**: Value objects should typically be immutable.
+   * Consider creating a new instance instead of mutating the existing one.
+   * This method exists for specific scenarios where mutation is necessary,
+   * but violates the pure value object pattern.
+   *
+   * @example
+   * ```typescript
+   * // Discouraged - mutates existing value object
+   * const email = Email.create('old@example.com');
+   * email.setValue('new@example.com');
+   *
+   * // Preferred - create new instance
+   * const oldEmail = Email.create('old@example.com');
+   * const newEmail = Email.create('new@example.com');
+   * ```
    */
   public setValue(value: TValue): void {
     if (value === null || value === undefined) {
-      throw new Error('ArgumentNullException: value cannot be null.');
+      throw new ArgumentNullException('value');
     }
     this.setValuePropertyChanged(value, 'internalValue');
   }
 
   /**
-   * Obtiene el valor actual.
+   * Gets the current internal value.
+   *
+   * @returns The internal value of type TValue
+   *
+   * @example
+   * ```typescript
+   * const email = Email.create('test@example.com');
+   * console.log(email.getValue()); // 'test@example.com'
+   * ```
    */
   public getValue(): TValue {
     return this.getValuePropertyChanged('internalValue') as TValue;
   }
 
-  // --- Business Rules ---
-
   /**
-   * Permite a las clases derivadas añadir validadores específicos.
+   * Allows derived classes to add specific validators.
+   * Override this method to add custom validation rules.
+   *
+   * @remarks
+   * This is a Template Method pattern implementation.
+   * The base implementation does nothing - subclasses provide specific validators.
+   *
+   * @example
+   * ```typescript
+   * class Email extends DddValueObject<string> {
+   *   override addValidators(): void {
+   *     super.addValidators();
+   *     this.validatorRules.add(new EmailFormatValidator(this));
+   *     this.validatorRules.add(new EmailLengthValidator(this));
+   *   }
+   * }
+   * ```
    */
   public addValidators(): void {
-    // Implementar en clases hijas (ej: validación de formato de correo o resolución de video)
+    // To be implemented in derived classes (e.g., email format validation, video resolution validation)
   }
 
+  /**
+   * Executes all registered validators and updates broken rules collection.
+   * Called automatically after construction and value changes.
+   *
+   * @remarks
+   * This method:
+   * 1. Clears previous validation errors
+   * 2. Executes all validators
+   * 3. Collects broken rules from all validators
+   * 4. Updates the brokenRules manager
+   */
   private validate(): void {
-    // Limpia reglas previamente almacenadas
+    // Clear previously stored rules
     this.brokenRules.clear();
 
-    // Obtiene los validadores de reglas del objeto
-    const validators = this.validatorRules.getValidators();
+    // Get all broken rules from validator manager
+    const brokenRulesArray = this.validatorRules.getBrokenRules();
 
-    // Ejecuta validaciones y agrega las reglas rotas a brokenRules
-    if (validators && Array.isArray(validators)) {
-      validators.forEach((validator) => {
-        const brokenRule = validator.validate(this);
-        if (brokenRule) {
-          this.brokenRules.add(brokenRule);
-        }
-      });
+    // Add all broken rules to the broken rules manager
+    if (brokenRulesArray && brokenRulesArray.length > 0) {
+      this.brokenRules.addRange(brokenRulesArray);
     }
   }
 
-  // --- Equality ---
-
   /**
-   * Método abstracto que las clases hijas deben implementar para listar los componentes de igualdad.
-   * Por ejemplo: return [this.street, this.city];
+   * Abstract method that derived classes must implement to list equality components.
+   * These components define what makes two value objects equal.
+   *
+   * @returns Iterable of all components used for equality comparison
+   *
+   * @remarks
+   * Include all properties that define the value object's identity.
+   * Order matters - components are compared in sequence.
+   *
+   * @example
+   * ```typescript
+   * // Simple value object with single property
+   * class Email extends DddValueObject<string> {
+   *   protected getEqualityComponents(): Iterable<any> {
+   *     return [this.getValue()];
+   *   }
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * // Complex value object with multiple properties
+   * class Address extends DddValueObject<AddressValue> {
+   *   protected getEqualityComponents(): Iterable<any> {
+   *     const val = this.getValue();
+   *     return [val.street, val.city, val.postalCode, val.country];
+   *   }
+   * }
+   * ```
    */
   protected abstract getEqualityComponents(): Iterable<any>;
 
   /**
-   * Mapea un tipo primitivo (string literal de typeof) a su constructor correspondiente.
+   * Maps a primitive type (string literal from typeof) to its corresponding constructor.
+   *
+   * @param typeString The result of typeof operation
+   * @param value The actual value to extract constructor from
+   * @returns The constructor function for the type
+   *
+   * @remarks
+   * This helper supports the property change notification system.
+   * It maps JavaScript primitive types to their constructor functions.
+   * For objects, it attempts to extract the constructor from the value itself.
    */
   private getTypeConstructor(typeString: string, value: any): any {
     const typeMap: Record<string, any> = {
@@ -138,22 +314,42 @@ export abstract class DddValueObject<
       bigint: BigInt,
     };
 
-    // Si es un tipo primitivo conocido, retornamos su constructor
+    // If it's a known primitive type, return its constructor
     if (typeString in typeMap) {
       return typeMap[typeString];
     }
 
-    // Si el valor tiene un constructor, lo usamos
+    // If the value has a constructor, use it
     if (value?.constructor) {
       return value.constructor;
     }
 
-    // Por defecto, retornamos el tipo como está (puede ser una clase)
+    // By default, return the type as-is (it might be a class)
     return typeString;
   }
 
   /**
-   * Compara este objeto con otro para determinar igualdad estructural.
+   * Compares this value object with another for structural equality.
+   * Two value objects are equal if all their equality components match.
+   *
+   * @param obj The object to compare with
+   * @returns true if objects are structurally equal, false otherwise
+   *
+   * @remarks
+   * Equality is based on:
+   * 1. Type compatibility (same prototype)
+   * 2. All equality components matching (===)
+   * 3. Same number of components
+   *
+   * @example
+   * ```typescript
+   * const email1 = Email.create('test@example.com');
+   * const email2 = Email.create('test@example.com');
+   * const email3 = Email.create('other@example.com');
+   *
+   * console.log(email1.equals(email2)); // true
+   * console.log(email1.equals(email3)); // false
+   * ```
    */
   public equals(obj: unknown): boolean {
     if (
@@ -174,23 +370,63 @@ export abstract class DddValueObject<
   }
 
   /**
-   * Genera un HashCode basado en los componentes de igualdad.
+   * Generates a hash code based on equality components.
+   *
+   * @returns A numeric hash code
+   *
+   * @remarks
+   * ⚠️ **Simplified Implementation**: This is a basic hash function suitable for
+   * basic scenarios but not cryptographically secure or collision-resistant.
+   * Consider using a proper hashing library for production use cases requiring
+   * strong hash functions.
+   *
+   * @example
+   * ```typescript
+   * const email = Email.create('test@example.com');
+   * const hash = email.getHashCode();
+   * console.log(`Hash: ${hash}`);
+   * ```
    */
   public getHashCode(): number {
     const components = Array.from(this.getEqualityComponents());
     return components.reduce((hash, item) => {
-      const itemHash = item ? JSON.stringify(item).length : 0; // Simplificación para TS
+      const itemHash = item ? JSON.stringify(item).length : 0; // Simplified for TypeScript
       return Math.trunc((hash << 5) - hash + itemHash);
     }, 0);
   }
 
   /**
-   * Crea una copia superficial del objeto.
+   * Creates a shallow copy of the value object.
+   *
+   * @returns A new instance with the same properties
+   *
+   * @remarks
+   * ⚠️ **Shallow Copy Limitation**: This method creates a shallow copy using Object.assign.
+   * Nested objects and arrays are copied by reference, not deep-cloned.
+   * For value objects with complex nested structures, consider implementing
+   * a proper deep clone mechanism.
+   *
+   * @example
+   * ```typescript
+   * const original = Email.create('test@example.com');
+   * const copy = original.getCopy();
+   * console.log(original.equals(copy)); // true
+   * console.log(original === copy); // false (different instances)
+   * ```
    */
   public getCopy(): DddValueObject<TValue> {
     return Object.assign(Object.create(Object.getPrototypeOf(this)), this);
   }
 
+  /**
+   * Alias for {@link getCopy}. Creates a shallow copy of the value object.
+   *
+   * @returns A new instance with the same properties
+   *
+   * @remarks
+   * This method exists for compatibility with general cloning patterns.
+   * See {@link getCopy} for detailed behavior and limitations.
+   */
   public clone(): object {
     return this.getCopy();
   }

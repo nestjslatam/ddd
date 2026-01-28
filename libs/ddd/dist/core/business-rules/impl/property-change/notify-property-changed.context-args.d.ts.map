@@ -1,0 +1,1 @@
+{"version":3,"file":"notify-property-changed.context-args.d.ts","sourceRoot":"","sources":["../../../../../src/core/business-rules/impl/property-change/notify-property-changed.context-args.ts"],"names":[],"mappings":"AAAA,qBAAa,gCAAgC;aAIzB,aAAa,EAAE,GAAG;aAClB,QAAQ,EAAE,GAAG;IAJxB,OAAO,EAAE,OAAO,CAAS;gBAGd,aAAa,EAAE,GAAG,EAClB,QAAQ,EAAE,GAAG;CAEhC"}

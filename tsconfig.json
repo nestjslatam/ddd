@@ -18,9 +18,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "@nestjslatam/ddd-lib": ["libs/ddd/src"],
-      "@nestjslatam/ddd-lib/*": ["libs/ddd/src/*"]
-    }
+    "moduleResolution": "node",
+    "esModuleInterop": true
   }
 }

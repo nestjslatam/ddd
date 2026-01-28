@@ -1,10 +1,8 @@
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
-import { DddEntity } from '../entity';
+import { DddAggregateRoot } from '../aggregate-root';
 import { IDddPrimitive, Primitives, ValueObjectValidator } from '../core';
 import { Type } from '../types';
-
-
 
 /**
  * Domain Object Helper
@@ -18,11 +16,11 @@ export class DddObjectHelper {
    *
    * @static
    * @param {*} obj The object to check.
-   * @returns {obj is DddEntity<unknown>} True if the object is a domain entity, false otherwise.
+   * @returns {obj is DddAggregateRoot<unknown>} True if the object is a domain entity, false otherwise.
    * @memberof DomainObjectHelper
    */
-  static isEntity(obj: unknown): obj is DddEntity<any, any> {
-    return obj instanceof DddEntity;
+  static isEntity(obj: unknown): obj is DddAggregateRoot<any, any> {
+    return obj instanceof DddAggregateRoot;
   }
 
   /**
@@ -43,8 +41,8 @@ export class DddObjectHelper {
     return item;
   }
 
-  static isDomainEntity(entity: unknown): entity is DddEntity<any, any> {
-    return entity instanceof DddEntity;
+  static isDomainEntity(entity: unknown): entity is DddAggregateRoot<any, any> {
+    return entity instanceof DddAggregateRoot;
   }
 
   static isDomainPrimitive<T>(
