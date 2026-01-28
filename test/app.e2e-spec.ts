@@ -1,72 +1,16 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe, Module } from '@nestjs/common';
 import { ModulesContainer } from '@nestjs/core';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from './../src/app.module';
-import {
-  DddService,
-  IDddOptions,
-  DomainCommandBus,
-  DomainEventBus,
-  UnhandledExceptionDomainBus,
-} from '@nestjslatam/ddd-lib';
+import { DddService } from '@nestjslatam/ddd-lib';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 
 /**
  * Mock DddService for E2E testing that doesn't require ModulesContainer
  */
 class MockDddService implements Partial<DddService> {
-  explore(): IDddOptions {
-    // Return empty arrays for testing - the actual registration happens in production
-    return {
-      domainCommands: [],
-      domainEvents: [],
-      sagas: [],
-    };
-  }
-}
-
-/**
- * Mock DomainCommandBus for E2E testing
- */
-class MockDomainCommandBus {
-  async execute() {
-    // Mock implementation - no-op for testing
-  }
-  register() {
-    // Mock implementation - no-op for testing
-  }
-}
-
-/**
- * Mock DomainEventBus for E2E testing
- */
-class MockDomainEventBus {
-  publish() {
-    // Mock implementation - no-op for testing
-  }
-  publishAll() {
-    // Mock implementation - no-op for testing
-  }
-  register() {
-    // Mock implementation - no-op for testing
-  }
-  registerSagas() {
-    // Mock implementation - no-op for testing
-  }
-  subscribe() {
-    // Mock implementation - no-op for testing
-  }
-}
-
-/**
- * Mock UnhandledExceptionDomainBus for E2E testing
- */
-class MockUnhandledExceptionDomainBus {
-  publish() {
-    // Mock implementation - no-op for testing
-  }
-  subscribe() {
+  explore(): void {
     // Mock implementation - no-op for testing
   }
 }
@@ -90,12 +34,6 @@ describe('App (e2e)', () => {
       .useValue(new ModulesContainer() as any)
       .overrideProvider(DddService)
       .useClass(MockDddService as any)
-      .overrideProvider(DomainCommandBus)
-      .useClass(MockDomainCommandBus as any)
-      .overrideProvider(DomainEventBus)
-      .useClass(MockDomainEventBus as any)
-      .overrideProvider(UnhandledExceptionDomainBus)
-      .useClass(MockUnhandledExceptionDomainBus as any)
       .compile();
 
     app = moduleRef.createNestApplication({

@@ -4,6 +4,6 @@ import { Description, Name, Price } from './valueobjects';
 @Module({
   imports: [],
   providers: [],
-  exports: [Name, Description, Price],
+  exports: [],
 })
 export class SharedModule {}
