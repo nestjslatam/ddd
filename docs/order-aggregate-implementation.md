@@ -542,6 +542,6 @@ Para completar la implementación del módulo Orders, se necesita:
 
 **Autor**: AI Assistant  
 **Fecha**: 2024  
-**Versión**: 1.0.0  
+**Versión**: 2.0.0  
 **Librería**: @nestjslatam/ddd-lib
 
