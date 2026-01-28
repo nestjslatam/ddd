@@ -1,4 +1,4 @@
-import { AbstractRuleValidator } from '../core';
+import { AbstractRuleValidator } from '../core/validator-rules/impl/abstract-rule-validator';
 import { DddValueObject } from '../valueobject';
 export declare class StringNotNullOrEmptyValidator extends AbstractRuleValidator<DddValueObject<string>> {
     private readonly options;

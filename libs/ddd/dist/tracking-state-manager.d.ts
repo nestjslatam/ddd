@@ -1,4 +1,4 @@
-import { IChangeDetector, IProps, ITrackingProps, ITrackingStateManager, ITrackingStateTransitions } from './core';
+import { IChangeDetector, IProps, ITrackingProps, ITrackingStateManager, ITrackingStateTransitions } from './core/tracking-state';
 export declare class TrackingStateManager implements ITrackingStateManager, ITrackingStateTransitions {
     private _isNew;
     private _isDirty;

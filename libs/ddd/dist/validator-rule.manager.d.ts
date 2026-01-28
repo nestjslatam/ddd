@@ -1,4 +1,5 @@
-import { BrokenRule, ClassType, IRuleValidator } from './core';
+import { BrokenRule } from './core/business-rules';
+import { ClassType, IRuleValidator } from './core/validator-rules';
 export declare class ValidatorRuleManager<TValidator extends IRuleValidator> {
     private readonly _validators;
     add(rule: TValidator): void;

@@ -2,8 +2,8 @@
   "name": "@nestjslatam/ddd-lib",
   "version": "2.0.0",
   "description": "A comprehensive Domain-Driven Design library for NestJS - Build scalable, maintainable enterprise applications",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "private": false,
   "scripts": {
     "build": "tsc -p tsconfig.lib.json",

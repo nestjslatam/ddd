@@ -1,6 +1,7 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { BrokenRulesManager } from './broken-rules.manager';
-import { AbstractRuleValidator, TrackingProps } from './core';
+import { AbstractRuleValidator } from './core/validator-rules';
+import { TrackingProps } from './core/tracking-state';
 import { TrackingStateManager } from './tracking-state-manager';
 import { ValidatorRuleManager } from './validator-rule.manager';
 import { IdValueObject } from './valueobjects';

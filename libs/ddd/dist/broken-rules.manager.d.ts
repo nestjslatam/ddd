@@ -1,4 +1,4 @@
-import { BrokenRule } from './core';
+import { BrokenRule } from './core/business-rules';
 export interface IBrokenRulesManager {
     getBrokenRules(): ReadonlyArray<BrokenRule>;
 }

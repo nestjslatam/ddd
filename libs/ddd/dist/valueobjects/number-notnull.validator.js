@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NumberNotNullValidator = void 0;
-const core_1 = require("../core");
-class NumberNotNullValidator extends core_1.AbstractRuleValidator {
+const abstract_rule_validator_1 = require("../core/validator-rules/impl/abstract-rule-validator");
+class NumberNotNullValidator extends abstract_rule_validator_1.AbstractRuleValidator {
     constructor(subject, options) {
         super(subject);
         this.options = {

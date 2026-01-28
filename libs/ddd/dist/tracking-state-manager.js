@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TrackingStateManager = void 0;
-const core_1 = require("./core");
+const impl_1 = require("./core/tracking-state/impl");
 class TrackingStateManager {
     get isNew() {
         return this._isNew;
@@ -20,7 +20,7 @@ class TrackingStateManager {
         this._isDirty = false;
         this._isSelfDeleted = false;
         this._isDeleted = false;
-        this.changeDetector = changeDetector || new core_1.NestedPropertyChangeDetector();
+        this.changeDetector = changeDetector || new impl_1.NestedPropertyChangeDetector();
         this.markAsClean();
     }
     get trackingProps() {
@@ -36,16 +36,16 @@ class TrackingStateManager {
         return this;
     }
     markAsDirty() {
-        core_1.TrackingStateTransition.toDirty(this);
+        impl_1.TrackingStateTransition.toDirty(this);
     }
     markAsNew() {
-        core_1.TrackingStateTransition.toNew(this);
+        impl_1.TrackingStateTransition.toNew(this);
     }
     markAsSelfDeleted() {
-        core_1.TrackingStateTransition.toSelfDeleted(this);
+        impl_1.TrackingStateTransition.toSelfDeleted(this);
     }
     markAsDeleted() {
-        core_1.TrackingStateTransition.toDeleted(this);
+        impl_1.TrackingStateTransition.toDeleted(this);
     }
     markAsClean() {
         this._isDirty = false;
