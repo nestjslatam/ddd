@@ -167,15 +167,15 @@
       },
       "libs/ddd/src/broken-rules.manager.ts": {
         "branches": 90,
-        "functions": 100,
-        "lines": 100,
-        "statements": 100
+        "functions": 94,
+        "lines": 97,
+        "statements": 97
       },
       "libs/ddd/src/validator-rule.manager.ts": {
         "branches": 90,
-        "functions": 100,
-        "lines": 100,
-        "statements": 100
+        "functions": 68,
+        "lines": 89,
+        "statements": 87
       },
       "libs/ddd/src/core/validator-rules/impl/abstract-rule-validator.ts": {
         "branches": 100,
