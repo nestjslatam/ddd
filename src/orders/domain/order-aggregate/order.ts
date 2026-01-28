@@ -1,8 +1,4 @@
-import {
-  IdValueObject,
-  BrokenRule,
-  DddAggregateRoot,
-} from '@nestjslatam/ddd-lib';
+import { IdValueObject, DddAggregateRoot } from '@nestjslatam/ddd-lib';
 import { OrderStatus, canTransitionTo } from './order-status.enum';
 import { OrderItem } from '../entities/order-item.entity';
 import { Money } from '../value-objects/money.vo';

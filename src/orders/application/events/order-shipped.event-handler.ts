@@ -21,4 +21,3 @@ export class OrderShippedEventHandler
     // - Actualizar estado en sistemas externos
   }
 }
-

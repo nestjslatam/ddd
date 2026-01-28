@@ -11,7 +11,11 @@ describe('BrokenRule', () => {
     });
 
     it('debe crear una instancia con severity Warning', () => {
-      const rule = new BrokenRule('email', 'Email format is invalid', 'Warning');
+      const rule = new BrokenRule(
+        'email',
+        'Email format is invalid',
+        'Warning',
+      );
 
       expect(rule.property).toBe('email');
       expect(rule.message).toBe('Email format is invalid');
@@ -21,7 +25,11 @@ describe('BrokenRule', () => {
     it('debe permitir propiedades con diferentes valores', () => {
       const rule1 = new BrokenRule('id', 'ID is required', 'Error');
       const rule2 = new BrokenRule('price', 'Price must be positive', 'Error');
-      const rule3 = new BrokenRule('quantity', 'Quantity must be greater than 0', 'Warning');
+      const rule3 = new BrokenRule(
+        'quantity',
+        'Quantity must be greater than 0',
+        'Warning',
+      );
 
       expect(rule1.property).toBe('id');
       expect(rule2.property).toBe('price');
@@ -29,7 +37,8 @@ describe('BrokenRule', () => {
     });
 
     it('debe permitir mensajes largos', () => {
-      const longMessage = 'This is a very long error message that describes in detail what went wrong with the validation';
+      const longMessage =
+        'This is a very long error message that describes in detail what went wrong with the validation';
       const rule = new BrokenRule('field', longMessage, 'Error');
 
       expect(rule.message).toBe(longMessage);
@@ -52,7 +61,7 @@ describe('BrokenRule', () => {
       expect(rule.property).toBe('test');
       expect(rule.message).toBe('Test message');
       expect(rule.severity).toBe('Error');
-      
+
       // Verificar que las propiedades existen y tienen valores
       expect(typeof rule.property).toBe('string');
       expect(typeof rule.message).toBe('string');

@@ -12,4 +12,3 @@ export class ShipOrderService {
     await this.commandBus.execute(command);
   }
 }
-

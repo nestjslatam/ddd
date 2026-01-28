@@ -7,4 +7,3 @@ export class ConfirmOrderCommand {
     this.orderId = dto.orderId;
   }
 }
-

@@ -20,4 +20,3 @@ export class ProductCreatedEventHandler
     // - Integrar con sistemas externos
   }
 }
-

@@ -12,4 +12,3 @@ export class ConfirmOrderService {
     await this.commandBus.execute(command);
   }
 }
-

@@ -12,4 +12,3 @@ export class CreateOrderService {
     return await this.commandBus.execute<CreateOrderCommand, string>(command);
   }
 }
-

@@ -7,4 +7,3 @@ export class DeliverOrderCommand {
     this.orderId = dto.orderId;
   }
 }
-

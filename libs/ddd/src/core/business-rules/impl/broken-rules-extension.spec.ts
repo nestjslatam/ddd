@@ -52,14 +52,10 @@ describe('BrokenRulesExtension', () => {
 
     it('debe consolidar reglas de múltiples propiedades', () => {
       const valueObject1 = new ValueObjectWithBrokenRules();
-      valueObject1.brokenRules.add(
-        new BrokenRule('prop1', 'Error 1', 'Error'),
-      );
+      valueObject1.brokenRules.add(new BrokenRule('prop1', 'Error 1', 'Error'));
 
       const valueObject2 = new ValueObjectWithBrokenRules();
-      valueObject2.brokenRules.add(
-        new BrokenRule('prop2', 'Error 2', 'Error'),
-      );
+      valueObject2.brokenRules.add(new BrokenRule('prop2', 'Error 2', 'Error'));
 
       const valueObject3 = new ValueObjectWithBrokenRules();
       valueObject3.brokenRules.add(
@@ -121,9 +117,7 @@ describe('BrokenRulesExtension', () => {
 
     it('debe ignorar propiedades que tienen brokenRules pero está vacío', () => {
       const valueObject1 = new ValueObjectWithBrokenRules();
-      valueObject1.brokenRules.add(
-        new BrokenRule('prop1', 'Error 1', 'Error'),
-      );
+      valueObject1.brokenRules.add(new BrokenRule('prop1', 'Error 1', 'Error'));
 
       const valueObject2 = new ValueObjectWithBrokenRules();
       // valueObject2 no tiene reglas rotas
@@ -189,12 +183,8 @@ describe('BrokenRulesExtension', () => {
 
     it('debe manejar múltiples reglas rotas de una sola propiedad', () => {
       const valueObject = new ValueObjectWithBrokenRules();
-      valueObject.brokenRules.add(
-        new BrokenRule('prop1', 'Error 1', 'Error'),
-      );
-      valueObject.brokenRules.add(
-        new BrokenRule('prop2', 'Error 2', 'Error'),
-      );
+      valueObject.brokenRules.add(new BrokenRule('prop1', 'Error 1', 'Error'));
+      valueObject.brokenRules.add(new BrokenRule('prop2', 'Error 2', 'Error'));
       valueObject.brokenRules.add(
         new BrokenRule('prop3', 'Error 3', 'Warning'),
       );
@@ -215,7 +205,10 @@ describe('BrokenRulesExtension', () => {
     it('debe manejar un array vacío de propiedades', () => {
       const testObject = new TestObject();
 
-      const result = BrokenRulesExtension.getPropertiesBrokenRules(testObject, []);
+      const result = BrokenRulesExtension.getPropertiesBrokenRules(
+        testObject,
+        [],
+      );
 
       expect(result.length).toBe(0);
     });
@@ -223,20 +216,15 @@ describe('BrokenRulesExtension', () => {
     it('debe lanzar error si la instancia es null', () => {
       expect(() => {
         BrokenRulesExtension.getPropertiesBrokenRules(null as any, ['name']);
-      }).toThrow(
-        'ArgumentNullException: instance cannot be null or undefined',
-      );
+      }).toThrow('ArgumentNullException: instance cannot be null or undefined');
     });
 
     it('debe lanzar error si la instancia es undefined', () => {
       expect(() => {
-        BrokenRulesExtension.getPropertiesBrokenRules(
-          undefined as any,
-          ['name'],
-        );
-      }).toThrow(
-        'ArgumentNullException: instance cannot be null or undefined',
-      );
+        BrokenRulesExtension.getPropertiesBrokenRules(undefined as any, [
+          'name',
+        ]);
+      }).toThrow('ArgumentNullException: instance cannot be null or undefined');
     });
 
     it('debe lanzar error si las propiedades son null', () => {
@@ -279,7 +267,9 @@ describe('BrokenRulesExtension', () => {
       ]);
 
       expect(result.length).toBe(2);
-      expect(result.find((r) => r.property === 'prop1')?.severity).toBe('Error');
+      expect(result.find((r) => r.property === 'prop1')?.severity).toBe(
+        'Error',
+      );
       expect(result.find((r) => r.property === 'prop2')?.severity).toBe(
         'Warning',
       );
@@ -328,17 +318,13 @@ describe('BrokenRulesExtension', () => {
 
     it('debe consolidar correctamente reglas de propiedades mezcladas (con y sin reglas)', () => {
       const valueObject1 = new ValueObjectWithBrokenRules();
-      valueObject1.brokenRules.add(
-        new BrokenRule('prop1', 'Error 1', 'Error'),
-      );
+      valueObject1.brokenRules.add(new BrokenRule('prop1', 'Error 1', 'Error'));
 
       const valueObject2 = new ValueObjectWithBrokenRules();
       // Sin reglas
 
       const valueObject3 = new ValueObjectWithBrokenRules();
-      valueObject3.brokenRules.add(
-        new BrokenRule('prop3', 'Error 3', 'Error'),
-      );
+      valueObject3.brokenRules.add(new BrokenRule('prop3', 'Error 3', 'Error'));
 
       const testObject = new TestObject();
       testObject.name = valueObject1;

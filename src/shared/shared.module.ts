@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { Description, Name, Price } from './valueobjects';
 
 @Module({
   imports: [],

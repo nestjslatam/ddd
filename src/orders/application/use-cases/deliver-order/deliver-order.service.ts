@@ -12,4 +12,3 @@ export class DeliverOrderService {
     await this.commandBus.execute(command);
   }
 }
-

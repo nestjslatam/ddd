@@ -9,4 +9,3 @@ export class RemoveItemFromOrderCommand {
     this.productId = dto.productId;
   }
 }
-

@@ -98,4 +98,3 @@ export class AggregateEquality<T extends { identity: AggregateIdentity }> {
     return !this.areEqual(left, right);
   }
 }
-

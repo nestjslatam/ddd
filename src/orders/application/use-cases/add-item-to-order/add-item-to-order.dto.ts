@@ -5,4 +5,3 @@ export class AddItemToOrderDto {
   quantity: number;
   unitPrice: number;
 }
-

@@ -11,4 +11,3 @@ export class ChangeItemQuantityCommand {
     this.newQuantity = dto.newQuantity;
   }
 }
-

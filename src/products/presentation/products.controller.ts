@@ -112,4 +112,3 @@ export class ProductsController {
     await this.deleteProductService.execute(id);
   }
 }
-

@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { DddAggregateRoot } from "../../aggregate-root";
-import { Primitives } from "../tracking-state";
+import { DddAggregateRoot } from '../../aggregate-root';
+import { Primitives } from '../tracking-state';
 
 export interface IDomainWriteRepository<
   TKey extends Primitives,
-  TDomain extends DddAggregateRoot<any, any>
+  TDomain extends DddAggregateRoot<any, any>,
 > {
   /**
    * Inserts a single entity into the repository.

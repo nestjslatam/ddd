@@ -12,4 +12,3 @@ export class ChangeProductStatusService {
     await this.commandBus.execute(command);
   }
 }
-

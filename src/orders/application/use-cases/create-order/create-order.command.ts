@@ -25,4 +25,3 @@ export class CreateOrderCommand {
     this.currency = dto.currency || 'USD';
   }
 }
-

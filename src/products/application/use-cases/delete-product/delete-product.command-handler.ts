@@ -20,4 +20,3 @@ export class DeleteProductCommandHandler
     await this.productRepository.delete(productId);
   }
 }
-

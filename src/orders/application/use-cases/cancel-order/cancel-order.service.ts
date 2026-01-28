@@ -12,4 +12,3 @@ export class CancelOrderService {
     await this.commandBus.execute(command);
   }
 }
-

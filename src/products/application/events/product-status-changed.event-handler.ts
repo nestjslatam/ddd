@@ -20,4 +20,3 @@ export class ProductStatusChangedEventHandler
     // - Cancelar órdenes pendientes si se inactiva
   }
 }
-

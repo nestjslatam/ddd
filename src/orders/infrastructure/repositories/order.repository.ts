@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Order } from '../../domain/order-aggregate/order';
-import { IdValueObject } from '@nestjslatam/ddd-lib';
 
 /**
  * In-Memory Order Repository

@@ -3,7 +3,10 @@ import { AbstractRuleValidator } from './abstract-rule-validator';
 
 describe('AbstractRuleValidator', () => {
   class TestSubject {
-    constructor(public name: string, public age: number) {}
+    constructor(
+      public name: string,
+      public age: number,
+    ) {}
   }
 
   class TestRuleValidator extends AbstractRuleValidator<TestSubject> {

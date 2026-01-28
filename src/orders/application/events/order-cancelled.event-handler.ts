@@ -20,4 +20,3 @@ export class OrderCancelledEventHandler
     // - Actualizar métricas
   }
 }
-

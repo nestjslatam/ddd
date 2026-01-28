@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from "@nestjs/common";
-import { ModulesContainer } from "@nestjs/core";
+import { Injectable } from '@nestjs/common';
+import { ModulesContainer } from '@nestjs/core';
 
 @Injectable()
 export class DddService {

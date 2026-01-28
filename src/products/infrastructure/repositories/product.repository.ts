@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Product } from '../../domain/product-aggregate/product';
-import { IdValueObject } from '@nestjslatam/ddd-lib';
 
 /**
  * In-Memory Product Repository
@@ -30,4 +29,3 @@ export class ProductRepository {
     return this.products.has(id);
   }
 }
-

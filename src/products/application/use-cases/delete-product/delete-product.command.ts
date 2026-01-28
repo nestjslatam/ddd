@@ -1,5 +1,3 @@
-import { DeleteProductDto } from './delete-product.dto';
-
 export class DeleteProductCommand {
   public readonly productId: string;
 
@@ -7,4 +5,3 @@ export class DeleteProductCommand {
     this.productId = productId;
   }
 }
-

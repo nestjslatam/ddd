@@ -11,4 +11,3 @@ export class DeleteProductService {
     await this.commandBus.execute(command);
   }
 }
-

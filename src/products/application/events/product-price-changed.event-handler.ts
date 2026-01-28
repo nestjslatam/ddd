@@ -20,4 +20,3 @@ export class ProductPriceChangedEventHandler
     // - Actualizar reportes
   }
 }
-

@@ -9,4 +9,3 @@ export class CancelOrderCommand {
     this.reason = dto.reason;
   }
 }
-

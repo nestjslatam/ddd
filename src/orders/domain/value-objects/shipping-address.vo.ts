@@ -102,4 +102,3 @@ export class ShippingAddress extends DddValueObject<IShippingAddressProps> {
     // Validation done in constructor
   }
 }
-

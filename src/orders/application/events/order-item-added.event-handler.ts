@@ -19,4 +19,3 @@ export class OrderItemAddedEventHandler
     // - Recalcular totales en proyecciones
   }
 }
-

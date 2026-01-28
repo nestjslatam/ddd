@@ -429,7 +429,11 @@ describe('AbstractNotifyPropertyChanged', () => {
     class CustomClass extends AbstractNotifyPropertyChanged {
       constructor() {
         super();
-        this.registerProperty('custom', CustomObject, new CustomObject('default'));
+        this.registerProperty(
+          'custom',
+          CustomObject,
+          new CustomObject('default'),
+        );
       }
 
       public get Custom(): CustomObject {

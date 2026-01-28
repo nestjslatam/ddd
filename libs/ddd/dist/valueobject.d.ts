@@ -3,22 +3,26 @@ import { AbstractNotifyPropertyChanged } from './core/business-rules/impl/proper
 import { AbstractRuleValidator } from './core/validator-rules';
 import { TrackingStateManager } from './tracking-state-manager';
 import { ValidatorRuleManager } from './validator-rule.manager';
-export declare abstract class DddValueObject<TValue> extends AbstractNotifyPropertyChanged {
-    readonly trackingState: TrackingStateManager;
-    readonly validatorRules: ValidatorRuleManager<AbstractRuleValidator<DddValueObject<TValue>>>;
-    readonly brokenRules: BrokenRulesManager;
-    get isValid(): boolean;
-    protected constructor(value: TValue);
-    private valuePropertyChanged;
-    setValue(value: TValue): void;
-    getValue(): TValue;
-    addValidators(): void;
-    private validate;
-    protected abstract getEqualityComponents(): Iterable<any>;
-    private getTypeConstructor;
-    equals(obj: unknown): boolean;
-    getHashCode(): number;
-    getCopy(): DddValueObject<TValue>;
-    clone(): object;
+export declare abstract class DddValueObject<
+  TValue,
+> extends AbstractNotifyPropertyChanged {
+  readonly trackingState: TrackingStateManager;
+  readonly validatorRules: ValidatorRuleManager<
+    AbstractRuleValidator<DddValueObject<TValue>>
+  >;
+  readonly brokenRules: BrokenRulesManager;
+  get isValid(): boolean;
+  protected constructor(value: TValue);
+  private valuePropertyChanged;
+  setValue(value: TValue): void;
+  getValue(): TValue;
+  addValidators(): void;
+  private validate;
+  protected abstract getEqualityComponents(): Iterable<any>;
+  private getTypeConstructor;
+  equals(obj: unknown): boolean;
+  getHashCode(): number;
+  getCopy(): DddValueObject<TValue>;
+  clone(): object;
 }
 //# sourceMappingURL=valueobject.d.ts.map

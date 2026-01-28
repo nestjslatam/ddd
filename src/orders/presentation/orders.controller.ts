@@ -19,30 +19,12 @@ import {
   AddItemToOrderDto,
   AddItemToOrderService,
 } from '../application/use-cases/add-item-to-order';
-import {
-  RemoveItemFromOrderDto,
-  RemoveItemFromOrderService,
-} from '../application/use-cases/remove-item-from-order';
-import {
-  ChangeItemQuantityDto,
-  ChangeItemQuantityService,
-} from '../application/use-cases/change-item-quantity';
-import {
-  ConfirmOrderDto,
-  ConfirmOrderService,
-} from '../application/use-cases/confirm-order';
-import {
-  ShipOrderDto,
-  ShipOrderService,
-} from '../application/use-cases/ship-order';
-import {
-  DeliverOrderDto,
-  DeliverOrderService,
-} from '../application/use-cases/deliver-order';
-import {
-  CancelOrderDto,
-  CancelOrderService,
-} from '../application/use-cases/cancel-order';
+import { RemoveItemFromOrderService } from '../application/use-cases/remove-item-from-order';
+import { ChangeItemQuantityService } from '../application/use-cases/change-item-quantity';
+import { ConfirmOrderService } from '../application/use-cases/confirm-order';
+import { ShipOrderService } from '../application/use-cases/ship-order';
+import { DeliverOrderService } from '../application/use-cases/deliver-order';
+import { CancelOrderService } from '../application/use-cases/cancel-order';
 import {
   GetOrderQuery,
   GetOrdersQuery,
@@ -194,4 +176,3 @@ export class OrdersController {
     });
   }
 }
-

@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { DddAggregateRoot } from "../../aggregate-root";
-import { Primitives } from "../tracking-state";
+import { DddAggregateRoot } from '../../aggregate-root';
+import { Primitives } from '../tracking-state';
 
 /**
  * Represents a read repository interface for a domain entity or aggregate root.
@@ -9,7 +9,7 @@ import { Primitives } from "../tracking-state";
  */
 export interface IDomainReadRepository<
   TKey extends Primitives,
-  TDomain extends DddAggregateRoot<any, any>
+  TDomain extends DddAggregateRoot<any, any>,
 > {
   /**
    * Retrieves all domain entities or aggregate roots.

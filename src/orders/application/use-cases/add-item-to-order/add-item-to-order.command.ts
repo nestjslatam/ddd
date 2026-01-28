@@ -15,4 +15,3 @@ export class AddItemToOrderCommand {
     this.unitPrice = dto.unitPrice;
   }
 }
-

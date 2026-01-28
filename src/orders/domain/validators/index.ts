@@ -6,4 +6,3 @@ export * from './order-shipping.validator';
 export * from './order-item-quantity.validator';
 export * from './order-item-price.validator';
 export * from './order-item-product.validator';
-

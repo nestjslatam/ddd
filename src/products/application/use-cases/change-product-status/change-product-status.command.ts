@@ -9,4 +9,3 @@ export class ChangeProductStatusCommand {
     this.status = dto.status;
   }
 }
-

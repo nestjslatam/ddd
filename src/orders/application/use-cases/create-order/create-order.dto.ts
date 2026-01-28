@@ -10,4 +10,3 @@ export class CreateOrderDto {
   shippingCountry: string;
   currency?: string;
 }
-

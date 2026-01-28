@@ -67,4 +67,3 @@ export function getStatusDisplayName(status: OrderStatus): string {
   };
   return displayNames[status];
 }
-

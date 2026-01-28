@@ -13,4 +13,3 @@ export class UpdateProductCommand {
     this.price = dto.price;
   }
 }
-

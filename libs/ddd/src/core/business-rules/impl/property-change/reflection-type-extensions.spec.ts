@@ -31,12 +31,12 @@ describe('ReflectionTypeExtensions', () => {
 
   describe('getIsAssignableFrom', () => {
     it('debe retornar true cuando los tipos son iguales', () => {
-      expect(
-        ReflectionTypeExtensions.getIsAssignableFrom(String, String),
-      ).toBe(true);
-      expect(
-        ReflectionTypeExtensions.getIsAssignableFrom(Number, Number),
-      ).toBe(true);
+      expect(ReflectionTypeExtensions.getIsAssignableFrom(String, String)).toBe(
+        true,
+      );
+      expect(ReflectionTypeExtensions.getIsAssignableFrom(Number, Number)).toBe(
+        true,
+      );
       expect(
         ReflectionTypeExtensions.getIsAssignableFrom(Boolean, Boolean),
       ).toBe(true);
@@ -52,10 +52,7 @@ describe('ReflectionTypeExtensions', () => {
       class DerivedClass extends BaseClass {}
 
       expect(
-        ReflectionTypeExtensions.getIsAssignableFrom(
-          BaseClass,
-          DerivedClass,
-        ),
+        ReflectionTypeExtensions.getIsAssignableFrom(BaseClass, DerivedClass),
       ).toBe(true);
     });
 
@@ -63,12 +60,12 @@ describe('ReflectionTypeExtensions', () => {
       class ClassA {}
       class ClassB {}
 
-      expect(
-        ReflectionTypeExtensions.getIsAssignableFrom(ClassA, ClassB),
-      ).toBe(false);
-      expect(
-        ReflectionTypeExtensions.getIsAssignableFrom(ClassB, ClassA),
-      ).toBe(false);
+      expect(ReflectionTypeExtensions.getIsAssignableFrom(ClassA, ClassB)).toBe(
+        false,
+      );
+      expect(ReflectionTypeExtensions.getIsAssignableFrom(ClassB, ClassA)).toBe(
+        false,
+      );
     });
 
     it('debe retornar false cuando uno de los tipos no es una función', () => {
@@ -77,32 +74,41 @@ describe('ReflectionTypeExtensions', () => {
       const objectValue = {};
 
       expect(
-        ReflectionTypeExtensions.getIsAssignableFrom(TestClass, notAFunction as any),
+        ReflectionTypeExtensions.getIsAssignableFrom(
+          TestClass,
+          notAFunction as any,
+        ),
       ).toBe(false);
       expect(
-        ReflectionTypeExtensions.getIsAssignableFrom(notAFunction as any, TestClass),
+        ReflectionTypeExtensions.getIsAssignableFrom(
+          notAFunction as any,
+          TestClass,
+        ),
       ).toBe(false);
       expect(
-        ReflectionTypeExtensions.getIsAssignableFrom(TestClass, objectValue as any),
+        ReflectionTypeExtensions.getIsAssignableFrom(
+          TestClass,
+          objectValue as any,
+        ),
       ).toBe(false);
     });
 
     it('debe retornar false para tipos primitivos diferentes', () => {
-      expect(
-        ReflectionTypeExtensions.getIsAssignableFrom(String, Number),
-      ).toBe(false);
+      expect(ReflectionTypeExtensions.getIsAssignableFrom(String, Number)).toBe(
+        false,
+      );
       expect(
         ReflectionTypeExtensions.getIsAssignableFrom(Number, Boolean),
       ).toBe(false);
     });
 
     it('debe retornar false para valores nulos o indefinidos', () => {
-      expect(
-        ReflectionTypeExtensions.getIsAssignableFrom(String, null),
-      ).toBe(false);
-      expect(
-        ReflectionTypeExtensions.getIsAssignableFrom(null, String),
-      ).toBe(false);
+      expect(ReflectionTypeExtensions.getIsAssignableFrom(String, null)).toBe(
+        false,
+      );
+      expect(ReflectionTypeExtensions.getIsAssignableFrom(null, String)).toBe(
+        false,
+      );
       expect(
         ReflectionTypeExtensions.getIsAssignableFrom(String, undefined),
       ).toBe(false);
@@ -123,10 +129,7 @@ describe('ReflectionTypeExtensions', () => {
         ReflectionTypeExtensions.getIsAssignableFrom(BaseClass, DerivedClass),
       ).toBe(true);
       expect(
-        ReflectionTypeExtensions.getIsAssignableFrom(
-          MiddleClass,
-          DerivedClass,
-        ),
+        ReflectionTypeExtensions.getIsAssignableFrom(MiddleClass, DerivedClass),
       ).toBe(true);
       expect(
         ReflectionTypeExtensions.getIsAssignableFrom(DerivedClass, BaseClass),

@@ -9,4 +9,3 @@ export class ShipOrderCommand {
     this.trackingNumber = dto.trackingNumber;
   }
 }
-

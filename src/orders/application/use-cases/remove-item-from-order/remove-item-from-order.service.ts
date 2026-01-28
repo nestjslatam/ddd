@@ -12,4 +12,3 @@ export class RemoveItemFromOrderService {
     await this.commandBus.execute(command);
   }
 }
-

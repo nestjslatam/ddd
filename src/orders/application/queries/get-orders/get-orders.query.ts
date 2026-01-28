@@ -1,5 +1,3 @@
-import { GetOrdersDto } from '../dtos/order-response.dto';
-
 export class GetOrdersQuery {
   constructor(
     public readonly status?: string,
@@ -7,4 +5,3 @@ export class GetOrdersQuery {
     public readonly offset: number = 0,
   ) {}
 }
-

@@ -24,4 +24,3 @@ export class GetProductQueryHandler implements IQueryHandler<GetProductQuery> {
     };
   }
 }
-

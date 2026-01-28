@@ -5,4 +5,3 @@ export class GetProductsQuery {
     public readonly offset: number = 0,
   ) {}
 }
-
