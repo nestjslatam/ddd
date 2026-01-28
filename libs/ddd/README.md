@@ -7,7 +7,7 @@ A comprehensive Domain-Driven Design (DDD) library for NestJS applications, prov
 
 ## ⚠️ Development Status
 
-**Version 2.0.0** - This library is actively developed and NOT recommended for production use. Breaking changes may occur between minor versions.
+**Version 2.0.0** - This library is actively developed and NOT recommended for production use. The public API is not yet stable, and breaking changes may occur in future major versions.
 
 ## 🎯 What is Domain-Driven Design?
 
