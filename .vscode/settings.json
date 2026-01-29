@@ -9,5 +9,6 @@
       "group": "ddd"
     }
   ],
-  "sqltools.useNodeRuntime": true
+  "sqltools.useNodeRuntime": true,
+  "postman.settings.dotenv-detection-notification-visibility": false
 }

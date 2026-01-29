@@ -7,21 +7,7 @@
  */
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
 import { ModulesContainer } from '@nestjs/core';
-
 import { DddService } from './ddd.service';
-import { DomainCommandBus } from './ddd-commands';
-import {
-  DomainEventPublisher,
-  DomainEventBus,
-  IDomainEvent,
-  DomainEventSerializer,
-  DomainEventDeserializer,
-} from './ddd-events';
-import { UnhandledExceptionDomainBus } from './ddd-exceptions';
-
-/**
- * Represents the DDD module in the application.
- */
 @Module({
   imports: [],
   providers: [
@@ -32,41 +18,14 @@ import { UnhandledExceptionDomainBus } from './ddd-exceptions';
       },
       inject: [ModulesContainer],
     },
-    DomainCommandBus,
-    DomainEventBus,
-    DomainEventPublisher,
-    UnhandledExceptionDomainBus,
-    DomainEventSerializer,
-    DomainEventDeserializer,
   ],
-  exports: [
-    DddService,
-    DomainCommandBus,
-    DomainEventBus,
-    DomainEventPublisher,
-    UnhandledExceptionDomainBus,
-    DomainEventSerializer,
-    DomainEventDeserializer,
-  ],
+  exports: [DddService],
 })
-export class DddModule<DomainEventBase extends IDomainEvent>
-  implements OnApplicationBootstrap
-{
-  constructor(
-    private readonly explorerService: DddService<DomainEventBase>,
-    private readonly eventBus: DomainEventBus<DomainEventBase>,
-    private readonly domainCommandBus: DomainCommandBus,
-  ) {}
+export class DddModule implements OnApplicationBootstrap {
+  constructor() {}
 
   /**
    * Performs initialization tasks when the application starts.
    */
-  onApplicationBootstrap() {
-    const { domainEvents, sagas, domainCommands } =
-      this.explorerService.explore();
-
-    this.eventBus.register(domainEvents);
-    this.domainCommandBus.register(domainCommands);
-    this.eventBus.registerSagas(sagas);
-  }
+  onApplicationBootstrap() {}
 }

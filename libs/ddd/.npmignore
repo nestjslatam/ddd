@@ -1,0 +1,31 @@
+# Source files
+src/
+*.ts
+!*.d.ts
+
+# Tests
+**/*.spec.js
+**/*.spec.d.ts
+**/*.spec.ts
+test/
+tests/
+
+# Development files
+tsconfig.lib.json
+.eslintrc.js
+.prettierrc
+
+# Documentation (optional, remove if you want to include)
+*.md
+!README.md
+
+# CI/CD
+.github/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

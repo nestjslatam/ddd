@@ -1,0 +1,1 @@
+{"version":3,"file":"irule-context.d.ts","sourceRoot":"","sources":["../../../../src/core/validator-rules/interfaces/irule-context.ts"],"names":[],"mappings":"AAIA,MAAM,WAAW,YAAY;IAC3B,MAAM,EAAE,GAAG,CAAC;IACZ,QAAQ,CAAC,EAAE,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAC;CAChC"}

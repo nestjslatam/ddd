@@ -1,35 +1,29 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { CqrsModule } from '@nestjs/cqrs';
 
-import { SharedModule } from './shared/shared.module';
-import { SingersModule } from './singers/singers.module';
-import {
-  MetaRequestContextInterceptor,
-  MetaRequestContextService,
-} from './shared';
 import { RequestContextModule } from 'nestjs-request-context';
-
-const requestContextInterceptors = [
-  {
-    provide: APP_INTERCEPTOR,
-    useClass: MetaRequestContextInterceptor,
-  },
-];
+import { ProductsModule } from './products/products.module';
+import { OrdersModule } from './orders/orders.module';
+import { SharedModule } from './shared/shared.module';
+import { DddModule } from '@nestjslatam/ddd-lib';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    CqrsModule.forRoot(),
+    DddModule,
     DevtoolsModule.register({
       http:
         process.env.NODE_ENV !== 'production' &&
         process.env.NODE_ENV !== 'test',
     }),
     RequestContextModule,
+    ProductsModule,
+    OrdersModule,
     SharedModule,
-    SingersModule,
   ],
-  providers: [...requestContextInterceptors, MetaRequestContextService],
+  providers: [],
 })
 export class AppModule {}

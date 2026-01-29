@@ -1,13 +1,22 @@
 {
   "name": "@nestjslatam/ddd-lib",
-  "version": "1.0.51",
-  "description": "A simple Domain-Driven Library for NESTJS",
+  "version": "2.0.0",
+  "description": "A comprehensive Domain-Driven Design library for NestJS - Build scalable, maintainable enterprise applications",
   "main": "index.js",
+  "types": "index.d.ts",
   "private": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.lib.json",
+    "prepublishOnly": "npm run build"
+  },
   "keywords": [
     "nestjs",
     "nestjslatam",
-    "ddd"
+    "ddd",
+    "domain-driven-design",
+    "aggregate",
+    "value-object",
+    "entity"
   ],
   "author": {
     "name": "Alberto Arroyo Raygada",
@@ -15,12 +24,29 @@
     "url": "http://nestjslatam.org/"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nestjslatam/ddd"
+  },
+  "files": [
+    "**/*.js",
+    "**/*.d.ts",
+    "!**/*.spec.js",
+    "!**/*.spec.d.ts"
+  ],
   "dependencies": {
-    "@nestjs/cli": "^11.0.6",
-    "@nestjs/common": "^11.0.20",
-    "@nestjs/config": "^4.0.2",
-    "@nestjs/core": "^11.0.20",
+    "@nestjs/common": "^10.0.0 || ^11.0.0",
+    "@nestjs/core": "^10.0.0 || ^11.0.0",
+    "@nestjslatam/ddd-lib": "^1.0.52",
     "rxjs": "^7.8.2",
     "uuid": "^11.1.0"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^10.0.0 || ^11.0.0",
+    "@nestjs/core": "^10.0.0 || ^11.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.6",
+    "@nestjs/config": "^4.0.2"
   }
 }
