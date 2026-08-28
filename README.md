@@ -556,16 +556,23 @@ Seven tools become available, with **no API key**. The agent supplies the domain
 
 ## Documentation
 
-Comprehensive documentation is available in the `docs/` folder:
+> [!WARNING]
+> **Six of these documents describe an application this repository does not contain.** They are written around a `singers` module — `src/singers/`, a `Singer` aggregate, `Song` entities, `POST /singers` endpoints — none of which exists. The sample here is Orders and Products. `infrastructure-layer.md` additionally documents a TypeORM setup that was removed in 2.1.0.
+>
+> They are still useful for the *shape* of a DDD application with this library, but do not follow them expecting to find the code they describe. Rewriting them against the current sample is [tracked separately](https://github.com/nestjslatam/ddd/issues).
 
 ### Architecture & Development
 
-- **[Architecture Overview](docs/architecture.md)** - Detailed explanation of the DDD architecture
-- **[Domain Layer](docs/domain-layer.md)** - Domain entities, value objects, and business rules
-- **[Application Layer](docs/application-layer.md)** - Commands, queries, handlers, and sagas
-- **[Infrastructure Layer](docs/infrastructure-layer.md)** - Repositories, mappers, and database setup
-- **[Getting Started Guide](docs/getting-started.md)** - Step-by-step setup and usage
-- **[API Reference](docs/api-reference.md)** - Complete API endpoint documentation
+| Document | Covers | State |
+|---|---|---|
+| [Architecture Overview](docs/architecture.md) | Layers, CQRS wiring, where domain events travel | Structure is accurate; every example is a `singers` module that does not exist |
+| [Domain Layer](docs/domain-layer.md) | Aggregates, entities, value objects, business rules | Same — written against `src/singers/domain/` |
+| [Application Layer](docs/application-layer.md) | Commands, queries, handlers, sagas | Same |
+| [Infrastructure Layer](docs/infrastructure-layer.md) | Repositories and persistence | Same, plus a TypeORM integration this project no longer has |
+| [Getting Started](docs/getting-started.md) | Prerequisites, install, run | Install and run are correct; the API walkthrough calls `/singers` endpoints that return 404 |
+| [API Reference](docs/api-reference.md) | Endpoint documentation | Documents the `singers` API. The real endpoints are `/products` and `/orders` — see the Swagger UI at `/api` instead |
+
+The accurate references for the shipped sample are [order-aggregate-implementation.md](docs/order-aggregate-implementation.md) and [VALIDATORS_AND_STATES_IMPLEMENTATION.md](docs/VALIDATORS_AND_STATES_IMPLEMENTATION.md), which are written against the Orders module that is actually here.
 
 ### CI/CD & Automation
 
