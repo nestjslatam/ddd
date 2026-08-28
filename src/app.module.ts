@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { CqrsModule } from '@nestjs/cqrs';
 
 import { RequestContextModule } from 'nestjs-request-context';
@@ -14,11 +13,6 @@ import { DddModule } from '@nestjslatam/ddd-lib';
     ConfigModule.forRoot(),
     CqrsModule.forRoot(),
     DddModule,
-    DevtoolsModule.register({
-      http:
-        process.env.NODE_ENV !== 'production' &&
-        process.env.NODE_ENV !== 'test',
-    }),
     RequestContextModule,
     ProductsModule,
     OrdersModule,
