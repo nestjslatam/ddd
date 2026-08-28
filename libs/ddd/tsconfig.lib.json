@@ -7,7 +7,7 @@
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "removeComments": true,
+    "removeComments": false,
     "module": "commonjs",
     "target": "ES2021",
     "moduleResolution": "node",
