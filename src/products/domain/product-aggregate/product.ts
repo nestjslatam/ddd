@@ -35,8 +35,11 @@ export class Product extends DddAggregateRoot<Product, IProductProps> {
       status: ProductStatus.ACTIVE,
     });
 
-    // Validar el producto recién creado
-    if (!product.isValid) {
+    // isValid is a method on DddAggregateRoot and a getter on
+    // DddValueObject. Read as a property here it is a Function, always
+    // truthy, so this guard never fired and create() returned products that
+    // had failed their own invariants.
+    if (!product.isValid()) {
       const errors = product.brokenRules.getBrokenRules();
       throw new Error(
         `Cannot create product: ${errors
