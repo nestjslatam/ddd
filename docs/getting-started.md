@@ -49,7 +49,7 @@ npm install
 
 This will install:
 - NestJS framework and dependencies
-- TypeORM and database drivers
+- CQRS, Swagger and validation packages
 - DDD library (`@nestjslatam/ddd-lib`)
 - Testing frameworks
 - Development tools
