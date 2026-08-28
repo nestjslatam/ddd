@@ -1,244 +1,162 @@
 # @nestjslatam/ddd-lib
 
-Domain-Driven Design building blocks for NestJS: aggregate roots, value objects, rule validators that collect broken rules instead of throwing, and change tracking.
+Domain-Driven Design building blocks for NestJS: aggregate roots that validate themselves, value objects that reject invalid input, and the broken-rules and state-tracking machinery behind both.
 
-[![npm](https://img.shields.io/npm/v/%40nestjslatam%2Fddd-lib.svg)](https://www.npmjs.com/package/@nestjslatam/ddd-lib) [![CI](https://github.com/nestjslatam/ddd/actions/workflows/ci.yml/badge.svg)](https://github.com/nestjslatam/ddd/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/nestjslatam/ddd/blob/main/LICENSE)
-
-> [!WARNING]
-> **Under active development.** `@nestjslatam/ddd-lib@2.1.2` is not recommended for production use. The public API is not stable and breaking changes can land in any minor release. Pin an exact version and read the [changelog](../../CHANGELOG.md) before upgrading.
+[![npm](https://img.shields.io/npm/v/%40nestjslatam%2Fddd-lib.svg)](https://www.npmjs.com/package/@nestjslatam/ddd-lib)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/nestjslatam/ddd/blob/main/LICENSE)
 
 ```bash
 npm install @nestjslatam/ddd-lib
 ```
 
-```typescript
-import { AbstractRuleValidator, NumberValueObject } from '@nestjslatam/ddd-lib';
+> [!WARNING]
+> **Pre-1.0 in spirit.** The public API is not stable and this is not recommended for production. Pin an exact version.
+>
+> **`2.0.0` and `2.1.0` are deprecated on npm and should not be used.** `2.0.0` crashes on import wherever `@nestjs/cqrs` is not already installed; `2.1.0` breaks every CommonJS consumer, Jest included, through an ESM-only `uuid`. Current is **`2.1.2`**.
 
-class PriceRangeValidator extends AbstractRuleValidator<Price> {
-  public addRules(): void {
-    if (this.subject.getValue() > 9_999_999.99) {
-      this.addBrokenRule('value', 'Price exceeds the maximum allowed');
-    }
-  }
-}
+## A value object
+
+```ts
+import { NumberValueObject, NumberPositiveValidator } from '@nestjslatam/ddd-lib';
 
 export class Price extends NumberValueObject {
   static create(value: number): Price {
-    return new Price(value);
+    const price = new Price(value);
+
+    // Validation collects broken rules; it never throws. A factory that does
+    // not check is a factory that returns invalid objects.
+    if (!price.isValid) {
+      throw new Error(price.brokenRules.getBrokenRulesAsString());
+    }
+
+    return price;
   }
 
   override addValidators(): void {
     super.addValidators();
-    this.validatorRules.add(new PriceRangeValidator(this));
+    this.validatorRules.add(new NumberPositiveValidator(this));
   }
 }
 
-const price = Price.create(-1);
-
-price.isValid; // false
-price.brokenRules.getBrokenRulesAsString();
-// 'Property: value, Message: value must be a positive number (greater than zero)'
+Price.create(-1);
+// Error: Property: value, Message: value must be a positive number (greater than zero)
 ```
 
-Constructing a value object never throws for a business-rule failure. It runs the validators, stores what failed on `brokenRules`, and hands you the object. Deciding what to do with an invalid object is your factory's job — the library will not make it for you.
+## An aggregate root
 
-`NumberValueObject` brings its own validators: by default a number must be finite, non-`NaN` and strictly positive, so `-1` above is rejected before `PriceRangeValidator` is even consulted. Pass options to loosen that — `NumberValueObject.create(0, { allowZero: true })`, or `{ requirePositive: false }` for values that may go negative.
+```ts
+import {
+  AbstractRuleValidator,
+  DddAggregateRoot,
+  IdValueObject,
+} from '@nestjslatam/ddd-lib';
 
-## The ecosystem
+interface IOrderProps {
+  total: Price;
+}
 
-Four packages, published by [NestJS LATAM](https://github.com/nestjslatam). Each is usable on its own; `ddd-lib` is the base the other three build on.
-
-| Package | What it is |
-|---|---|
-| **`@nestjslatam/ddd-lib`** | The DDD building blocks — aggregates, value objects, validators, broken rules, state tracking. Source in [nestjslatam/ddd](https://github.com/nestjslatam/ddd). — you are here |
-| [`@nestjslatam/ddd-cli`](https://www.npmjs.com/package/@nestjslatam/ddd-cli) | A CLI for working with the library: understand it, scaffold any stereotype, extend it, audit your code. Usable directly or from an AI agent over MCP. Source in [nestjslatam/ddd-cli](https://github.com/nestjslatam/ddd-cli). |
-| [`@nestjslatam/ddd-valueobjects`](https://www.npmjs.com/package/@nestjslatam/ddd-valueobjects) | Ready-made value objects — email, phone number, money, date range, document id — built on `ddd-lib`. Source in [nestjslatam/ddd-valueobjects](https://github.com/nestjslatam/ddd-valueobjects). |
-| [`@nestjslatam/ddd-es-lib`](https://www.npmjs.com/package/@nestjslatam/ddd-es-lib) | Event sourcing for `ddd-lib`: event store, snapshots, upcasting, sagas, materialised views. Source in [nestjslatam/ddd-event-sourcing](https://github.com/nestjslatam/ddd-event-sourcing). |
-
-## Requirements
-
-- Node.js `>=20.11`.
-- Peer dependencies you must install yourself: `@nestjs/common` and `@nestjs/core` (`^10 || ^11`), `@nestjs/cqrs` (`^10 || ^11`), `reflect-metadata` (`^0.1.13 || ^0.2.0`), `rxjs` (`^7.2.0`).
-- `@nestjs/cqrs` is not optional. `DddAggregateRoot` extends its `AggregateRoot`, so the import fails without it.
-- One bundled runtime dependency: `uuid@^11`, used by `IdValueObject`.
-- The package ships compiled JavaScript with `.d.ts` files. No build step, no `tsconfig` path mapping.
-
-## Collecting broken rules instead of throwing
-
-```typescript
-import { AbstractRuleValidator } from '@nestjslatam/ddd-lib';
-
-class OrderTotalValidator extends AbstractRuleValidator<Order> {
-  public addRules(): void {
+class OrderApprovalValidator extends AbstractRuleValidator<Order> {
+  addRules(): void {
     if (this.subject.props.total.getValue() > 10_000) {
       this.addBrokenRule('total', 'Orders over 10,000 need manual approval');
     }
   }
 }
 
-order.brokenRules.getBrokenRules();
-// [{ property: 'total', message: 'Orders over 10,000 need manual approval', severity: 'Error' }]
-```
-
-A validator extends `AbstractRuleValidator<TSubject>`, receives the object it validates as `subject`, and calls `addBrokenRule(property, message)` for each failure. It never throws and never returns a boolean, so one pass reports every problem rather than the first one.
-
-The failures land in a `BrokenRulesManager`, reachable as `brokenRules` on both value objects and aggregates. `getBrokenRules()` returns the `BrokenRule` list, `getBrokenRulesAsString()` formats it for a log line, and `hasErrors()` answers the yes-or-no question. Rules are deduplicated case-insensitively on property plus message, so registering the same validator twice does not double the output.
-
-> [!IMPORTANT]
-> `isValid` is a **getter** on value objects and a **method** on aggregates. `if (!valueObject.isValid)` is right; `if (!aggregate.isValid)` tests a function object, is always false, and silently passes every invalid aggregate. Write `if (!aggregate.isValid())`.
-
-## Building an aggregate root
-
-```typescript
-import {
-  AbstractRuleValidator,
-  DddAggregateRoot,
-  IdValueObject,
-  StringValueObject,
-  ValidatorRuleManager,
-} from '@nestjslatam/ddd-lib';
-
-interface OrderProps {
-  customer: StringValueObject;
-  total: Price;
-}
-
-export class Order extends DddAggregateRoot<Order, OrderProps> {
-  private constructor(props: OrderProps, id?: IdValueObject) {
+export class Order extends DddAggregateRoot<Order, IOrderProps> {
+  private constructor(props: IOrderProps, id?: IdValueObject) {
     super(props, { id });
+    this.trackingState.markAsNew();
   }
 
-  static create(customer: StringValueObject, total: Price): Order {
-    return new Order({ customer, total });
-  }
+  static create(total: Price): Order {
+    const order = new Order({ total });
 
-  protected override addValidators(
-    manager: ValidatorRuleManager<AbstractRuleValidator<Order>>,
-  ): void {
-    manager.add(new OrderTotalValidator(this));
-  }
-}
-
-const order = Order.create(StringValueObject.create('ACME'), Price.create(12_000));
-
-order.isValid(); // false
-order.id; // IdValueObject, generated when none is passed
-```
-
-`DddAggregateRoot` takes two type parameters and an optional third: `DddAggregateRoot<TEntity, TProps, TState extends object = object>`. `TEntity` is the aggregate itself and exists so validators are typed against it; `TProps` is the state. Passing one parameter does not compile.
-
-The constructor takes `props` and an options object. Give it `id` to reconstitute an aggregate you loaded from a database, and `skipInitialValidation: true` to skip the validation pass that otherwise runs during construction — persisted data has already been through it once. Override `guard()` for technical integrity checks that should throw, and `addValidators(manager)` for business rules that should be collected.
-
-## Tracking what changed
-
-```typescript
-order.trackingState.isNew; // true after construction
-order.trackingState.isDirty; // true once a setter marks it
-order.trackingState.markAsClean(); // after a successful save
-```
-
-Every aggregate and value object owns a `TrackingStateManager`, exposed as `trackingState`. It reports `isNew`, `isDirty`, `isDeleted` and `isSelfDeleted`, and it is moved with `markAsNew()`, `markAsDirty()`, `markAsClean()`, `markAsDeleted()` and `markAsSelfDeleted()`.
-
-Value objects mark themselves dirty on their own: `setValue()` fires the property-change notification, which flips the state and re-runs validation. Aggregates do not — the library cannot know that assigning `this.props.total` was a domain change, so your mutator calls `this.trackingState.markAsDirty()` itself. `propsCopy` bundles id, props and tracking state for handing data out, but read its name carefully: `Object.freeze` is applied to the wrapper only, and `props` inside it is the live object, so writing through it still mutates the aggregate.
-
-## Emitting domain events
-
-```typescript
-import {
-  DomainEvent,
-  EventMetadata,
-  EventMetadataBuilder,
-} from '@nestjslatam/ddd-lib';
-
-export class OrderConfirmed extends DomainEvent {
-  constructor(
-    public readonly orderId: string,
-    metadata: EventMetadata,
-  ) {
-    super(metadata);
-  }
-}
-
-const metadata = EventMetadataBuilder.create(order.id.toString(), 'Order', 0)
-  .withCorrelationId('req-42')
-  .build();
-
-new OrderConfirmed(order.id.toString(), metadata).toJSON();
-// { eventId, eventType: 'OrderConfirmed', eventVersion: 1, occurredOn, metadata, data: { orderId } }
-```
-
-The base class is `DomainEvent`, also exported under the alias `AbstractDomainEvent`. It stamps `eventId`, `occurredOn`, `eventType` (from the constructor name) and `eventVersion`, and it rejects metadata that is missing `aggregateId` or `aggregateType`, so a malformed event fails at construction rather than at replay.
-
-`toJSON()` returns a persistable shape whose `data` key holds every own property except the base fields — override the protected `getEventData()` when you want to control that payload explicitly. Because `DddAggregateRoot` extends the `AggregateRoot` of `@nestjs/cqrs`, publishing is that library's mechanism unchanged: `this.apply(event)` inside the aggregate, `EventPublisher.mergeObjectContext()` and `commit()` in the handler.
-
-## Constraining state transitions
-
-```typescript
-import { DddAggregateRoot, DddEnum } from '@nestjslatam/ddd-lib';
-
-export class OrderStatus extends DddEnum {
-  static readonly DRAFT = new OrderStatus(1, 'DRAFT');
-  static readonly CONFIRMED = new OrderStatus(2, 'CONFIRMED');
-  static readonly CANCELLED = new OrderStatus(3, 'CANCELLED');
-
-  private constructor(id: number, name: string) {
-    super(id, name);
-  }
-}
-
-interface TicketProps {
-  status: OrderStatus;
-}
-
-export class Ticket extends DddAggregateRoot<Ticket, TicketProps, OrderStatus> {
-  constructor(props: TicketProps) {
-    super(props);
-    this.defineValidTransitions(
-      new Map([
-        [OrderStatus.DRAFT, [OrderStatus.CONFIRMED, OrderStatus.CANCELLED]],
-        [OrderStatus.CONFIRMED, [OrderStatus.CANCELLED]],
-      ]),
-    );
-  }
-
-  confirm(): void {
-    if (!this.canTransitionTo(this.props.status, OrderStatus.CONFIRMED)) {
-      throw new Error(`Cannot confirm from ${this.props.status.name}`);
+    // Note the parentheses. See "Two shapes of isValid" below.
+    if (!order.isValid()) {
+      throw new Error(order.brokenRules.getBrokenRulesAsString());
     }
-    this.props.status = OrderStatus.CONFIRMED;
-    this.trackingState.markAsDirty();
+
+    return order;
+  }
+
+  addValidators(): void {
+    this.validators.add(new OrderApprovalValidator(this));
   }
 }
 ```
 
-Declare the legal moves once with the protected `defineValidTransitions(map)`, then ask `canTransitionTo(from, to)` before each move. Both are protected, so the transition graph stays an implementation detail of the aggregate rather than something a caller can rewrite.
+## Two shapes of `isValid`
 
-The third type parameter is constrained to `TState extends object`, which rules out string unions and TypeScript string enums. Model the state as a `DddEnum` subclass, as above — instances are objects, they carry an `id` and a `name`, and `DddEnum.getAll()` enumerates them.
+The single sharpest edge in this library, and worth reading before anything else.
+
+| Base | Declaration | Correct use |
+|---|---|---|
+| `DddValueObject` | `get isValid(): boolean` | `if (!price.isValid)` |
+| `DddAggregateRoot` | `isValid(): boolean` | `if (!order.isValid())` |
+
+Reading the aggregate's method as a property tests a `Function`, which is always truthy — so `if (!order.isValid)` **never fires** and the guard beneath it is unreachable. TypeScript does not flag it, and since validation only collects broken rules and never throws, nothing else will either. This repository's own sample shipped three of them.
+
+[`@nestjslatam/ddd-cli`](https://www.npmjs.com/package/@nestjslatam/ddd-cli) detects it:
+
+```bash
+npx ddd validate
+# error  Order.create() reads isValid as a property, but it is a method on DddAggregateRoot
+```
+
+## What you get
+
+**Aggregates.** `DddAggregateRoot<TEntity, TProps, TState extends object = object>` — self-validating, with equality, identity, serialization and a state machine. Its constructor takes `(props, options?)`, where the options carry an `id`, replacement managers, and `skipInitialValidation`. Override `addValidators(manager)` to register rules, `guard()` for construction-time checks, and `defineValidTransitions(map)` plus `canTransitionTo(from, to)` for a lifecycle.
+
+**Value objects.** `DddValueObject` and three specializations you subclass: `StringValueObject`, `NumberValueObject`, `IdValueObject`. All have protected constructors — reach them through static factories.
+
+**Validation.** `AbstractRuleValidator<TSubject>` for a single rule set, implementing `addRules()` and calling `addBrokenRule(property, message)`. `AbstractValidator` with `EntityValidator` and `ValueObjectValidator` for the entity-wide pass. `ValidatorRuleManager` holds them; `BrokenRulesManager` collects the results and answers `getBrokenRules()`, `getBrokenRulesAsString()`, `hasErrors()` and `clear()`.
+
+**Events.** `DomainEvent`, also exported as `AbstractDomainEvent` — they are the same class. `EventMetadataBuilder.create(id, type, version).withCorrelationId(...).build()` builds the metadata. Events serialize to `eventId`, `eventType`, `eventVersion`, `occurredOn`, `metadata` and `data`.
+
+**State tracking.** `TrackingStateManager` exposes `isNew`, `isDirty`, `isDeleted` and `isSelfDeleted`, with a `markAs*` method for each plus `markAsClean`. `StateTransitionManager` and `TrackingStateTransition` handle lifecycle transitions.
+
+**Exceptions.** `DomainException` and five specializations: `ArgumentNullException`, `InvalidFormatException`, `InvalidOperationException`, `InvalidStateTransitionException`, `NoTransitionsDefinedException`.
+
+Forty-four symbols in all. `npx ddd list` prints the full inventory grouped by family, read from the copy installed in your project.
+
+## Requirements
+
+- **Node 20.11 or later.**
+- **Peer dependencies:** `@nestjs/common`, `@nestjs/core` and `@nestjs/cqrs` (`^10` or `^11`), plus `reflect-metadata` and `rxjs`. All are declared; npm 7 and later install missing ones for you.
+- **One bundled dependency:** `uuid@^11`, used by `IdValueObject` and by `DomainEvent` to generate every `eventId`. It is not optional if you use either.
 
 ## Known limitations
 
-Verified against `2.1.2`. Each of these will bite someone.
+Honest list, all verified against `2.1.2`:
 
-- **`aggregate.version` is always `undefined`.** The field is declared and its setter is private with no caller, so nothing ever assigns it. Do not use it for optimistic concurrency; keep the version in your persistence layer.
-- **An aggregate's broken rules are never cleared.** `DddAggregateRoot.validate()` appends to `brokenRules` without emptying it first, so a rule that failed on construction is still listed after you fix the value and re-validate. Call `aggregate.brokenRules.clear()` immediately before `validate()`. `DddValueObject.validate()` does clear, so value objects behave as expected.
-- **`DddModule` and `DddService` do nothing.** The module provides a service whose only method, `explore()`, returns immediately. There is no bootstrap work to register; import the classes you need and skip the module.
-- **No persistence.** `IDomainReadRepository` and `IDomainWriteRepository` are interfaces describing `find`, `findById`, `insert`, `insertBatch`, `update` and `delete`. No implementation ships — no ORM, no driver, no adapter. Write the repository yourself, or use [`@nestjslatam/ddd-es-lib`](https://www.npmjs.com/package/@nestjslatam/ddd-es-lib) for an event-sourced store.
-- **`2.0.0` and `2.1.0` are deprecated on npm.** `2.0.0` crashes on import when `@nestjs/cqrs` is absent, because it imported the package without declaring the peer dependency. `2.1.0` breaks every CommonJS consumer by way of an ESM-only `uuid@14`, which fails under Jest and Node below 20.19 with `ERR_REQUIRE_ESM`. `2.1.1` fixed the dependency; `2.1.2` repaired `NumberValueObject`, which threw on every construction from the moment it shipped. If you are on any earlier `2.x`, upgrade.
+- **`aggregate.version` is `undefined`.** The private setter has no caller.
+- **An aggregate does not clear stale broken rules on re-validation.** Fix the data, call `validate()` again, and the old rule is still there — you must `brokenRules.clear()` first. Value objects do clear; aggregates do not.
+- **`DddService.explore()` is empty**, and so is `DddModule.onApplicationBootstrap()`.
+- **The repository interfaces ship no implementation.** `find`, `findById`, `insert`, `insertBatch`, `update` and `delete` are contracts for you to satisfy.
+- **`propsCopy` is frozen one level deep.** The wrapper is frozen; the nested `props` object is not.
+
+## The ecosystem
+
+| Package | What it is |
+|---|---|
+| **`@nestjslatam/ddd-lib`** | These building blocks — you are here |
+| [`@nestjslatam/ddd-cli`](https://www.npmjs.com/package/@nestjslatam/ddd-cli) | Inventory the stereotypes, scaffold them, subclass them, audit your code against this library's idiom. Runs as an MCP server so an AI agent can drive it |
+| [`@nestjslatam/ddd-valueobjects`](https://www.npmjs.com/package/@nestjslatam/ddd-valueobjects) | Ready-made value objects: email, phone number, money, date range, document id |
+| [`@nestjslatam/ddd-es-lib`](https://www.npmjs.com/package/@nestjslatam/ddd-es-lib) | Event sourcing: event store, snapshots, upcasting, sagas, materialised views |
 
 ## Documentation
 
-- [Getting started](../../docs/getting-started.md) — prerequisites, install and run the sample application end to end.
-- [Domain layer](../../docs/domain-layer.md) — how the sample models aggregates, entities and value objects with these classes.
-- [Architecture overview](../../docs/architecture.md) — the layers, the CQRS wiring, and where domain events travel.
-- [Application layer](../../docs/application-layer.md) — commands, handlers and queries around the aggregates.
-- [Infrastructure layer](../../docs/infrastructure-layer.md) — repository implementations and mappers for the sample.
-- [Sample application source](https://github.com/nestjslatam/ddd/tree/main/src) — a working Orders and Products domain built on this package.
-- [Changelog](../../CHANGELOG.md) — what changed in each release, including the deprecated versions.
+The [repository](https://github.com/nestjslatam/ddd) carries a working sample — Orders and Products — under `src/`, and it is the best reference for how these pieces fit together. [`order-aggregate-implementation.md`](https://github.com/nestjslatam/ddd/blob/main/docs/order-aggregate-implementation.md) walks through it.
 
-## Contributing
+> [!NOTE]
+> Six older documents in `docs/` describe a `singers` module that no longer exists, and one of them documents a TypeORM setup removed in 2.1.0. They are useful for the general shape of a DDD application, not as a guide to the code that ships. The repository README says which is which.
 
-Issues and pull requests are welcome at [nestjslatam/ddd](https://github.com/nestjslatam/ddd/issues). Commits follow the conventional-commit format the repository's commitlint configuration enforces, and CI runs lint, type-check and the Jest suite on every pull request.
+## Links
+
+- [Repository](https://github.com/nestjslatam/ddd) · [Changelog](https://github.com/nestjslatam/ddd/blob/main/CHANGELOG.md) · [Issues](https://github.com/nestjslatam/ddd/issues)
+- [NestJS Latam](https://nestjslatam.dev/) — the community behind these packages
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. Author: Alberto Arroyo Raygada.
