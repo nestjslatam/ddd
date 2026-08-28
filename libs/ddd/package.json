@@ -1,6 +1,6 @@
 {
   "name": "@nestjslatam/ddd-lib",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A comprehensive Domain-Driven Design library for NestJS - Build scalable, maintainable enterprise applications",
   "main": "index.js",
   "types": "index.d.ts",
@@ -35,7 +35,7 @@
     "!**/*.spec.d.ts"
   ],
   "dependencies": {
-    "uuid": "^14.0.2"
+    "uuid": "^11.1.0"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.0.0 || ^11.0.0",
