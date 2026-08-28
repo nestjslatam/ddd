@@ -3,9 +3,7 @@ import { OrderCancelledEvent } from 'src/orders/domain/events/order.events';
 import { Logger } from '@nestjs/common';
 
 @EventsHandler(OrderCancelledEvent)
-export class OrderCancelledEventHandler
-  implements IEventHandler<OrderCancelledEvent>
-{
+export class OrderCancelledEventHandler implements IEventHandler<OrderCancelledEvent> {
   private readonly logger = new Logger(OrderCancelledEventHandler.name);
 
   async handle(event: OrderCancelledEvent) {

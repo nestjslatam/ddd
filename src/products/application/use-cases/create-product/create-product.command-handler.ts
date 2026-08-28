@@ -5,9 +5,10 @@ import { Product } from 'src/products/domain/product-aggregate/product';
 import { ProductRepository } from 'src/products/infrastructure/repositories/product.repository';
 
 @CommandHandler(CreateProductCommand)
-export class CreateProductCommandHandler
-  implements ICommandHandler<CreateProductCommand, string>
-{
+export class CreateProductCommandHandler implements ICommandHandler<
+  CreateProductCommand,
+  string
+> {
   constructor(
     private readonly publisher: EventPublisher,
     private readonly productRepository: ProductRepository,

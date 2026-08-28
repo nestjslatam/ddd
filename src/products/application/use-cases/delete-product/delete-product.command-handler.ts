@@ -4,9 +4,10 @@ import { ProductRepository } from 'src/products/infrastructure/repositories/prod
 import { NotFoundException } from '@nestjs/common';
 
 @CommandHandler(DeleteProductCommand)
-export class DeleteProductCommandHandler
-  implements ICommandHandler<DeleteProductCommand, void>
-{
+export class DeleteProductCommandHandler implements ICommandHandler<
+  DeleteProductCommand,
+  void
+> {
   constructor(private readonly productRepository: ProductRepository) {}
 
   async execute(command: DeleteProductCommand): Promise<void> {

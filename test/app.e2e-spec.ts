@@ -1,10 +1,9 @@
 import { Test } from '@nestjs/testing';
-import { INestApplication, ValidationPipe, Module } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ModulesContainer } from '@nestjs/core';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { DddService } from '@nestjslatam/ddd-lib';
-import { DevtoolsModule } from '@nestjs/devtools-integration';
 
 /**
  * Mock DddService for E2E testing that doesn't require ModulesContainer
@@ -15,12 +14,6 @@ class MockDddService implements Partial<DddService> {
   }
 }
 
-/**
- * Empty module to replace DevtoolsModule in E2E tests
- */
-@Module({})
-class EmptyModule {}
-
 describe('App (e2e)', () => {
   let app: INestApplication;
 
@@ -28,8 +21,6 @@ describe('App (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideModule(DevtoolsModule)
-      .useModule(EmptyModule)
       .overrideProvider(ModulesContainer)
       .useValue(new ModulesContainer() as any)
       .overrideProvider(DddService)
@@ -37,7 +28,7 @@ describe('App (e2e)', () => {
       .compile();
 
     app = moduleRef.createNestApplication({
-      logger: false, // Disable logger to avoid DevTools warnings
+      logger: false,
     });
     app.useGlobalPipes(
       new ValidationPipe({

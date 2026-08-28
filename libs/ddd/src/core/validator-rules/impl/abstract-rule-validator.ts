@@ -5,9 +5,9 @@ import { ClassType, IRuleValidator } from '../interfaces';
  * Clase base abstracta para validadores de reglas.
  * TSubject es el tipo del objeto que vamos a auditar.
  */
-export abstract class AbstractRuleValidator<TSubject>
-  implements IRuleValidator
-{
+export abstract class AbstractRuleValidator<
+  TSubject,
+> implements IRuleValidator {
   // Lista privada interna (equivalente a List<BrokenRule> brokenRules)
   private brokenRules: BrokenRule[] = [];
 
