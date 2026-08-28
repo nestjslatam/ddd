@@ -1,115 +1,43 @@
-name: CD - Continuous Deployment
+name: CD - Publish to NPM
+
+# Releases are driven by tags, not by pushes to main.
+#
+# The flow is: bump the version in a release PR (with its CHANGELOG entry)
+# -> merge -> push the tag. Pushing the tag is the act that publishes.
+# This keeps releases intentional and keeps the published version, the tag
+# and the GitHub Release in agreement.
 
 on:
   push:
-    branches:
-      - main
-      - master
-    paths:
-      - 'libs/ddd/**'
-      - '.github/workflows/cd.yml'
-      - 'package.json'
-      - 'package-lock.json'
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
-      version_type:
-        description: 'Version type (patch, minor, major)'
-        required: true
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
+      dry_run:
+        description: 'Build and verify without publishing'
+        required: false
+        type: boolean
+        default: true
 
 env:
   NODE_VERSION: '20'
   REGISTRY_URL: 'https://registry.npmjs.org'
-  SCOPE: '@nestjslatam'
+  PACKAGE_NAME: '@nestjslatam/ddd-lib'
+  LIB_MANIFEST: 'libs/ddd/package.json'
+  DIST_DIR: 'dist/libs/ddd'
+  TAG_PREFIX: 'v'
 
 jobs:
-  # Job 1: Version Detection y Preparación
-  version-and-prepare:
-    name: Version Detection
+  publish:
+    name: Build, verify and publish
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-      should_publish: ${{ steps.check.outputs.should_publish }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          registry-url: ${{ env.REGISTRY_URL }}
-          scope: ${{ env.SCOPE }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Get current version
-        id: current_version
-        run: |
-          VERSION=$(node -p "require('./libs/ddd/package.json').version")
-          echo "current=$VERSION" >> $GITHUB_OUTPUT
-          echo "Current version: $VERSION"
-
-      - name: Determine version bump
-        id: version
-        run: |
-          cd libs/ddd
-          if [ "${{ github.event.inputs.version_type }}" != "" ]; then
-            npm version ${{ github.event.inputs.version_type }} --no-git-tag-version
-          else
-            # Auto-detect based on commit messages (simplified)
-            LAST_COMMIT=$(git log -1 --pretty=%B)
-            if echo "$LAST_COMMIT" | grep -qE "^(feat|feature)"; then
-              npm version minor --no-git-tag-version
-            elif echo "$LAST_COMMIT" | grep -qE "^(fix|bugfix)"; then
-              npm version patch --no-git-tag-version
-            elif echo "$LAST_COMMIT" | grep -qE "BREAKING CHANGE"; then
-              npm version major --no-git-tag-version
-            else
-              npm version patch --no-git-tag-version
-            fi
-          fi
-          NEW_VERSION=$(node -p "require('./package.json').version")
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "New version: $NEW_VERSION"
-
-      - name: Check if version changed
-        id: check
-        run: |
-          NEW_VERSION=$(node -p "require('./libs/ddd/package.json').version")
-          OLD_VERSION="${{ steps.current_version.outputs.current }}"
-          if [ "$NEW_VERSION" != "$OLD_VERSION" ]; then
-            echo "should_publish=true" >> $GITHUB_OUTPUT
-            echo "✅ Version will change from $OLD_VERSION to $NEW_VERSION"
-          else
-            echo "should_publish=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ No version change detected"
-          fi
-
-  # Job 2: Build y Publish
-  build-and-publish:
-    name: Build & Publish to NPM
-    needs: version-and-prepare
-    if: needs.version-and-prepare.outputs.should_publish == 'true'
-    runs-on: ubuntu-latest
+    # A single job on purpose: the version, the build and the publish must
+    # all come from the same checkout, or they drift apart.
     environment:
       name: npm-publish
       url: https://www.npmjs.com/package/@nestjslatam/ddd-lib
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -121,77 +49,93 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: ${{ env.REGISTRY_URL }}
-          scope: ${{ env.SCOPE }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Resolve version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./$LIB_MANIFEST').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Manifest version: $VERSION"
+
+      - name: Verify the tag matches the manifest
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          TAG="${GITHUB_REF#refs/tags/$TAG_PREFIX}"
+          MANIFEST="${{ steps.version.outputs.version }}"
+          if [ "$TAG" != "$MANIFEST" ]; then
+            echo "::error::Tag $GITHUB_REF does not match $LIB_MANIFEST version $MANIFEST."
+            exit 1
+          fi
+          echo "Tag and manifest agree on $MANIFEST."
+
+      - name: Check whether this version is already published
+        id: published
+        run: |
+          if npm view "$PACKAGE_NAME@${{ steps.version.outputs.version }}" version >/dev/null 2>&1; then
+            echo "already=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::$PACKAGE_NAME@${{ steps.version.outputs.version }} is already on npm. Skipping publish."
+          else
+            echo "already=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
       - name: Run tests
         run: |
-          npm run test:cov
+          npm test
           npm run test:e2e
 
       - name: Build library
         run: npm run build:lib
 
-      - name: Validate build
+      - name: Verify the tarball installs and imports
+        # The check that matters. Publishing a package that builds but does
+        # not install is exactly how undeclared peer dependencies reached
+        # consumers of this and its sibling packages.
         run: |
-          cd dist/libs/ddd
-          npm pack --dry-run
-          echo "✅ Build validation passed"
+          PACK_DIR="$(mktemp -d)"
+          (cd "$DIST_DIR" && npm pack --pack-destination "$PACK_DIR")
+          TARBALL="$(find "$PACK_DIR" -name '*.tgz' | head -1)"
+
+          SMOKE_DIR="$(mktemp -d)"
+          cd "$SMOKE_DIR"
+          npm init -y >/dev/null
+          # Nothing is installed by hand: whatever the package needs, it
+          # must declare, so that npm resolves it here.
+          npm install "$TARBALL"
+          PACKAGE_NAME="$PACKAGE_NAME" node -e "
+            try { require('reflect-metadata'); } catch (e) { /* not every package needs it */ }
+            const name = process.env.PACKAGE_NAME;
+            const m = require(name);
+            const n = Object.keys(m).length;
+            if (n === 0) throw new Error(name + ' exports nothing');
+            const fs = require('fs');
+            if (!fs.existsSync('node_modules/' + name + '/index.d.ts'))
+              throw new Error(name + ' ships no type declarations');
+            console.log('Imported ' + n + ' exports from ' + name + ', declarations present.');
+          "
 
       - name: Publish to NPM
-        # Note: NPM_TOKEN must be an Automation token (doesn't require 2FA)
-        # Create at: https://www.npmjs.com/settings/YOUR_USERNAME/tokens
-        # Token type: Automation (not Granular or Classic)
-        run: |
-          cd dist/libs/ddd
-          npm publish --access public
+        if: steps.published.outputs.already == 'false' && inputs.dry_run != true
+        # NPM_TOKEN must be an Automation token. Classic tokens that bypass
+        # 2FA are being restricted by npm and fail with a misleading
+        # "404 Not Found - PUT", which is npm's generic auth error for
+        # scoped packages.
+        run: cd "$DIST_DIR" && npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Commit version bump
-        if: needs.version-and-prepare.outputs.should_publish == 'true'
-        run: |
-          git add libs/ddd/package.json
-          git commit -m "chore: bump version to ${{ needs.version-and-prepare.outputs.version }}" || exit 0
-          git push || echo "Nothing to commit"
-
-      - name: Create Git Tag
-        if: needs.version-and-prepare.outputs.should_publish == 'true'
-        run: |
-          # Ensure git config is set (in case it wasn't set earlier)
-          git config user.name "github-actions[bot]" || true
-          git config user.email "github-actions[bot]@users.noreply.github.com" || true
-          # Create and push tag
-          git tag -a "v${{ needs.version-and-prepare.outputs.version }}" -m "Release v${{ needs.version-and-prepare.outputs.version }}"
-          git push origin "v${{ needs.version-and-prepare.outputs.version }}"
-
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        if: needs.version-and-prepare.outputs.should_publish == 'true'
+        if: startsWith(github.ref, 'refs/tags/') && inputs.dry_run != true
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.version-and-prepare.outputs.version }}
-          name: Release v${{ needs.version-and-prepare.outputs.version }}
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
           body: |
-            ## Release v${{ needs.version-and-prepare.outputs.version }}
+            Published as [`@nestjslatam/ddd-lib@${{ steps.version.outputs.version }}`](https://www.npmjs.com/package/@nestjslatam/ddd-lib/v/${{ steps.version.outputs.version }}).
 
-            Automated release from CI/CD pipeline.
-
-            ### Installation
-            ```bash
-            npm install @nestjslatam/ddd-lib@${{ needs.version-and-prepare.outputs.version }}
-            ```
-
-            ### Changes
-            See commit history for detailed changes.
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
           draft: false
           prerelease: false
         env:
