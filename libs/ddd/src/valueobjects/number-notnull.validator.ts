@@ -91,8 +91,15 @@ export class NumberNotNullValidator extends AbstractRuleValidator<
       this.addBrokenRule(propertyName, `${propertyName} cannot be NaN`);
     }
 
-    // Check for Infinity if not allowed
-    if (!this.options.allowInfinity && !Number.isFinite(value)) {
+    // Check for Infinity if not allowed.
+    // NaN is excluded here: Number.isFinite(NaN) is false, so without this
+    // guard a value object configured with allowNaN would still be rejected
+    // by the infinity rule.
+    if (
+      !this.options.allowInfinity &&
+      !Number.isFinite(value) &&
+      !Number.isNaN(value)
+    ) {
       this.addBrokenRule(
         propertyName,
         `${propertyName} must be a finite number`,

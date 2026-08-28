@@ -93,14 +93,31 @@ export class NumberValueObject extends DddValueObject<number> {
     options?: Partial<NumberValueObjectOptions>,
   ) {
     super(value);
-    this.options = {
-      requirePositive: true,
-      allowZero: false,
-      allowNaN: false,
-      allowInfinity: false,
-      epsilon: 0,
-      ...options,
-    };
+    this.options = { ...DEFAULT_NUMBER_OPTIONS, ...options };
+
+    // super() already ran addValidators() -- before `options` existed, so that
+    // pass used the defaults. Rebuild now that the real configuration is
+    // available, or options like allowZero and requirePositive would be
+    // silently ignored.
+    this.validatorRules.clear();
+    this.addValidators();
+    this.validate();
+  }
+
+  /**
+   * The effective options, safe to read during construction.
+   *
+   * DddValueObject's constructor calls addValidators() before this subclass's
+   * constructor body has run, so `this.options` is still undefined at that
+   * point. Reading it directly there threw
+   * "Cannot read properties of undefined (reading 'allowNaN')" and made every
+   * NumberValueObject unusable, including the documented
+   * `NumberValueObject.create(10)`. Falling back to the defaults keeps the
+   * first pass correct; any options passed in are applied to the validators
+   * added afterwards by the subclass.
+   */
+  private get effectiveOptions(): NumberValueObjectOptions {
+    return this.options ?? DEFAULT_NUMBER_OPTIONS;
   }
 
   /**
@@ -231,25 +248,39 @@ export class NumberValueObject extends DddValueObject<number> {
   override addValidators(): void {
     super.addValidators();
 
+    const options = this.effectiveOptions;
+
     // Always add null/NaN/Infinity validator (respecting options)
     this.validatorRules.add(
       new NumberNotNullValidator(this, {
-        allowNaN: this.options.allowNaN,
-        allowInfinity: this.options.allowInfinity,
+        allowNaN: options.allowNaN,
+        allowInfinity: options.allowInfinity,
       }),
     );
 
     // Add positive validator only if required
-    if (this.options.requirePositive) {
+    if (options.requirePositive) {
       this.validatorRules.add(
         new NumberPositiveValidator(this, {
-          allowZero: this.options.allowZero,
-          epsilon: this.options.epsilon,
+          allowZero: options.allowZero,
+          epsilon: options.epsilon,
         }),
       );
     }
   }
 }
+
+/**
+ * Defaults applied when no options are supplied, and the fallback used while
+ * the base constructor is still running. Shared so the two cannot drift.
+ */
+export const DEFAULT_NUMBER_OPTIONS: NumberValueObjectOptions = {
+  requirePositive: true,
+  allowZero: false,
+  allowNaN: false,
+  allowInfinity: false,
+  epsilon: 0,
+};
 
 /**
  * Configuration options for number value object validation.
