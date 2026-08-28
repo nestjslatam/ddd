@@ -104,7 +104,12 @@ jobs:
           # Nothing is installed by hand: whatever the package needs, it
           # must declare, so that npm resolves it here.
           npm install "$TARBALL"
-          PACKAGE_NAME="$PACKAGE_NAME" node -e "
+          # --no-experimental-require-module emulates a strict CommonJS
+          # consumer -- Jest's runtime, and Node before 20.19. Without it,
+          # newer Node transparently loads ESM through require() and an
+          # ESM-only dependency slips through: that is how uuid@14 reached
+          # ddd-lib@2.1.0 and broke every Jest-based consumer.
+          PACKAGE_NAME="$PACKAGE_NAME" node --no-experimental-require-module -e "
             try { require('reflect-metadata'); } catch (e) { /* not every package needs it */ }
             const name = process.env.PACKAGE_NAME;
             const m = require(name);

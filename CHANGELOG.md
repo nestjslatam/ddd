@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 2.1.1 (2026-08-28)
+
+Published as `@nestjslatam/ddd-lib@2.1.1`. **Upgrade from 2.1.0 — that version is broken for CommonJS consumers.**
+
+### 🐛 Bug Fixes
+
+- **deps:** revert `uuid` to `^11.1.0`. 2.1.0 bumped it to `^14`, which is **ESM-only** — `uuid@14` publishes no `main` and its `exports` map offers no CommonJS entry, whereas `uuid@11` is a dual CJS/ESM package. Any consumer loading `@nestjslatam/ddd-lib` through a CommonJS runtime got:
+
+  ```
+  Error [ERR_REQUIRE_ESM]: require() of ES Module .../uuid/dist-node/index.js
+    from .../@nestjslatam/ddd-lib/valueobjects/id.valueobject.js not supported
+  ```
+
+  That covers Jest's default runtime on any Node below 24.9, and plain Node below 20.19 — which is to say most NestJS projects. It was missed at release because Node 20.19+ and 24.x load ESM through `require()` transparently, so a plain `node -e "require(...)"` smoke test passed.
+
+- **ci:** the release pipeline's smoke test now runs under `node --no-experimental-require-module`, which emulates a strict CommonJS consumer. It fails against 2.1.0 and passes against 2.1.1, so this class of regression cannot ship again.
+
 ## 2.1.0 (2026-08-28)
 
 Published as `@nestjslatam/ddd-lib@2.1.0`. No public API change — every source change in `libs/ddd/src` was formatting or comments, verified by diffing with whitespace ignored.
