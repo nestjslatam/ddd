@@ -247,7 +247,15 @@ export abstract class DddValueObject<
    * 3. Collects broken rules from all validators
    * 4. Updates the brokenRules manager
    */
-  private validate(): void {
+  /**
+   * Recollects broken rules from the current validator set.
+   *
+   * Protected rather than private because the base constructor calls
+   * addValidators() before a subclass constructor body has run: a subclass
+   * whose validators depend on its own configuration must be able to rebuild
+   * and revalidate once that configuration exists.
+   */
+  protected validate(): void {
     // Clear previously stored rules
     this.brokenRules.clear();
 
