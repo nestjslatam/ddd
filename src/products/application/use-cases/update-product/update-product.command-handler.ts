@@ -5,9 +5,10 @@ import { NotFoundException } from '@nestjs/common';
 import { Name, Description, Price } from 'src/shared/valueobjects';
 
 @CommandHandler(UpdateProductCommand)
-export class UpdateProductCommandHandler
-  implements ICommandHandler<UpdateProductCommand, void>
-{
+export class UpdateProductCommandHandler implements ICommandHandler<
+  UpdateProductCommand,
+  void
+> {
   constructor(
     private readonly publisher: EventPublisher,
     private readonly productRepository: ProductRepository,

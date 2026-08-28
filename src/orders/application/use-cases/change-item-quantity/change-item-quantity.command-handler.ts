@@ -5,9 +5,10 @@ import { OrderRepository } from 'src/orders/infrastructure/repositories/order.re
 import { NotFoundException } from '@nestjs/common';
 
 @CommandHandler(ChangeItemQuantityCommand)
-export class ChangeItemQuantityCommandHandler
-  implements ICommandHandler<ChangeItemQuantityCommand, void>
-{
+export class ChangeItemQuantityCommandHandler implements ICommandHandler<
+  ChangeItemQuantityCommand,
+  void
+> {
   constructor(
     private readonly publisher: EventPublisher,
     private readonly orderRepository: OrderRepository,

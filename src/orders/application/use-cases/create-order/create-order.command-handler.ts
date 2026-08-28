@@ -6,9 +6,10 @@ import { ShippingAddress } from 'src/orders/domain/value-objects/shipping-addres
 import { OrderRepository } from 'src/orders/infrastructure/repositories/order.repository';
 
 @CommandHandler(CreateOrderCommand)
-export class CreateOrderCommandHandler
-  implements ICommandHandler<CreateOrderCommand, string>
-{
+export class CreateOrderCommandHandler implements ICommandHandler<
+  CreateOrderCommand,
+  string
+> {
   constructor(
     private readonly publisher: EventPublisher,
     private readonly orderRepository: OrderRepository,

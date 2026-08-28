@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 export * from './core';
 export * from './enum';
 export * from './exceptions/domain.exception';

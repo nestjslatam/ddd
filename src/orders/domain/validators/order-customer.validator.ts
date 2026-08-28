@@ -36,7 +36,7 @@ export class OrderCustomerValidator extends AbstractRuleValidator<Order> {
     // Validar teléfono si existe
     const phone = customerInfo.phone;
     if (phone && phone.trim().length > 0) {
-      if (!/^\+?[\d\s\-\(\)]+$/.test(phone)) {
+      if (!/^\+?[\d\s\-()]+$/.test(phone)) {
         this.addBrokenRule('customerInfo.phone', 'Invalid phone format');
       }
     }

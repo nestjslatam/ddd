@@ -3,9 +3,7 @@ import { OrderItemAddedEvent } from 'src/orders/domain/events/order.events';
 import { Logger } from '@nestjs/common';
 
 @EventsHandler(OrderItemAddedEvent)
-export class OrderItemAddedEventHandler
-  implements IEventHandler<OrderItemAddedEvent>
-{
+export class OrderItemAddedEventHandler implements IEventHandler<OrderItemAddedEvent> {
   private readonly logger = new Logger(OrderItemAddedEventHandler.name);
 
   async handle(event: OrderItemAddedEvent) {

@@ -21,7 +21,7 @@ export class NameLengthValidator extends AbstractRuleValidator<Name> {
       this.addBrokenRule('value', 'Name must not exceed 100 characters');
     }
 
-    if (value && !/^[a-zA-Z0-9\s\-\_]+$/.test(value)) {
+    if (value && !/^[a-zA-Z0-9\s\-_]+$/.test(value)) {
       this.addBrokenRule(
         'value',
         'Name can only contain letters, numbers, spaces, hyphens and underscores',

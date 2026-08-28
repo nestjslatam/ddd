@@ -3,9 +3,7 @@ import { ProductStatusChangedEvent } from 'src/products/domain/product-aggregate
 import { Logger } from '@nestjs/common';
 
 @EventsHandler(ProductStatusChangedEvent)
-export class ProductStatusChangedEventHandler
-  implements IEventHandler<ProductStatusChangedEvent>
-{
+export class ProductStatusChangedEventHandler implements IEventHandler<ProductStatusChangedEvent> {
   private readonly logger = new Logger(ProductStatusChangedEventHandler.name);
 
   async handle(event: ProductStatusChangedEvent) {

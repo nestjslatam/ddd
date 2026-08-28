@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { DddAggregateRoot } from '../../aggregate-root';
 import { Primitives } from '../tracking-state';
 

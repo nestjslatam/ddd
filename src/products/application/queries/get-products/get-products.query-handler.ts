@@ -5,9 +5,7 @@ import { ProductRepository } from '../../../infrastructure/repositories/product.
 import { ProductStatus } from '../../../domain/product-aggregate/product.status';
 
 @QueryHandler(GetProductsQuery)
-export class GetProductsQueryHandler
-  implements IQueryHandler<GetProductsQuery>
-{
+export class GetProductsQueryHandler implements IQueryHandler<GetProductsQuery> {
   constructor(private readonly productRepository: ProductRepository) {}
 
   async execute(query: GetProductsQuery): Promise<ProductResponseDto[]> {
