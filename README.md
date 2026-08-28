@@ -4,39 +4,50 @@ Welcome to the DDD Library for NestJS sample application. This project demonstra
 
 ## ⚠️ Important Version Information
 
-**Version 2.0.0** represents a major architectural change from version 1.x.x:
+**Current release: `@nestjslatam/ddd-lib@2.1.2`.**
 
-- The DDD library is now **published as an independent NPM package** (`@nestjslatam/ddd-lib`)
-- **Eliminates circular dependency issues** that plagued version 1.x.x
-- **Pre-compiled TypeScript modules** ensure reliable runtime behavior
-- **Cleaner module resolution** using standard Node.js package resolution
+The 2.x line publishes the DDD library as an independent npm package, which eliminated the circular dependency issues of 1.x and lets consumers resolve it the ordinary way.
+
+**Upgrade if you are on any earlier 2.x release.** `2.0.0` crashed on import wherever `@nestjs/cqrs` was not already installed, and `2.1.0` broke every CommonJS consumer — including Jest — by way of an ESM-only `uuid`. Both are deprecated on npm; `2.1.2` also repairs `NumberValueObject`, which threw on every construction from the day it shipped. See the [changelog](CHANGELOG.md).
 
 **This library is still in active development and not recommended for production environments.**
 
 ## 📋 Table of Contents
 
-- [DDD Library for NestJS - Sample Application](#ddd-library-for-nestjs---sample-application)
-  - [⚠️ Disclaimer](#️-disclaimer)
-  - [📋 Table of Contents](#-table-of-contents)
-  - [Overview](#overview)
-  - [Architecture](#architecture)
-  - [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-    - [Running the Application](#running-the-application)
-    - [API Documentation](#api-documentation)
-  - [Project Structure](#project-structure)
-  - [Key Features](#key-features)
-    - [🏗️ Domain-Driven Design](#️-domain-driven-design)
-    - [🔄 CQRS Pattern](#-cqrs-pattern)
-    - [📡 Event-Driven Architecture](#-event-driven-architecture)
-    - [🗄️ Repository Pattern](#️-repository-pattern)
-  - [Documentation](#documentation)
-  - [Technologies Used](#technologies-used)
-  - [Available Scripts](#available-scripts)
-  - [Contributing](#contributing)
-  - [License](#license)
-  - [Related Links](#related-links)
+- [⚠️ Important Version Information](#️-important-version-information)
+- [The ecosystem](#the-ecosystem)
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Running the Application](#running-the-application)
+  - [API Documentation](#api-documentation)
+- [Project Structure](#project-structure)
+- [Key Features](#key-features)
+  - [🏗️ Domain-Driven Design](#️-domain-driven-design)
+  - [🔄 CQRS Pattern](#-cqrs-pattern)
+  - [📡 State Tracking](#-state-tracking)
+  - [🗄️ Repository Pattern](#️-repository-pattern)
+- [Using the DDD Library](#using-the-ddd-library)
+- [The CLI](#the-cli)
+- [Documentation](#documentation)
+- [Technologies Used](#technologies-used)
+- [Available Scripts](#available-scripts)
+- [Contributing](#contributing)
+- [License](#license)
+- [Related Links](#related-links)
+
+## The ecosystem
+
+This repository is the base of four published packages:
+
+| Package | What it is |
+|---|---|
+| [`@nestjslatam/ddd-lib`](https://www.npmjs.com/package/@nestjslatam/ddd-lib) | The DDD building blocks — aggregates, value objects, validators, broken rules, state tracking. Built from `libs/ddd` in this repository. |
+| [`@nestjslatam/ddd-cli`](https://www.npmjs.com/package/@nestjslatam/ddd-cli) | A CLI for working with the library: understand it, scaffold any stereotype, extend it, audit your code. Usable directly or from an AI agent over MCP. |
+| [`@nestjslatam/ddd-valueobjects`](https://www.npmjs.com/package/@nestjslatam/ddd-valueobjects) | Ready-made value objects — email, phone number, money, date range, document id — built on `ddd-lib`. |
+| [`@nestjslatam/ddd-es-lib`](https://www.npmjs.com/package/@nestjslatam/ddd-es-lib) | Event sourcing for `ddd-lib`: event store, snapshots, upcasting, sagas, materialised views. |
 
 ## Overview
 
@@ -44,7 +55,7 @@ This sample application showcases a complete DDD implementation with:
 
 - **Domain Layer**: Rich domain models with business rules, value objects, and domain events
 - **Application Layer**: CQRS pattern with commands, queries, and sagas
-- **Infrastructure Layer**: Repository pattern with TypeORM for data persistence
+- **Infrastructure Layer**: Repository pattern, in-memory by default so the sample stays about the domain
 - **Shared Module**: Reusable domain primitives and base classes
 
 The application implements a **Singers** domain module that manages singers and their songs, demonstrating core DDD concepts including aggregate roots, entities, value objects, domain events, and business rules validation.
@@ -81,9 +92,8 @@ For detailed architecture documentation, see [Architecture Overview](docs/archit
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
-- npm or yarn
-- SQLite (for development database)
+- Node.js 20.11 or higher
+- npm
 
 ### Installation
 
@@ -109,7 +119,6 @@ The application will start on `http://localhost:3000` (or the port specified in 
 Once the application is running, you can access:
 
 - **Swagger UI**: `http://localhost:3000/api`
-- **GraphQL Playground**: Available if GraphQL is configured
 
 ## Project Structure
 
@@ -491,6 +500,60 @@ export class Product extends DddAggregateRoot<ProductProps> {
 
 4. **No webpack configuration needed** - Standard module resolution works out of the box
 
+## The CLI
+
+[`@nestjslatam/ddd-cli`](https://github.com/nestjslatam/ddd-cli) generates and audits the code this sample demonstrates by hand.
+
+```bash
+npm install -D @nestjslatam/ddd-cli
+```
+
+### Understand the library
+
+```bash
+npx ddd list                          # every stereotype, grouped, with its role
+npx ddd list --family validation      # just the validators and business rules
+npx ddd explain AbstractRuleValidator # what it is, its contract, an example
+```
+
+`list` uses no model at all. It reads the `.d.ts` files of the `ddd-lib` **installed in your project** with the TypeScript compiler, so it reflects your version rather than whatever the CLI was built against. The output turns on the distinction that is most of understanding the design: `extend` (a base you subclass), `implement` (an interface), `compose` (a collaborator the aggregate delegates to — `BrokenRulesManager`, `ValidatorRuleManager`, `TrackingStateManager`) and `use`.
+
+### Create and extend
+
+```bash
+npx ddd new value-object OrderTotal --kind number
+npx ddd new validator OrderTotalRules --for OrderTotal
+npx ddd extend AbstractRuleValidator ShippingRules
+npx ddd generate:aggregate "An order has a customer and a total. The total must be positive."
+```
+
+`new` and `extend` use no model: these have one correct shape, taken from the code in this repository. `extend` derives the contract from the installed declarations, so it works for bases it has never seen. Nothing is written before you see the file list and confirm.
+
+### Audit what you wrote
+
+```bash
+npx ddd validate
+```
+
+Four rules, each a mistake this library makes easy and silent:
+
+| Rule | Why it matters |
+|---|---|
+| `no-subclass-state-in-add-validators` | The base constructor calls `addValidators()` **before** the subclass constructor body runs. Reading a field assigned there throws on every construction — this is exactly how `NumberValueObject` shipped broken through two releases. |
+| `super-add-validators` | `StringValueObject` and `NumberValueObject` register real validators there. An override that does not chain drops them, and invalid values pass with no error. |
+| `factory-checks-validity` | Validation collects broken rules rather than throwing, so a `create()` that skips the `isValid` check can return an object that failed its own invariants. |
+| `handler-commits-events` | An aggregate collects its domain events; only `mergeObjectContext(...).commit()` dispatches them. Without it the command succeeds and every downstream handler is silently skipped. |
+
+### From an AI agent
+
+If you already work inside Claude Code, Codex or Cursor, that agent has a model and credentials — the CLI does not need its own:
+
+```bash
+claude mcp add ddd -- npx -y @nestjslatam/ddd-cli mcp
+```
+
+Seven tools become available, with **no API key**. The agent supplies the domain modelling; the CLI reads the installed declarations exactly, renders deterministically and audits the idiom.
+
 ## Documentation
 
 Comprehensive documentation is available in the `docs/` folder:
@@ -513,17 +576,17 @@ Comprehensive documentation is available in the `docs/` folder:
 
 ## Technologies Used
 
-- **NestJS** - Progressive Node.js framework
-- **TypeScript** - Typed superset of JavaScript
-- **TypeORM** - ORM for TypeScript and JavaScript
-- **SQLite** - Lightweight database (development)
-- **@nestjs/cqrs** - CQRS module for NestJS
-- **@nestjslatam/ddd-lib** - DDD library for NestJS
+- **NestJS 11** - Progressive Node.js framework
+- **TypeScript 5.9** - Typed superset of JavaScript
+- **@nestjs/cqrs** - Commands, queries, events and sagas
+- **@nestjslatam/ddd-lib** - The DDD building blocks
+- **class-validator / class-transformer** - Request validation and transformation
 - **Swagger** - API documentation
-- **GraphQL** - Query language for APIs (optional)
-- **Jest** - Testing framework
-- **Husky** - Git hooks
-- **Commitlint** - Commit message linting
+- **Jest 30** - Testing framework
+- **ESLint 10 / Prettier** - Linting and formatting
+- **Husky + Commitlint** - Git hooks and commit message linting
+
+Persistence is deliberately absent. The repositories under `src/**/infrastructure` are in-memory, which keeps the sample about the domain rather than about a database — pick your own store and implement the repository contract against it.
 
 ## Available Scripts
 
@@ -558,5 +621,12 @@ MIT
 ## Related Links
 
 - [NestJS Documentation](https://docs.nestjs.com/)
+- [NestJS Latam](https://nestjslatam.dev/) - The community behind these packages
 - [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)
 - [CQRS Pattern](https://martinfowler.com/bliki/CQRS.html)
+
+### Sibling repositories
+
+- [nestjslatam/ddd-cli](https://github.com/nestjslatam/ddd-cli) - The CLI
+- [nestjslatam/ddd-valueobjects](https://github.com/nestjslatam/ddd-valueobjects) - Ready-made value objects
+- [nestjslatam/ddd-event-sourcing](https://github.com/nestjslatam/ddd-event-sourcing) - Event sourcing
