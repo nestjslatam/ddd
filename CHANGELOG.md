@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 2.1.2 (2026-08-28)
+
+Published as `@nestjslatam/ddd-lib@2.1.2`. **Upgrade from any earlier 2.x if you use numeric value objects — they were unusable.**
+
+### Bug Fixes
+
+- **valueobjects:** repair `NumberValueObject`, which threw on every construction since it shipped:
+
+  ```
+  TypeError: Cannot read properties of undefined (reading 'allowNaN')
+  ```
+
+  This affected the class's own documented example, `NumberValueObject.create(10)`, and any subclass — including the `Price` value object in this repository's sample application. `StringValueObject` was unaffected.
+
+  `DddValueObject`'s constructor calls `this.addValidators()`; `NumberValueObject` assigned `this.options` only after `super()` returned, so `addValidators()` read `this.options.allowNaN` while options was still `undefined`.
+
+  Three changes: `NumberValueObject` rebuilds its validators once options exist (guarding the read alone left `allowZero`, `requirePositive` and `allowInfinity` silently ignored); `DddValueObject.validate()` becomes `protected` so a subclass can revalidate after reconfiguring; and `NumberNotNullValidator` no longer reports `NaN` as non-finite, since `Number.isFinite(NaN)` is `false` and that contradicted `allowNaN`.
+
+  The defect survived two releases because nothing exercised it — the suites live under `libs/ddd`, and the sample app's coverage config excludes the valueobjects folder. 14 regression tests close that gap.
+
 ## 2.1.1 (2026-08-28)
 
 Published as `@nestjslatam/ddd-lib@2.1.1`. **Upgrade from 2.1.0 — that version is broken for CommonJS consumers.**
