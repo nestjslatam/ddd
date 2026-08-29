@@ -373,7 +373,7 @@ jobs:
           body: |
             ## Changes in this Release
 
-            See [CHANGELOG.md](../../CHANGELOG.md) for details.
+            See [CHANGELOG.md](../CHANGELOG.md) for details.
 
             ### Installation
             ```bash

@@ -1,283 +1,94 @@
-# Architecture Overview
+# Architecture
 
-This document provides a comprehensive overview of the Domain-Driven Design (DDD) architecture implemented in this NestJS application.
+How this sample is laid out, and why. Every path and class name below exists in the repository — the previous version of this document described a `singers` module that never did.
 
-## Table of Contents
+## The four layers
 
-- [Architectural Layers](#architectural-layers)
-- [Domain-Driven Design Principles](#domain-driven-design-principles)
-- [CQRS Pattern](#cqrs-pattern)
-- [Event-Driven Architecture](#event-driven-architecture)
-- [Dependency Flow](#dependency-flow)
-- [Module Structure](#module-structure)
+```
+┌──────────────────────────────────────────────────────┐
+│  presentation/        controllers, HTTP DTOs         │
+│    ↓ commands and queries                            │
+├──────────────────────────────────────────────────────┤
+│  application/         use cases, handlers, sagas     │
+│    ↓ aggregates                                      │
+├──────────────────────────────────────────────────────┤
+│  domain/              aggregates, value objects,     │
+│                       validators, domain events      │
+│    ↑ contracts                                       │
+├──────────────────────────────────────────────────────┤
+│  infrastructure/      repository implementations     │
+└──────────────────────────────────────────────────────┘
+```
 
-## Architectural Layers
+The arrow directions matter. `presentation` and `application` depend inwards on `domain`; `infrastructure` depends on `domain` too, by implementing interfaces the domain declares. **The domain depends on nothing** — not on Nest, not on a database, not on HTTP.
 
-The application follows a **layered architecture** with clear separation of concerns:
+## Two bounded contexts
 
-### 1. Presentation Layer
+| | |
+|---|---|
+| **`src/products/`** | A `Product` aggregate: name, description, price, status. The simpler of the two — a good place to start reading. |
+| **`src/orders/`** | An `Order` aggregate holding `OrderItem` entities, `CustomerInfo`, `ShippingAddress` and `Money`. Has a lifecycle: `DRAFT → CONFIRMED → PROCESSING → SHIPPED → DELIVERED`, with `CANCELLED` reachable from the first three. |
+| **`src/shared/`** | What both use: the `Name`, `Description` and `Price` value objects, their validators, and `BrokenRulesException`. |
 
-**Location**: `src/*/application/use-cases/*/controllers/`
+## Where a request goes
 
-- **Purpose**: Handles HTTP requests and responses
-- **Responsibilities**:
-  - Receive HTTP requests
-  - Validate input DTOs
-  - Dispatch commands/queries to the application layer
-  - Return HTTP responses
-- **Technologies**: NestJS Controllers, Swagger, GraphQL
+Take `POST /products`:
 
-**Example**: `CreateSingerController` receives POST requests to create singers.
+```
+ProductsController.createProduct(dto)
+  → CreateProductService.execute(dto)
+      → CommandBus.execute(new CreateProductCommand(dto))
+          → CreateProductCommandHandler.execute(command)
+              → Name.create() / Description.create() / Price.create()
+              → Product.create(name, description, price)
+              → if (!product.isValid) throw new BrokenRulesException(...)
+              → productRepository.save(product)
+              → publisher.mergeObjectContext(product).commit()
+```
 
-### 2. Application Layer
+Three things in that chain are worth pausing on.
 
-**Location**: `src/*/application/`
+**`Product.create` checks `isValid` itself.** The library *collects* broken rules rather than throwing, so a factory that skips the check returns an object that failed its own invariants. This is the single easiest mistake to make with `@nestjslatam/ddd-lib`.
 
-- **Purpose**: Orchestrates domain operations and coordinates use cases
-- **Components**:
-  - **Commands**: Write operations (Create, Update, Delete)
-  - **Queries**: Read operations (GetById, GetByCriteria)
-  - **Command Handlers**: Execute commands and modify domain state
-  - **Query Handlers**: Retrieve and return data
-  - **Sagas**: Long-running processes that coordinate multiple operations
-  - **DTOs**: Data Transfer Objects for input/output
-- **Key Principle**: Application layer should not contain business logic
+**`isValid` is a getter.** Since `ddd-lib` 3.0.0 it is a getter on every base. Written as `isValid()` it is a compile error; read as a property on an older version it is an always-truthy `Function`, which is how a guard here silently never fired for two releases.
 
-**Example**: `CreateSingerCommandHandler` orchestrates the creation of a singer.
+**`mergeObjectContext(...).commit()` is what dispatches domain events.** An aggregate *collects* its events; without that call the command succeeds, returns cleanly, and every `@EventsHandler` is skipped in silence.
 
-### 3. Domain Layer
+## Validation happens in two places, on purpose
 
-**Location**: `src/*/domain/`
+| | Where | Answers with |
+|---|---|---|
+| **Structure** | The DTO's `class-validator` decorators, checked by the global `ValidationPipe` | `400`, naming the field |
+| **Invariants** | The aggregate's validators, collected as broken rules | `422`, listing the rules |
 
-- **Purpose**: Contains the core business logic and domain models
-- **Components**:
-  - **Aggregate Roots**: Entities that manage consistency boundaries
-  - **Entities**: Domain objects with identity
-  - **Value Objects**: Immutable objects defined by their attributes
-  - **Domain Events**: Events that represent something that happened in the domain
-  - **Business Rules**: Validation and invariants enforced at the domain level
-- **Key Principle**: Domain layer should be independent of infrastructure and application concerns
+A wrong *type* never reaches the domain. A wrong *value* is meaning, and only the aggregate can judge it. `DomainExceptionFilter` in `src/shared/filters/` maps the domain's exception vocabulary onto status codes — see [the README](../README.md#the-sample-application) for the full table.
 
-**Example**: `Singer` aggregate root enforces business rules like "cannot remove subscribed singer".
+The DTOs deliberately do **not** restate domain rules. `Name` owns "3 to 100 characters" and `Price` owns "greater than zero", in validators the aggregate enforces whatever transport the data arrived on.
 
-### 4. Infrastructure Layer
+## Validators are classes, and conditions read backwards
 
-**Location**: `src/*/infrastructure/`
-
-- **Purpose**: Provides technical capabilities to support other layers
-- **Components**:
-  - **Repositories**: Implementations of domain repository interfaces
-  - **Mappers**: Convert between domain models and persistence models
-  - **Database Tables**: TypeORM entity definitions
-  - **External Services**: Integration with external systems
-- **Key Principle**: Infrastructure layer depends on domain layer, not vice versa
-
-**Example**: `SingerRepository` implements persistence operations for the `Singer` aggregate.
-
-## Domain-Driven Design Principles
-
-### Aggregate Roots
-
-An **Aggregate Root** is an entity that controls access to a set of related objects (the aggregate). It ensures consistency and enforces invariants.
-
-**Example**: `Singer` is an aggregate root that:
-- Manages its own songs (entities)
-- Enforces business rules (e.g., cannot remove subscribed singer)
-- Publishes domain events when state changes
-
-```typescript
-// Singer aggregate root
-export class Singer extends DomainAggregateRoot<ISingerProps> {
-  // Business rules validation
-  protected businessRules(props: ISingerProps): void { ... }
-  
-  // Domain operations
-  subscribe(audit: DomainAudit): this { ... }
-  remove(audit: DomainAudit): this { ... }
-  addSong(song: Song, audit: DomainAudit): this { ... }
+```ts
+export class ProductPriceValidator extends AbstractRuleValidator<Product> {
+  public addRules(): void {
+    if (this.subject.props.price.getValue() <= 0) {
+      this.addBrokenRule('props.price', 'Price must be greater than 0');
+    }
+  }
 }
 ```
 
-### Entities
+`addRules` records what is **wrong**, so every condition is the negation of the assertion you have in mind. Getting this backwards produces a validator that passes exactly when it should fail.
 
-**Entities** are objects with unique identity that can change over time.
+An aggregate registers them in `addValidators`; a value object does the same but **must call `super.addValidators()` first** — the base registers real rules there, and an override that does not chain drops them silently.
 
-**Example**: `Song` is an entity within the `Singer` aggregate:
-- Has a unique ID
-- Can be created, modified, or removed
-- Enforces its own business rules
+## Persistence is absent on purpose
 
-### Value Objects
+The repositories under `src/*/infrastructure/repositories/` are in-memory. The sample is about the domain, not about a database: implement `IDomainWriteRepository` against your own store and nothing above it changes. That is the point of the dependency direction at the top of this page.
 
-**Value Objects** are immutable objects defined entirely by their attributes. Two value objects are equal if all their attributes are equal.
+## Further reading
 
-**Examples**:
-- `FullName`: Represents a singer's full name
-- `PicturePath`: Represents a picture URL
-- `Id`: Represents a unique identifier
-- `Name`: Represents a song name
-
-```typescript
-// Value object example
-export class FullName extends AbstractDomainString {
-  // Immutable, validated on creation
-  static create(value: string): FullName { ... }
-}
-```
-
-### Domain Events
-
-**Domain Events** represent something that happened in the domain that domain experts care about.
-
-**Examples**:
-- `SingerCreatedDomainEvent`: Published when a singer is created
-- `SingerSubscribedDomainEvent`: Published when a singer subscribes
-- `SingerDeletedDomainEvent`: Published when a singer is deleted
-
-```typescript
-// Domain event example
-export class SingerCreatedDomainEvent extends DomainEvent {
-  constructor(
-    readonly singerId: string,
-    readonly singerName: string,
-  ) { ... }
-}
-```
-
-### Business Rules
-
-**Business Rules** are invariants that must always be true. They are enforced at the domain level.
-
-**Example**: In the `Singer` aggregate:
-- If a singer is subscribed, a subscribed date is required
-- A subscribed singer cannot be removed
-- A singer cannot subscribe twice
-
-## CQRS Pattern
-
-**CQRS (Command Query Responsibility Segregation)** separates read and write operations:
-
-### Commands (Write Operations)
-
-- **Purpose**: Modify domain state
-- **Characteristics**: 
-  - Return void or minimal response
-  - May publish domain events
-  - Execute through CommandBus
-- **Location**: `src/*/application/use-cases/commands/`
-
-**Example Commands**:
-- `CreateSingerCommand`
-- `ChangeFullNameSingerCommand`
-- `SubscribeSingerCommand`
-- `RemoveSingerCommand`
-
-### Queries (Read Operations)
-
-- **Purpose**: Retrieve data without modifying state
-- **Characteristics**:
-  - Return data
-  - Should not have side effects
-  - Execute through QueryBus
-- **Location**: `src/*/application/use-cases/queries/`
-
-**Example Queries**:
-- `GetSingerByIdQuery`
-- `GetSingersCriteriaQuery`
-
-## Event-Driven Architecture
-
-### Domain Events Flow
-
-1. **Domain Operation**: A domain method is called (e.g., `singer.subscribe()`)
-2. **Event Creation**: Domain event is added to the aggregate
-3. **Event Publishing**: When the aggregate is committed, events are published
-4. **Event Handling**: Event handlers react to events
-5. **Saga Execution**: Sagas may listen to events and trigger new commands
-
-### Event Handlers
-
-**Location**: `src/*/application/use-cases/commands/*/created-*.domainevent-handler.ts`
-
-Event handlers react to domain events and can:
-- Update read models
-- Send notifications
-- Trigger external integrations
-- Update other aggregates
-
-### Sagas
-
-**Location**: `src/*/application/sagas/`
-
-Sagas are long-running processes that:
-- Listen to multiple domain events
-- Coordinate complex workflows
-- May trigger new commands
-- Use RxJS for event stream processing
-
-**Example**: `SystemSagas` listens to `SingerCreatedDomainEvent` and logs the event.
-
-## Dependency Flow
-
-The dependency flow follows the **Dependency Inversion Principle**:
-
-```
-Presentation → Application → Domain ← Infrastructure
-```
-
-- **Domain Layer**: No dependencies on other layers
-- **Application Layer**: Depends only on Domain
-- **Infrastructure Layer**: Depends only on Domain
-- **Presentation Layer**: Depends on Application
-
-## Module Structure
-
-### Shared Module
-
-**Location**: `src/shared/`
-
-Contains reusable components:
-- **Domain Primitives**: `Id`, `Name`, `RegisterDate`, `SubscribedDate`, `Url`
-- **Base Classes**: `AbstractCommandHandler`
-- **Exceptions**: `DomainException`, `ApplicationException`, `DatabaseException`
-- **Context**: Request context management
-
-### Domain Modules
-
-**Location**: `src/*/` (e.g., `src/singers/`)
-
-Each domain module is self-contained:
-- **Domain**: Domain models and business logic
-- **Application**: Use cases and orchestration
-- **Infrastructure**: Technical implementations
-
-### Module Registration
-
-Modules are registered in `app.module.ts`:
-
-```typescript
-@Module({
-  imports: [
-    SharedModule,
-    SingersModule,
-    // ... other modules
-  ],
-})
-export class AppModule {}
-```
-
-## Best Practices
-
-1. **Keep Domain Pure**: Domain layer should not depend on frameworks or infrastructure
-2. **Enforce Business Rules**: Business rules belong in the domain layer
-3. **Use Value Objects**: Prefer value objects over primitives for type safety
-4. **Publish Domain Events**: Use events to communicate between aggregates
-5. **Separate Commands and Queries**: Use CQRS for complex domains
-6. **Validate at Boundaries**: Validate input at the application layer
-7. **Map at Boundaries**: Convert between layers using mappers
-
-## Related Documentation
-
-- [Domain Layer](domain-layer.md) - Detailed domain model documentation
-- [Application Layer](application-layer.md) - Commands, queries, and handlers
-- [Infrastructure Layer](infrastructure-layer.md) - Repositories and persistence
+- [Domain layer](domain-layer.md) — aggregates, value objects, validators, events
+- [Application layer](application-layer.md) — use cases, handlers, queries
+- [Infrastructure layer](infrastructure-layer.md) — repositories
+- [API reference](api-reference.md) — every endpoint
+- [Getting started](getting-started.md) — run it

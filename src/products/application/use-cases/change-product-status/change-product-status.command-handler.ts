@@ -24,16 +24,30 @@ export class ChangeProductStatusCommandHandler implements ICommandHandler<
       throw new NotFoundException(`Product with id ${productId} not found`);
     }
 
-    const productStatus = status.toUpperCase();
-    if (!Object.values(ProductStatus).includes(productStatus as any)) {
+    // ProductStatus is a DddEnum: its static members are ProductStatus
+    // INSTANCES, not strings. `Object.values(ProductStatus).includes(status)`
+    // compared instances against a string and so never matched -- every call
+    // was rejected, including with a valid name, producing the self-
+    // contradicting "Expected: ACTIVE, INACTIVE or DELETED. Provided value:
+    // 'INACTIVE'". The enum's own lookup is what this needed all along.
+    //
+    // It also passed the raw string on to ChangeStatus, which expects the
+    // instance, so the aggregate would have received a string even had the
+    // check passed.
+    const productStatus =
+      ProductStatus.fromNameIgnoreCase<ProductStatus>(status);
+
+    if (!productStatus) {
       throw new InvalidFormatException(
         'status',
-        'ACTIVE, INACTIVE or DELETED',
+        ProductStatus.getAll<ProductStatus>()
+          .map((candidate) => candidate.name)
+          .join(', '),
         status,
       );
     }
 
-    product.ChangeStatus(productStatus as unknown as ProductStatus);
+    product.ChangeStatus(productStatus);
 
     if (!product.isValid) {
       const errors = product.brokenRules.getBrokenRules();

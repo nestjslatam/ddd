@@ -280,7 +280,7 @@ Only the tests read `libs/ddd/src` — Jest's `moduleNameMapper` points there. `
 <details>
 <summary><b>Is this repo the library or a sample app?</b></summary>
 
-Both, and the library is the point. `libs/ddd/` is the published package; `src/` is the sample that consumes it. Anything you read describing a `Singers` module is stale — the sample is Orders and Products.
+Both, and the library is the point. `libs/ddd/` is the published package; `src/` is the sample that consumes it — Orders and Products. If you find anything describing a `Singers` module, it predates `4.0.0` and is stale; the `docs/` were rewritten against the code that is actually here.
 </details>
 
 ## Requirements
@@ -313,10 +313,9 @@ Contributions are wanted, and there is concrete, verifiable work waiting. Every 
 
 **Good first issues**, in rough order of value:
 
-1. **Rewrite the six stale `docs/`.** They describe a `Singers` module this repository does not contain.
-2. **Cover the sample application.** The library is at 98.6%; `src/` is not, and the write-endpoint defect lived there unnoticed for exactly that reason.
-3. **Give `Order` a richer lifecycle.** `PROCESSING` and `DELIVERED` exist in the state machine and no endpoint reaches them.
-4. **Persist something.** The in-memory repositories are deliberate, but a second implementation against a real store would prove the contract holds.
+1. **Cover the sample application.** The library is at 98.6%; `src/` is not, and the write-endpoint defect lived there unnoticed for exactly that reason.
+2. **Give `Order` a richer lifecycle.** `Order.startProcessing()` exists on the aggregate and no endpoint reaches it, so `ship` and `deliver` are unreachable through the API — both answer `409` from `CONFIRMED`.
+3. **Persist something.** The in-memory repositories are deliberate, but a second implementation against a real store would prove the contract holds.
 
 **Before you open a PR**, CI will run: ESLint, `prettier --check`, `tsc --noEmit` against **both** `tsconfig.json` and `libs/ddd/tsconfig.lib.json`, unit tests with coverage on Node 18 / 20 / 22, e2e tests, the library build, and `npm audit --audit-level=moderate`. All pass locally today, so the bar is reachable:
 
@@ -335,9 +334,12 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/). Not
 | [`docs/order-aggregate-implementation.md`](docs/order-aggregate-implementation.md)             | Aggregate design walkthrough                                                   |
 | [`docs/VALIDATORS_AND_STATES_IMPLEMENTATION.md`](docs/VALIDATORS_AND_STATES_IMPLEMENTATION.md) | Validators and state tracking                                                  |
 | [`CHANGELOG.md`](CHANGELOG.md)                                                                 | Every release, including the two deprecated ones and why                       |
-
-> [!NOTE]
-> Six further documents in `docs/` — `architecture.md`, `domain-layer.md`, `application-layer.md`, `infrastructure-layer.md`, `getting-started.md` and `api-reference.md` — are written around a `Singers` module that does not exist in this repository. They are still useful for the _shape_ of a DDD application, but do not expect to find the code they describe.
+| [`docs/architecture.md`](docs/architecture.md)                                                 | The four layers, and why the dependencies point inwards                        |
+| [`docs/getting-started.md`](docs/getting-started.md)                                           | Run it, and the three mistakes this library makes easy                         |
+| [`docs/domain-layer.md`](docs/domain-layer.md)                                                 | Aggregates, value objects, validators, domain events                           |
+| [`docs/application-layer.md`](docs/application-layer.md)                                       | Use cases, handlers, queries, sagas                                            |
+| [`docs/infrastructure-layer.md`](docs/infrastructure-layer.md)                                 | Repositories, and why persistence is deliberately absent                       |
+| [`docs/api-reference.md`](docs/api-reference.md)                                               | Every endpoint, with the status codes it actually returns                      |
 
 > [!TIP]
 > **[The CLI's full guide →](https://github.com/nestjslatam/ddd-cli/blob/main/docs/GUIDE.md)** — every command and flag, walked through by building a complete domain from nothing into ten type-checking files. Worth reading even if you never install the CLI: it is the clearest write-up of this library's idiom anywhere, because every claim in it was produced by running the tool.
