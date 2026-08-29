@@ -128,6 +128,22 @@ describe('Write endpoints (e2e)', () => {
       expect(wrongValue.status).toBe(422);
     });
 
+    it('accepts a status the enumeration declares', async () => {
+      // This rejected EVERY call, valid ones included, with the
+      // self-contradicting "Expected: ACTIVE, INACTIVE or DELETED. Provided
+      // value: 'INACTIVE'". ProductStatus is a DddEnum whose static members
+      // are instances, and the handler compared them against a string with
+      // Object.values(...).includes(...), which never matched. It also passed
+      // the raw string on to ChangeStatus, which expects the instance.
+      const created = await request(http).post('/products').send(validProduct);
+
+      const res = await request(http)
+        .patch(`/products/${created.body.id}/status`)
+        .send({ status: 'INACTIVE' });
+
+      expect(res.status).toBe(200);
+    });
+
     it('rejects a status outside the enumeration', async () => {
       const res = await request(http)
         .patch('/products/00000000-0000-4000-8000-000000000000/status')

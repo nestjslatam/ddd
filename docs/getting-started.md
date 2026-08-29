@@ -1,362 +1,109 @@
-# Getting Started Guide
+# Getting started
 
-This guide will help you set up and run the DDD Library for NestJS sample application.
+Running this sample, and what to read once it is up. Every command here was executed against the repository.
 
-## Table of Contents
+## Requirements
 
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Running the Application](#running-the-application)
-- [Testing the API](#testing-the-api)
-- [Project Structure](#project-structure)
-- [Next Steps](#next-steps)
+Node `>=20.11`, and npm. **No database** — the repositories are in-memory by design, so there is nothing to install, start or migrate.
 
-## Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- **Node.js**: Version 18 or higher
-  - Download from [nodejs.org](https://nodejs.org/)
-  - Verify installation: `node --version`
-
-- **npm**: Usually comes with Node.js
-  - Verify installation: `npm --version`
-
-- **Git**: For cloning the repository (if applicable)
-  - Download from [git-scm.com](https://git-scm.com/)
-
-## Installation
-
-### 1. Clone or Navigate to the Project
-
-If you have the project in a repository:
-
-```bash
-git clone <repository-url>
-cd ddd
-```
-
-Or navigate to your project directory if you already have it.
-
-### 2. Install Dependencies
-
-Install all required npm packages:
+## Run it
 
 ```bash
 npm install
-```
-
-This will install:
-- NestJS framework and dependencies
-- CQRS, Swagger and validation packages
-- DDD library (`@nestjslatam/ddd-lib`)
-- Testing frameworks
-- Development tools
-
-### 3. Verify Installation
-
-Check that all dependencies are installed correctly:
-
-```bash
-npm list --depth=0
-```
-
-## Configuration
-
-### Environment Variables
-
-The application uses environment variables for configuration. Create a `.env` file in the root directory:
-
-```env
-# Server Configuration
-PORT=3000
-NODE_ENV=development
-
-# Database Configuration (SQLite for development)
-DB_TYPE=sqlite
-DB_DATABASE=db/ddd.sql
-
-# For production, use PostgreSQL or MySQL:
-# DB_TYPE=postgres
-# DB_HOST=localhost
-# DB_PORT=5432
-# DB_USERNAME=your_username
-# DB_PASSWORD=your_password
-# DB_DATABASE=your_database
-```
-
-### Database Setup
-
-The application uses SQLite by default for development. The database file will be created automatically at `db/ddd.sql` when you first run the application.
-
-**Note**: For production, you should:
-1. Use a production database (PostgreSQL, MySQL, etc.)
-2. Set `synchronize: false` in TypeORM configuration
-3. Use database migrations instead of auto-sync
-
-## Running the Application
-
-### Development Mode
-
-Start the application in development mode with hot-reload:
-
-```bash
 npm run start:dev
 ```
 
-The application will:
-- Start on `http://localhost:3000` (or your configured PORT)
-- Watch for file changes and automatically reload
-- Show detailed error messages
-
-### Production Mode
-
-Build and run the application in production mode:
+The app listens on `http://localhost:3000`, with Swagger at **`/api`**.
 
 ```bash
-# Build the application
-npm run build
-
-# Run the production build
-npm run start:prod
+npm test          # 36 suites, 1017 tests, ~10s
+npm run test:e2e  # 16 tests over the real HTTP surface
 ```
 
-### Debug Mode
+> `npm install` used to leave you with `@nestjslatam/ddd-lib@2.1.0` — a version deprecated on npm for being unusable from CommonJS. The manifest declared `^2.0.0` while Jest mapped the import to local source, so the tests passed against one version and the running app used another. It tracks `^4.0.0` now.
 
-Start the application in debug mode:
+## First request
 
 ```bash
-npm run start:debug
+curl -X POST http://localhost:3000/products \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Wireless Keyboard",
+       "description":"A compact wireless keyboard with long battery life",
+       "price":49.99}'
+```
+```json
+{ "id": "65d57584-0e90-457e-b4e5-812be823eb4a" }
 ```
 
-This enables Node.js debugging. You can attach a debugger on port 9229.
-
-## Testing the API
-
-### Swagger Documentation
-
-Once the application is running, access the Swagger UI:
-
-**URL**: `http://localhost:3000/api`
-
-Swagger provides:
-- Interactive API documentation
-- Try-it-out functionality
-- Request/response schemas
-
-### Using cURL
-
-#### Create a Singer
+Now try the two ways it can be refused, because the difference is what this sample is for:
 
 ```bash
-curl -X POST http://localhost:3000/singers \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fullName": "John Doe",
-    "picture": "https://example.com/picture.jpg"
-  }'
+# structure — the pipe rejects it before the domain sees it
+-d '{"name":"X","description":"Long enough to pass","price":"forty"}'   → 400
+
+# meaning — the body is fine and the aggregate refuses it
+-d '{"name":"X","description":"Long enough to pass","price":0}'         → 422
 ```
 
-#### Get Singer by ID
+```json
+{ "statusCode": 422,
+  "error": "Unprocessable Entity",
+  "message": "Price is invalid",
+  "brokenRules": [
+    { "property": "value", "message": "Price must be greater than zero", "severity": "Error" }
+  ] }
+```
+
+A wrong *type* is structure. A wrong *value* is meaning, and only the aggregate can judge it.
+
+## An order, end to end
+
+An order is a `DRAFT` until you confirm it, and a draft starts empty:
 
 ```bash
-curl http://localhost:3000/singers/{id}
+# 1. open a draft
+curl -X POST http://localhost:3000/orders -H 'Content-Type: application/json' \
+  -d '{"customerName":"Ada Lovelace","customerEmail":"ada@example.com",
+       "customerPhone":"+51999888777","shippingStreet":"1 Main St",
+       "shippingCity":"Lima","shippingState":"Lima",
+       "shippingZipCode":"15001","shippingCountry":"PE"}'
+
+# 2. add an item, using the product id from before
+curl -X POST http://localhost:3000/orders/<ORDER_ID>/items \
+  -H 'Content-Type: application/json' \
+  -d '{"productId":"<PRODUCT_ID>","productName":"Wireless Keyboard",
+       "quantity":2,"unitPrice":49.99}'
+
+# 3. confirm it
+curl -X POST http://localhost:3000/orders/<ORDER_ID>/confirm \
+  -H 'Content-Type: application/json' -d '{}'
 ```
 
-Replace `{id}` with an actual singer ID.
+Confirming an order with no items answers `409` — nothing is malformed and no value is wrong; the aggregate is simply not in a state that allows it.
 
-#### Get All Singers
+## Where to look in the code
 
-```bash
-curl http://localhost:3000/singers
-```
+Read in this order and the design explains itself:
 
-#### Subscribe a Singer
+1. **`src/shared/valueobjects/Name.ts`** — the smallest complete example. A factory that checks `isValid`, and an `addValidators` that calls `super`.
+2. **`src/products/domain/product-aggregate/product.ts`** — an aggregate, its validators, its events.
+3. **`src/products/application/use-cases/create-product/`** — the four files every use case has: DTO, command, service, handler.
+4. **`src/orders/domain/order-aggregate/order.ts`** — the same ideas with a lifecycle and child entities.
 
-```bash
-curl -X POST http://localhost:3000/singers/{id}/subscribe \
-  -H "Content-Type: application/json"
-```
+## Three mistakes this library makes easy
 
-#### Change Singer Full Name
+Worth knowing before you write your own aggregate. `npx ddd validate` catches all of them.
 
-```bash
-curl -X PUT http://localhost:3000/singers/{id}/fullname \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fullName": "Jane Doe"
-  }'
-```
+**A factory that does not check `isValid`.** Validation *collects* broken rules and never throws, so `create()` will happily return an object that failed its own invariants.
 
-#### Add Song to Singer
+**An `addValidators` that does not call `super`.** The base registers real validators there. Drop the `super` call and they vanish — silently, with no error.
 
-```bash
-curl -X POST http://localhost:3000/singers/{singerId}/songs \
-  -H "Content-Type: application/json" \
-  -d '{
-    "songName": "My Song"
-  }'
-```
+**Reading a subclass field inside `addValidators`.** The base constructor calls it *before* your constructor body runs, so the field is `undefined` and construction throws every time. `NumberValueObject` in the library itself shipped this way for two releases.
 
-### Using Postman
+## Next
 
-1. Import the Swagger JSON from `http://localhost:3000/api-json`
-2. Or manually create requests based on the Swagger documentation
-3. Test all endpoints interactively
-
-## Project Structure
-
-Understanding the project structure will help you navigate the codebase:
-
-```
-ddd/
-├── src/                          # Source code
-│   ├── main.ts                  # Application entry point
-│   ├── app.module.ts            # Root module
-│   ├── shared/                  # Shared module
-│   │   ├── application/        # Base classes, context
-│   │   ├── domain/             # Shared value objects
-│   │   └── exceptions/         # Custom exceptions
-│   └── singers/                 # Singers domain module
-│       ├── application/        # Application layer
-│       │   ├── dto/           # Data Transfer Objects
-│       │   ├── sagas/         # Long-running processes
-│       │   └── use-cases/     # Commands and Queries
-│       ├── domain/            # Domain layer
-│       │   ├── events/        # Domain events
-│       │   ├── singer.ts     # Singer aggregate
-│       │   └── song.ts       # Song entity
-│       └── infrastructure/    # Infrastructure layer
-│           ├── db/           # Repositories and tables
-│           └── mappers/      # Domain ↔ Database mappers
-├── docs/                       # Documentation
-├── db/                        # Database files
-├── test/                      # E2E tests
-├── package.json               # Dependencies and scripts
-└── tsconfig.json              # TypeScript configuration
-```
-
-For detailed information, see:
-- [Architecture Overview](architecture.md)
-- [Domain Layer](domain-layer.md)
-- [Application Layer](application-layer.md)
-- [Infrastructure Layer](infrastructure-layer.md)
-
-## Next Steps
-
-### 1. Explore the Codebase
-
-- Start with `src/main.ts` to understand application bootstrap
-- Review `src/singers/domain/singer.ts` to see domain model
-- Check `src/singers/application/use-cases/commands/create-singer/` for a complete use case
-
-### 2. Read the Documentation
-
-- [Architecture Overview](architecture.md) - Understand the overall design
-- [Domain Layer](domain-layer.md) - Learn about domain models
-- [Application Layer](application-layer.md) - Understand CQRS pattern
-- [API Reference](api-reference.md) - Complete API documentation
-
-### 3. Run Tests
-
-```bash
-# Run unit tests
-npm run test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with coverage
-npm run test:cov
-
-# Run end-to-end tests
-npm run test:e2e
-```
-
-### 4. Create Your Own Module
-
-Follow the `singers` module as a template:
-
-1. Create a new domain module (e.g., `albums`)
-2. Define domain entities and value objects
-3. Create commands and queries
-4. Implement repositories and mappers
-5. Register the module in `app.module.ts`
-
-### 5. Customize Configuration
-
-- Update database configuration for your needs
-- Add environment-specific settings
-- Configure logging and monitoring
-- Set up CI/CD pipelines
-
-## Troubleshooting
-
-### Common Issues
-
-#### Port Already in Use
-
-**Error**: `EADDRINUSE: address already in use :::3000`
-
-**Solution**: 
-- Change the PORT in `.env` file
-- Or kill the process using port 3000:
-  ```bash
-  # Windows
-  netstat -ano | findstr :3000
-  taskkill /PID <PID> /F
-  
-  # Linux/Mac
-  lsof -ti:3000 | xargs kill
-  ```
-
-#### Database Connection Errors
-
-**Error**: Database connection failed
-
-**Solution**:
-- Ensure database file exists: `db/ddd.sql`
-- Check database configuration in `singers.module.ts`
-- Verify SQLite is installed (for development)
-
-#### Module Not Found
-
-**Error**: Cannot find module '@nestjslatam/ddd-lib'
-
-**Solution**:
-- Run `npm install` again
-- Check that the library is in `package.json`
-- Verify `tsconfig.json` path mappings
-
-#### TypeScript Errors
-
-**Error**: Type errors during build
-
-**Solution**:
-- Run `npm run lint` to check for issues
-- Ensure all dependencies are installed
-- Check TypeScript version compatibility
-
-## Additional Resources
-
-- [NestJS Documentation](https://docs.nestjs.com/)
-- [TypeORM Documentation](https://typeorm.io/)
-- [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)
-- [CQRS Pattern](https://martinfowler.com/bliki/CQRS.html)
-
-## Getting Help
-
-If you encounter issues:
-
-1. Check the [Troubleshooting](#troubleshooting) section
-2. Review the documentation in the `docs/` folder
-3. Check existing issues in the repository
-4. Create a new issue with detailed information
-
-## Related Documentation
-
-- [Architecture Overview](architecture.md)
-- [API Reference](api-reference.md)
-- [Domain Layer](domain-layer.md)
-- [Application Layer](application-layer.md)
+- [Architecture](architecture.md) — the shape of the whole
+- [Domain layer](domain-layer.md) — aggregates, value objects, validators
+- [Application layer](application-layer.md) — handlers and queries
+- [API reference](api-reference.md) — every endpoint, with its status codes
+- [The CLI's guide](https://github.com/nestjslatam/ddd-cli/blob/main/docs/GUIDE.md) — the clearest write-up of this library's idiom anywhere

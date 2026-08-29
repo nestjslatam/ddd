@@ -1,574 +1,159 @@
-# API Reference
+# API reference
 
-Complete API endpoint documentation for the DDD Library for NestJS sample application.
+Every endpoint below was called against the running application and the status codes are what it returned. An earlier version of this document described a `/singers` API that has never existed here.
 
-## Table of Contents
+Live Swagger UI: **`http://localhost:3000/api`**.
 
-- [Base URL](#base-url)
-- [Authentication](#authentication)
-- [Error Handling](#error-handling)
-- [Endpoints](#endpoints)
-  - [Singers](#singers)
-  - [Songs](#songs)
-- [Data Models](#data-models)
-- [Examples](#examples)
+## Status codes
 
-## Base URL
+The same four appear throughout, and the distinction between the middle two is the point:
 
-All API endpoints are relative to:
+| | Meaning |
+|---|---|
+| `400` | **Structure.** A field is missing or of the wrong type. Caught by `ValidationPipe` before the domain sees it. |
+| `422` | **Meaning.** The body is well-formed and the domain refused it. The response lists the broken rules. |
+| `409` | **State.** The aggregate is not in a state that allows this. |
+| `404` | No such aggregate. |
 
-```
-http://localhost:3000
-```
-
-Or your configured `PORT` environment variable.
-
-## Authentication
-
-Currently, the API does not require authentication. In production, you should implement authentication middleware.
-
-## Error Handling
-
-### Error Response Format
-
-```json
-{
-  "statusCode": 400,
-  "message": [
-    {
-      "property": "fullName",
-      "message": "fullName should not be empty"
-    }
-  ],
-  "error": "Bad Request"
-}
-```
-
-### HTTP Status Codes
-
-- `200 OK`: Request succeeded
-- `201 Created`: Resource created successfully
-- `400 Bad Request`: Invalid request data
-- `404 Not Found`: Resource not found
-- `500 Internal Server Error`: Server error
-
-### Exception Types
-
-- **DomainException**: Business rule violation
-- **ApplicationException**: Application-level error
-- **DatabaseException**: Database operation error
-
-## Endpoints
-
-## Singers
-
-### Create Singer
-
-Create a new singer.
-
-**Endpoint**: `POST /singers`
-
-**Request Body**:
-```json
-{
-  "fullName": "John Doe",
-  "picture": "https://example.com/picture.jpg",
-  "trackingId": "optional-tracking-id"
-}
-```
-
-**Request Schema**:
-- `fullName` (string, required): Singer's full name
-- `picture` (string, required): Picture URL or path
-- `trackingId` (string, optional): Optional tracking identifier
-
-**Response**: `201 Created`
-
-**Response Body**: Empty
-
-**Example**:
-```bash
-curl -X POST http://localhost:3000/singers \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fullName": "John Doe",
-    "picture": "https://example.com/picture.jpg"
-  }'
-```
-
-**Domain Events Published**:
-- `SingerCreatedDomainEvent`
+A `500` means an unexpected fault, not a rejected request.
 
 ---
 
-### Get Singer by ID
+## Products
 
-Retrieve a singer by their ID.
+### `POST /products` → `201`
 
-**Endpoint**: `GET /singers/:id`
-
-**Path Parameters**:
-- `id` (string, required): Singer UUID
-
-**Response**: `200 OK`
-
-**Response Body**:
 ```json
-{
-  "id": "uuid-string",
-  "fullName": "John Doe",
-  "picture": "https://example.com/picture.jpg",
-  "registerDate": "2024-01-01T00:00:00.000Z",
-  "isSubscribed": false,
-  "subscribedDate": null,
-  "status": "registered",
-  "songs": [],
-  "audit": {
-    "createdBy": "system",
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedBy": null,
-    "updatedAt": null,
-    "timestamp": 1704067200000
-  }
-}
+{ "name": "Wireless Keyboard",
+  "description": "A compact wireless keyboard with long battery life",
+  "price": 49.99 }
 ```
-
-**Example**:
-```bash
-curl http://localhost:3000/singers/{id}
-```
-
-**Errors**:
-- `404 Not Found`: Singer not found
-- `400 Bad Request`: Invalid ID format
-
----
-
-### Get All Singers
-
-Retrieve all singers with optional pagination and filtering.
-
-**Endpoint**: `GET /singers`
-
-**Query Parameters**:
-- `page` (number, optional): Page number (default: 1)
-- `pageSize` (number, optional): Items per page (default: 10)
-- `status` (string, optional): Filter by status (registered, subscribed, deleted)
-- `isSubscribed` (boolean, optional): Filter by subscription status
-
-**Response**: `200 OK`
-
-**Response Body**:
 ```json
-{
-  "data": [
-    {
-      "id": "uuid-string",
-      "fullName": "John Doe",
-      "picture": "https://example.com/picture.jpg",
-      "registerDate": "2024-01-01T00:00:00.000Z",
-      "isSubscribed": false,
-      "status": "registered",
-      "songs": []
-    }
-  ],
-  "page": 1,
-  "pageSize": 10,
-  "total": 1
-}
+{ "id": "65d57584-0e90-457e-b4e5-812be823eb4a" }
 ```
 
-**Example**:
-```bash
-curl "http://localhost:3000/singers?page=1&pageSize=10&status=registered"
-```
+A property the DTO does not declare is stripped and ignored — that is what `whitelist: true` is for.
 
----
+| | |
+|---|---|
+| `price: "forty"` | `400`, naming the field |
+| `price: 0` | `422` — `PriceRangeValidator` refuses it |
+| description shorter than the name | `422` — `ProductBusinessRulesValidator`, an invariant only the aggregate can judge |
 
-### Change Singer Full Name
+### `GET /products` → `200`
 
-Update a singer's full name.
+Optional `status`, `limit`, `offset` query parameters.
 
-**Endpoint**: `PUT /singers/changename/:id`
+### `GET /products/:id` → `200`, or `404`
 
-**Path Parameters**:
-- `id` (string, required): Singer UUID
+### `PUT /products/:id` → `200`
 
-**Request Body**:
+Every field optional; send only what changed.
+
 ```json
-{
-  "newFullName": "Jane Doe",
-  "trackingId": "optional-tracking-id"
-}
+{ "price": 59.99 }
 ```
 
-**Request Schema**:
-- `newFullName` (string, required): New full name
-- `trackingId` (string, optional): Optional tracking identifier
+### `PATCH /products/:id/status` → `200`
 
-**Response**: `200 OK`
-
-**Response Body**: Empty
-
-**Example**:
-```bash
-curl -X PUT http://localhost:3000/singers/changename/{id} \
-  -H "Content-Type: application/json" \
-  -d '{
-    "newFullName": "Jane Doe"
-  }'
-```
-
-**Errors**:
-- `404 Not Found`: Singer not found
-- `400 Bad Request`: Invalid full name
-
----
-
-### Change Singer Picture
-
-Update a singer's picture.
-
-**Endpoint**: `PUT /singers/changepicture/:id`
-
-**Path Parameters**:
-- `id` (string, required): Singer UUID
-
-**Request Body**:
 ```json
-{
-  "newPicture": "https://example.com/new-picture.jpg",
-  "trackingId": "optional-tracking-id"
-}
+{ "status": "INACTIVE" }
 ```
 
-**Request Schema**:
-- `newPicture` (string, required): New picture URL or path
-- `trackingId` (string, optional): Optional tracking identifier
+`ACTIVE`, `INACTIVE` or `DELETED`. Anything else is a `400` listing the accepted names.
 
-**Response**: `200 OK`
+> Until recently this endpoint rejected **every** call, including valid ones, with the self-contradicting `Expected: ACTIVE, INACTIVE or DELETED. Provided value: 'INACTIVE'`. `ProductStatus` is a `DddEnum` whose static members are *instances*, and the handler compared them against a string with `Object.values(...).includes(...)`, which never matched. It uses the enum's own lookup now.
 
-**Response Body**: Empty
-
-**Example**:
-```bash
-curl -X PUT http://localhost:3000/singers/changepicture/{id} \
-  -H "Content-Type: application/json" \
-  -d '{
-    "newPicture": "https://example.com/new-picture.jpg"
-  }'
-```
-
-**Errors**:
-- `404 Not Found`: Singer not found
-- `400 Bad Request`: Invalid picture URL
+### `DELETE /products/:id` → `204`
 
 ---
 
-### Subscribe Singer
+## Orders
 
-Subscribe a singer.
+An order has a lifecycle, and most of its endpoints are transitions:
 
-**Endpoint**: `PUT /singers`
+```
+DRAFT ──→ CONFIRMED ──→ PROCESSING ──→ SHIPPED ──→ DELIVERED
+  │            │             │
+  └────────────┴─────────────┴──→ CANCELLED
+```
 
-**Request Body**:
+### `POST /orders` → `201`
+
 ```json
-{
-  "singerId": "uuid-string",
-  "trackingId": "optional-tracking-id"
-}
+{ "customerName": "Ada Lovelace",
+  "customerEmail": "ada@example.com",
+  "customerPhone": "+51999888777",
+  "shippingStreet": "1 Main St",
+  "shippingCity": "Lima",
+  "shippingState": "Lima",
+  "shippingZipCode": "15001",
+  "shippingCountry": "PE" }
 ```
 
-**Request Schema**:
-- `singerId` (string, required): Singer UUID
-- `trackingId` (string, optional): Optional tracking identifier
+Optional: `shippingComplement`, `currency`.
 
-**Response**: `200 OK`
+**Creates an empty `DRAFT`.** A cart starts empty, so the "at least one item" and "minimum $10" rules apply from `CONFIRMED` onward rather than at creation.
 
-**Response Body**: Empty
+An address that is not an address is a `400` — `@IsEmail` earns its place at the transport layer.
 
-**Example**:
-```bash
-curl -X PUT http://localhost:3000/singers \
-  -H "Content-Type: application/json" \
-  -d '{
-    "singerId": "uuid-string"
-  }'
-```
+### `POST /orders/:id/items` → `200`
 
-**Domain Events Published**:
-- `SingerSubscribedDomainEvent`
-
-**Errors**:
-- `404 Not Found`: Singer not found
-- `400 Bad Request`: Singer already subscribed (business rule violation)
-
-**Business Rules**:
-- A singer cannot subscribe if already subscribed
-
----
-
-### Remove Singer
-
-Remove (soft delete) a singer.
-
-**Endpoint**: `DELETE /singers/:id`
-
-**Path Parameters**:
-- `id` (string, required): Singer UUID
-
-**Response**: `200 OK`
-
-**Response Body**: Empty
-
-**Example**:
-```bash
-curl -X DELETE http://localhost:3000/singers/{id}
-```
-
-**Domain Events Published**:
-- `SingerDeletedDomainEvent`
-
-**Errors**:
-- `404 Not Found`: Singer not found
-- `400 Bad Request`: Cannot remove subscribed singer (business rule violation)
-
-**Business Rules**:
-- A subscribed singer cannot be removed
-
----
-
-## Songs
-
-### Add Song to Singer
-
-Add a song to a singer's collection.
-
-**Endpoint**: `POST /singers/addsong/:id`
-
-**Path Parameters**:
-- `id` (string, required): Singer UUID
-
-**Request Body**:
 ```json
-{
-  "songName": "My Song",
-  "trackingId": "optional-tracking-id"
-}
+{ "productId": "65d57584-…", "productName": "Wireless Keyboard",
+  "quantity": 2, "unitPrice": 49.99 }
 ```
 
-**Request Schema**:
-- `songName` (string, required): Song name
-- `trackingId` (string, optional): Optional tracking identifier
+`quantity: 0` is a `422` naming `quantity`: the DTO says it is a number, and `OrderItem` says it must be at least 1. Structure and meaning, answered separately.
 
-**Response**: `201 Created`
+Only while the order can still be modified — otherwise `409`.
 
-**Response Body**: Empty
+### `PATCH /orders/:id/items/:productId` → `200`
 
-**Example**:
-```bash
-curl -X POST http://localhost:3000/singers/addsong/{id} \
-  -H "Content-Type: application/json" \
-  -d '{
-    "songName": "My Song"
-  }'
-```
-
-**Errors**:
-- `404 Not Found`: Singer not found
-- `400 Bad Request`: Invalid song name
-
-**Business Rules**:
-- Song name is required
-- Song status cannot be inactive
-
----
-
-### Remove Song from Singer
-
-Remove a song from a singer's collection.
-
-**Endpoint**: `POST /singers`
-
-**Request Body**:
 ```json
-{
-  "singerId": "uuid-string",
-  "songId": "uuid-string",
-  "trackingId": "optional-tracking-id"
-}
+{ "newQuantity": 3 }
 ```
 
-**Request Schema**:
-- `singerId` (string, required): Singer UUID
-- `songId` (string, required): Song UUID
-- `trackingId` (string, optional): Optional tracking identifier
+`404` if the order does not hold that item.
 
-**Response**: `200 OK`
+### `DELETE /orders/:id/items/:productId` → `204`
 
-**Response Body**: Empty
+### `POST /orders/:id/confirm` → `200`
 
-**Example**:
-```bash
-curl -X POST http://localhost:3000/singers \
-  -H "Content-Type: application/json" \
-  -d '{
-    "singerId": "uuid-string",
-    "songId": "uuid-string"
-  }'
+`DRAFT → CONFIRMED`. A draft with no items is a `409` — nothing is malformed and no value is wrong; the aggregate is simply not in a state that allows it.
+
+### `POST /orders/:id/ship` → `200`
+
+```json
+{ "trackingNumber": "T1" }
 ```
 
-**Errors**:
-- `404 Not Found`: Singer or song not found
+> **Reachable only from `PROCESSING`, and no endpoint reaches `PROCESSING`.** Calling this on a `CONFIRMED` order returns `409`. `Order.startProcessing()` exists on the aggregate but nothing exposes it — adding that endpoint is a [listed first issue](../README.md#contributing).
+
+### `POST /orders/:id/deliver` → `200`
+
+`SHIPPED → DELIVERED`, so it inherits the gap above.
+
+### `POST /orders/:id/cancel` → `200`
+
+```json
+{ "reason": "changed mind" }
+```
+
+Allowed from `DRAFT`, `CONFIRMED` or `PROCESSING`. A blank reason is a `400`.
+
+### `GET /orders` → `200` &nbsp;·&nbsp; `GET /orders/:id` → `200`, or `404`
 
 ---
 
-## Data Models
+## A full round trip
 
-### Singer
-
-```typescript
-{
-  id: string;                    // UUID
-  fullName: string;             // Singer's full name
-  picture: string;               // Picture URL or path
-  registerDate: Date;           // Registration date
-  isSubscribed: boolean;        // Subscription status
-  subscribedDate?: Date;        // Subscription date (if subscribed)
-  status: string;               // 'registered' | 'subscribed' | 'deleted'
-  songs: Song[];                // Array of songs
-  audit: Audit;                 // Audit information
-}
-```
-
-### Song
-
-```typescript
-{
-  id: string;                   // UUID
-  name: string;                 // Song name
-  singerId: string;              // Parent singer ID
-  status: string;                // 'active' | 'publishing' | 'published' | 'inactive'
-  registerDate: Date;           // Registration date
-  audit: Audit;                 // Audit information
-}
-```
-
-### Audit
-
-```typescript
-{
-  createdBy: string;            // Creator identifier
-  createdAt: Date;             // Creation timestamp
-  updatedBy?: string;           // Last updater identifier
-  updatedAt?: Date;             // Last update timestamp
-  timestamp?: number;           // Unix timestamp
-}
-```
-
-### Paginated Response
-
-```typescript
-{
-  data: T[];                    // Array of items
-  page: number;                 // Current page number
-  pageSize: number;              // Items per page
-  total: number;                // Total number of items
-}
-```
-
-## Examples
-
-### Complete Workflow
-
-#### 1. Create a Singer
+Covered by [`test/app.e2e-spec.ts`](../test/app.e2e-spec.ts), which asserts every code on this page:
 
 ```bash
-curl -X POST http://localhost:3000/singers \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fullName": "John Doe",
-    "picture": "https://example.com/picture.jpg"
-  }'
+POST  /products                      201
+POST  /orders                        201   an empty DRAFT
+POST  /orders/:id/items              200
+PATCH /orders/:id/items/:productId   200
+POST  /orders/:id/confirm            200
 ```
-
-#### 2. Get the Created Singer
-
-```bash
-# Use the ID from the response (or check database)
-curl http://localhost:3000/singers/{singerId}
-```
-
-#### 3. Add Songs
-
-```bash
-curl -X POST http://localhost:3000/singers/addsong/{singerId} \
-  -H "Content-Type: application/json" \
-  -d '{
-    "songName": "Song 1"
-  }'
-
-curl -X POST http://localhost:3000/singers/addsong/{singerId} \
-  -H "Content-Type: application/json" \
-  -d '{
-    "songName": "Song 2"
-  }'
-```
-
-#### 4. Subscribe the Singer
-
-```bash
-curl -X PUT http://localhost:3000/singers \
-  -H "Content-Type: application/json" \
-  -d '{
-    "singerId": "{singerId}"
-  }'
-```
-
-#### 5. Update Singer Information
-
-```bash
-curl -X PUT http://localhost:3000/singers/changename/{singerId} \
-  -H "Content-Type: application/json" \
-  -d '{
-    "newFullName": "Jane Doe"
-  }'
-```
-
-#### 6. Get All Singers
-
-```bash
-curl "http://localhost:3000/singers?page=1&pageSize=10"
-```
-
-## Swagger Documentation
-
-For interactive API documentation, visit:
-
-**URL**: `http://localhost:3000/api`
-
-The Swagger UI provides:
-- Complete API documentation
-- Try-it-out functionality
-- Request/response schemas
-- Authentication configuration (if applicable)
-
-## GraphQL (Optional)
-
-If GraphQL is configured, you can access the GraphQL Playground at:
-
-**URL**: `http://localhost:3000/graphql`
-
-## Rate Limiting
-
-Currently, the API does not implement rate limiting. In production, consider implementing rate limiting to prevent abuse.
-
-## CORS
-
-CORS is configured to allow requests from any origin in development. In production, configure CORS to allow only trusted origins.
-
-## Related Documentation
-
-- [Getting Started](getting-started.md) - Setup and installation
-- [Architecture Overview](architecture.md) - Application architecture
-- [Application Layer](application-layer.md) - Command and query handlers
