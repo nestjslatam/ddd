@@ -1,16 +1,17 @@
-# Global owners
-* @beyondnet
+# Every change needs an approving review from the owner.
+#
+# The account matters: GitHub SILENTLY IGNORES a CODEOWNERS entry naming a user
+# without write access. This file previously named @beyondnet, which holds only
+# read, so "require review from Code Owners" was configured and enforcing
+# nothing. Verify with:
+#
+#   gh api repos/<owner>/<repo>/collaborators/<user>/permission
+#
+* @beyondnetPeru
 
-# Library specific
-/libs/ddd/ @beyondnet
-
-# Documentation
-/docs/ @beyondnet
-
-# CI/CD
-/.github/ @beyondnet
-
-# Configuration files
-package.json @beyondnet
-tsconfig.json @beyondnet
-nest-cli.json @beyondnet
+# Called out separately so a change here is never lost in a large diff: these
+# are the paths that decide what runs in CI and what reaches npm.
+/.github/       @beyondnetPeru
+/scripts/       @beyondnetPeru
+package.json    @beyondnetPeru
+package-lock.json @beyondnetPeru
