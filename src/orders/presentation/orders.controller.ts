@@ -16,15 +16,24 @@ import {
   CreateOrderService,
 } from '../application/use-cases/create-order';
 import {
-  AddItemToOrderDto,
+  AddItemToOrderBodyDto,
   AddItemToOrderService,
 } from '../application/use-cases/add-item-to-order';
 import { RemoveItemFromOrderService } from '../application/use-cases/remove-item-from-order';
-import { ChangeItemQuantityService } from '../application/use-cases/change-item-quantity';
+import {
+  ChangeItemQuantityBodyDto,
+  ChangeItemQuantityService,
+} from '../application/use-cases/change-item-quantity';
 import { ConfirmOrderService } from '../application/use-cases/confirm-order';
-import { ShipOrderService } from '../application/use-cases/ship-order';
+import {
+  ShipOrderBodyDto,
+  ShipOrderService,
+} from '../application/use-cases/ship-order';
 import { DeliverOrderService } from '../application/use-cases/deliver-order';
-import { CancelOrderService } from '../application/use-cases/cancel-order';
+import {
+  CancelOrderBodyDto,
+  CancelOrderService,
+} from '../application/use-cases/cancel-order';
 import {
   GetOrderQuery,
   GetOrdersQuery,
@@ -88,7 +97,7 @@ export class OrdersController {
   @HttpCode(HttpStatus.OK)
   async addItem(
     @Param('id') orderId: string,
-    @Body() dto: Omit<AddItemToOrderDto, 'orderId'>,
+    @Body() dto: AddItemToOrderBodyDto,
   ): Promise<void> {
     await this.addItemService.execute({ ...dto, orderId });
   }
@@ -115,7 +124,7 @@ export class OrdersController {
   async changeQuantity(
     @Param('id') orderId: string,
     @Param('productId') productId: string,
-    @Body() body: { newQuantity: number },
+    @Body() body: ChangeItemQuantityBodyDto,
   ): Promise<void> {
     await this.changeQuantityService.execute({
       orderId,
@@ -142,7 +151,7 @@ export class OrdersController {
   @HttpCode(HttpStatus.OK)
   async shipOrder(
     @Param('id') orderId: string,
-    @Body() body: { trackingNumber?: string },
+    @Body() body: ShipOrderBodyDto,
   ): Promise<void> {
     await this.shipOrderService.execute({
       orderId,
@@ -168,7 +177,7 @@ export class OrdersController {
   @HttpCode(HttpStatus.OK)
   async cancelOrder(
     @Param('id') orderId: string,
-    @Body() body: { reason: string },
+    @Body() body: CancelOrderBodyDto,
   ): Promise<void> {
     await this.cancelOrderService.execute({
       orderId,
