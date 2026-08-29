@@ -1,16 +1,42 @@
 {
-  "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": "..",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
-  "setupFiles": ["<rootDir>/jest-e2e-setup.ts"],
+  "setupFiles": [
+    "<rootDir>/test/jest-e2e-setup.ts"
+  ],
   "forceExit": true,
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "moduleNameMapper": {
-    "^@nestjslatam/ddd-lib/(.*)$": "<rootDir>/../libs/ddd/src/$1",
-    "^@nestjslatam/ddd-lib$": "<rootDir>/../libs/ddd/src",
-    "^src/(.*)$": "<rootDir>/../src/$1"
-  }
+    "^@nestjslatam/ddd-lib/(.*)$": "<rootDir>/libs/ddd/src/$1",
+    "^@nestjslatam/ddd-lib$": "<rootDir>/libs/ddd/src",
+    "^src/(.*)$": "<rootDir>/src/$1"
+  },
+  "coverageDirectory": "coverage-e2e",
+  "coverageReporters": [
+    "json"
+  ],
+  "collectCoverageFrom": [
+    "libs/ddd/src/**/*.(t|j)s",
+    "src/**/*.(t|j)s",
+    "!**/*.module.ts",
+    "!**/*.dto.ts",
+    "!**/*.interface.ts",
+    "!**/*.mock.ts",
+    "!**/*.spec.ts",
+    "!**/*.test.ts",
+    "!**/main.ts",
+    "!**/index.ts",
+    "!**/node_modules/**",
+    "!**/ddd.service.ts",
+    "!**/ddd.module.ts",
+    "!**/types.d.ts"
+  ]
 }

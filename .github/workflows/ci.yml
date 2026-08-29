@@ -9,7 +9,6 @@ on:
 
 env:
   NODE_VERSION: '20'
-  COVERAGE_THRESHOLD: 60
 
 jobs:
   # Job 1: Lint y Format Check
@@ -165,35 +164,21 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: false
 
-      # A coarse floor on the COMBINED report, and a loud failure if the
-      # report is missing at all. The authoritative gates are the two
-      # per-area thresholds in package.json's jest config -- one for
-      # libs/ddd/src, one for src/ -- which fail the test step itself. This
-      # step exists so a broken reporter cannot make that silent, which is
-      # exactly what it used to do.
-      - name: Check coverage threshold
+      # The merged report is the only one that describes the application.
+      # The unit run alone read 64% because it cannot see what the e2e suite
+      # covers -- the controllers, the use-case handlers, the exception filter
+      # -- and every judgement made from that number was wrong. Merged, it is
+      # 85%.
+      #
+      # Per-suite thresholds in package.json still guard each run on its own:
+      # a library file dropping below 97% must fail whether or not an e2e test
+      # happens to touch it. This step adds the floor on the whole, and fails
+      # loudly if either report is missing rather than skipping itself.
+      - name: Merge unit and e2e coverage, and check the floor
         if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x' && steps.test.outcome == 'success'
         run: |
-          if [ -f "coverage/coverage-summary.json" ]; then
-            COVERAGE=$(node -e "try { const fs = require('fs'); const data = JSON.parse(fs.readFileSync('coverage/coverage-summary.json')); console.log(data.total.lines.pct || 0); } catch(e) { console.log(0); }")
-            THRESHOLD="${{ env.COVERAGE_THRESHOLD }}"
-            echo "Current coverage: ${COVERAGE}%"
-            echo "Required threshold: ${THRESHOLD}%"
-            
-            # Use Node.js for comparison instead of bc
-            COVERAGE_CHECK=$(node -e "const cov = parseFloat('${COVERAGE}'); const thresh = parseFloat('${THRESHOLD}'); console.log(cov < thresh ? 'true' : 'false');")
-            if [ "$COVERAGE_CHECK" = "true" ]; then
-              echo "::error::Coverage ${COVERAGE}% is below threshold ${THRESHOLD}%"
-              exit 1
-            fi
-            echo "✅ Coverage ${COVERAGE}% meets threshold ${THRESHOLD}%"
-          else
-            echo "::error::coverage/coverage-summary.json was not produced."
-            echo "That file is written by the 'json-summary' reporter. If it is"
-            echo "missing, this gate silently passed every build -- which it did,"
-            echo "for as long as the reporter was absent. Failing instead."
-            exit 1
-          fi
+          npm run test:e2e:cov
+          node scripts/merge-coverage.js
 
       - name: Upload test results
         if: always()
