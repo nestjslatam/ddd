@@ -1,5 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { DomainExceptionFilter } from './../src/shared/filters/domain-exception.filter';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 /**
@@ -49,6 +50,8 @@ describe('Write endpoints (e2e)', () => {
       new ValidationPipe({ transform: true, whitelist: true }),
     );
 
+    app.useGlobalFilters(new DomainExceptionFilter());
+
     await app.init();
     http = app.getHttpServer();
   });
@@ -90,6 +93,39 @@ describe('Write endpoints (e2e)', () => {
         .send({ ...validProduct, isAdmin: true });
 
       expect(res.status).toBe(201);
+    });
+
+    it('answers a broken invariant with 422 and names the rule', async () => {
+      // The distinction this filter exists for. The body is well-formed and
+      // typed correctly, so the pipe lets it through; the DOMAIN refuses it.
+      // That is the caller's mistake, not the server's, and it used to come
+      // back as a bare `500 Internal server error` with no indication of
+      // which rule failed.
+      const res = await request(http)
+        .post('/products')
+        .send({ ...validProduct, price: 0 });
+
+      expect(res.status).toBe(422);
+      expect(res.body.brokenRules).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ message: expect.stringContaining('zero') }),
+        ]),
+      );
+    });
+
+    it('keeps 400 for structure and 422 for meaning', async () => {
+      // A wrong TYPE is caught by the pipe before the domain ever sees it; a
+      // wrong VALUE reaches the aggregate and is refused there. Two different
+      // mistakes deserve two different answers.
+      const wrongType = await request(http)
+        .post('/products')
+        .send({ ...validProduct, price: 'forty' });
+      const wrongValue = await request(http)
+        .post('/products')
+        .send({ ...validProduct, price: 0 });
+
+      expect(wrongType.status).toBe(400);
+      expect(wrongValue.status).toBe(422);
     });
 
     it('rejects a status outside the enumeration', async () => {

@@ -13,6 +13,7 @@ import {
   ProductStatusValidator,
   ProductBusinessRulesValidator,
 } from './validators';
+import { BrokenRulesException } from '../../../shared/exceptions/broken-rules.exception';
 
 export interface IProductProps {
   name: Name;
@@ -42,11 +43,7 @@ export class Product extends DddAggregateRoot<Product, IProductProps> {
     // what makes this read correct rather than accidentally inverted.
     if (!product.isValid) {
       const errors = product.brokenRules.getBrokenRules();
-      throw new Error(
-        `Cannot create product: ${errors
-          .map((e) => `${e.property}: ${e.message}`)
-          .join(', ')}`,
-      );
+      throw new BrokenRulesException('Product', errors);
     }
 
     return product;
@@ -249,12 +246,9 @@ export class Product extends DddAggregateRoot<Product, IProductProps> {
    */
   markForDeletion(): void {
     if (!this.canBeDeleted()) {
-      throw new Error(
-        'Cannot mark product for deletion: ' +
-          this.brokenRules
-            .getBrokenRules()
-            .map((r) => r.message)
-            .join(', '),
+      throw new BrokenRulesException(
+        'Product',
+        this.brokenRules.getBrokenRules(),
       );
     }
     this.trackingState.markAsDeleted();

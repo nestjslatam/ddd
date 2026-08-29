@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
 
 import { AppModule } from './app.module';
+import { DomainExceptionFilter } from './shared/filters/domain-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -27,6 +28,10 @@ async function bootstrap() {
       stopAtFirstError: true,
     }),
   );
+
+  // Domain failures are the caller's mistake, not the server's. Without this
+  // a broken invariant came back as a bare 500; it now names the rules.
+  app.useGlobalFilters(new DomainExceptionFilter());
 
   app.enableShutdownHooks();
 

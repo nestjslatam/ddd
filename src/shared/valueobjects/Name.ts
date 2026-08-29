@@ -1,5 +1,6 @@
 import { StringValueObject } from '@nestjslatam/ddd-lib';
 import { NameLengthValidator } from './validators';
+import { BrokenRulesException } from '../exceptions/broken-rules.exception';
 
 export class Name extends StringValueObject {
   constructor(value: string) {
@@ -10,9 +11,7 @@ export class Name extends StringValueObject {
     const name = new Name(value);
     if (!name.isValid) {
       const errors = name.brokenRules.getBrokenRules();
-      throw new Error(
-        `Invalid name: ${errors.map((e) => e.message).join(', ')}`,
-      );
+      throw new BrokenRulesException('Name', errors);
     }
     return name;
   }
