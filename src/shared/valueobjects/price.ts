@@ -4,6 +4,7 @@ import {
   NumberValueObject,
 } from '@nestjslatam/ddd-lib';
 import { PriceRangeValidator } from './validators';
+import { BrokenRulesException } from '../exceptions/broken-rules.exception';
 
 export class Price extends NumberValueObject {
   constructor(value: number) {
@@ -14,9 +15,7 @@ export class Price extends NumberValueObject {
     const price = new Price(value);
     if (!price.isValid) {
       const errors = price.brokenRules.getBrokenRules();
-      throw new Error(
-        `Invalid price: ${errors.map((e) => e.message).join(', ')}`,
-      );
+      throw new BrokenRulesException('Price', errors);
     }
     return price;
   }

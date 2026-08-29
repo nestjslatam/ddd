@@ -1,5 +1,6 @@
 import { StringValueObject } from '@nestjslatam/ddd-lib';
 import { DescriptionLengthValidator } from './validators';
+import { BrokenRulesException } from '../exceptions/broken-rules.exception';
 
 export class Description extends StringValueObject {
   constructor(value: string) {
@@ -10,9 +11,7 @@ export class Description extends StringValueObject {
     const description = new Description(value);
     if (!description.isValid) {
       const errors = description.brokenRules.getBrokenRules();
-      throw new Error(
-        `Invalid description: ${errors.map((e) => e.message).join(', ')}`,
-      );
+      throw new BrokenRulesException('Description', errors);
     }
     return description;
   }

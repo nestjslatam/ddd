@@ -196,7 +196,31 @@ PATCH /orders/:id/items/:productId   200
 POST  /orders/:id/confirm            200
 ```
 
-Structural mistakes come back as `400` naming the field; a property the DTO does not declare is stripped and ignored, which is what the global `ValidationPipe({ whitelist: true })` is for. Domain invariants stay in the domain — `price: 0` is rejected by `PriceRangeValidator`, not by a decorator.
+Two kinds of mistake, two answers — the distinction is the point:
+
+| Request                  | Answer                          | Caught by                                   |
+| ------------------------ | ------------------------------- | ------------------------------------------- |
+| `price: "forty"`         | **400** naming the field        | `ValidationPipe`, before the domain sees it |
+| `price: 0`               | **422** with the broken rules   | `PriceRangeValidator`, inside the aggregate |
+| `{ ..., isAdmin: true }` | **201**, the extra key stripped | `whitelist: true`                           |
+
+```json
+// POST /products  { "price": 0 }  ->  422
+{
+  "statusCode": 422,
+  "error": "Unprocessable Entity",
+  "message": "Price is invalid",
+  "brokenRules": [
+    {
+      "property": "value",
+      "message": "Price must be greater than zero",
+      "severity": "Error"
+    }
+  ]
+}
+```
+
+A wrong _type_ is structure and never reaches the domain. A wrong _value_ is meaning and only the aggregate can judge it. `DomainExceptionFilter` maps the second to `422`, `ArgumentNullException` and `InvalidFormatException` to `400`, and an illegal state transition to `409` — while leaving anything that is not a domain exception as a `500`, because an unexpected error genuinely is one.
 
 Repositories are in-memory by design: the sample stays about the domain rather than about a database. Implement the repository contract against your own store.
 
@@ -267,7 +291,7 @@ Missing `@nestjs/cqrs` is what made `2.0.0` crash on import for everyone who had
 ```bash
 npm install
 npm test          # 36 suites, 1017 tests, ~10s
-npm run test:e2e  # 10 tests over the real HTTP surface
+npm run test:e2e  # 12 tests over the real HTTP surface
 npm run type-check
 npm run lint
 ```
@@ -280,8 +304,8 @@ Contributions are wanted, and there is concrete, verifiable work waiting. Every 
 
 1. **Rewrite the six stale `docs/`.** They describe a `Singers` module this repository does not contain.
 2. **Cover the sample application.** The library is at 98.6%; `src/` is not, and the write-endpoint defect lived there unnoticed for exactly that reason.
-3. **Map domain rejections to 4xx.** A broken invariant — `price: 0`, say — currently surfaces as a `500` with no detail. It is a client error, and an exception filter translating `brokenRules` into a `422` body would say which rule failed.
-4. **Give `Order` a richer lifecycle.** `PROCESSING` and `DELIVERED` exist in the state machine and no endpoint reaches them.
+3. **Give `Order` a richer lifecycle.** `PROCESSING` and `DELIVERED` exist in the state machine and no endpoint reaches them.
+4. **Carry `BrokenRulesException` through the Orders module too.** Products raises it; several Orders handlers still throw a plain `Error`, so those rejections stay `500`.
 
 **Before you open a PR**, CI will run: ESLint, `prettier --check`, `tsc --noEmit` against **both** `tsconfig.json` and `libs/ddd/tsconfig.lib.json`, unit tests with coverage on Node 18 / 20 / 22, e2e tests, the library build, and `npm audit --audit-level=moderate`. All pass locally today, so the bar is reachable:
 
