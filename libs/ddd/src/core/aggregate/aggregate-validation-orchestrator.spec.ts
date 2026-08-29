@@ -185,7 +185,7 @@ describe('AggregateValidationOrchestrator', () => {
         validatorRuleManager,
       );
 
-      expect(orchestrator.isValid()).toBe(true);
+      expect(orchestrator.isValid).toBe(true);
     });
 
     it('should return false when broken rules exist', () => {
@@ -200,7 +200,7 @@ describe('AggregateValidationOrchestrator', () => {
         new BrokenRule('test', 'Test broken rule', 'Error'),
       );
 
-      expect(orchestrator.isValid()).toBe(false);
+      expect(orchestrator.isValid).toBe(false);
     });
 
     it('should reflect validation result', () => {
@@ -219,7 +219,7 @@ describe('AggregateValidationOrchestrator', () => {
       const entity = new TestEntity('invalid');
       orchestrator.validate(entity);
 
-      expect(orchestrator.isValid()).toBe(false);
+      expect(orchestrator.isValid).toBe(false);
     });
   });
 
@@ -257,10 +257,10 @@ describe('AggregateValidationOrchestrator', () => {
 
       const entity = new TestEntity('invalid');
       orchestrator.validate(entity);
-      expect(orchestrator.isValid()).toBe(false);
+      expect(orchestrator.isValid).toBe(false);
 
       orchestrator.clearBrokenRules();
-      expect(orchestrator.isValid()).toBe(true);
+      expect(orchestrator.isValid).toBe(true);
     });
   });
 });

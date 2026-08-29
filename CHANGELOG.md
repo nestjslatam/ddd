@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 3.0.0 (2026-08-28)
+
+Published as `@nestjslatam/ddd-lib@3.0.0`.
+
+### ⚠ BREAKING CHANGE: `isValid` is a getter everywhere
+
+`DddAggregateRoot.isValid()` was a **method**; `DddValueObject.isValid` was a **getter**. Both are getters now.
+
+```diff
+- if (!order.isValid()) { ... }
++ if (!order.isValid) { ... }
+```
+
+Value objects are unaffected — they already read as a property.
+
+**Why this was worth breaking.** The two shapes made a silent defect easy to write and impossible to see. `if (!order.isValid)` tests a `Function`, which is always truthy, so the guard never fires. TypeScript did not flag it, and since validation only *collects* broken rules and never throws, nothing else caught it either. **Three such guards shipped in this repository's own sample**, including `Product.create` and `Order.create`, which meant neither factory ever rejected an invalid aggregate.
+
+**Why a getter and not a method.** The direction was chosen for its failure mode, and the two are not symmetric:
+
+| Unify on | Existing `order.isValid()` | Existing `if (!vo.isValid)` |
+|---|---|---|
+| **getter** (chosen) | `TS6234` at compile time, `TypeError` at runtime — **loud** | unaffected |
+| method | unaffected | becomes a silently dead guard — **the same bug, inflicted on value object users** |
+
+A loud failure you fix in minutes beats a silent one you ship for two releases.
+
+**Migrating.** TypeScript tells you where: `TS6234: This expression is not callable because it is a 'get' accessor. Did you mean to use it without '()'?` For a mechanical pass, `ddd validate` from [`@nestjslatam/ddd-cli`](https://www.npmjs.com/package/@nestjslatam/ddd-cli) reads the shape your installed library declares and reports every call site, whichever version you are on.
+
+`AggregateValidationOrchestrator.isValid()` is a getter too, for the same reason: one name, one shape.
+
 ## 2.1.2 (2026-08-28)
 
 Published as `@nestjslatam/ddd-lib@2.1.2`. **Upgrade from any earlier 2.x if you use numeric value objects — they were unusable.**

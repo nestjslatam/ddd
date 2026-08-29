@@ -103,7 +103,7 @@ export class AggregateValidationOrchestrator<TEntity> {
    * Checks if the validation result is valid (no broken rules).
    * @returns true if valid, false otherwise
    */
-  public isValid(): boolean {
+  public get isValid(): boolean {
     return this.brokenRulesManager.getBrokenRules().length === 0;
   }
 

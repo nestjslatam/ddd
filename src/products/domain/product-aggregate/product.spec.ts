@@ -4,12 +4,14 @@ import { Product } from './product';
 /**
  * Regression cover for a guard that could never fire.
  *
- * `DddValueObject` declares `get isValid(): boolean`; `DddAggregateRoot`
- * declares `isValid(): boolean`. `Product.create` read it as a property, so
- * the expression tested a Function -- always truthy -- and the throw below it
- * was unreachable. Since validation only collects broken rules and never
- * throws, that guard was the only thing standing between a violated invariant
- * and a returned aggregate.
+ * `Product.create` once read `isValid` as a property while DddAggregateRoot
+ * declared it as a method, so the expression tested a Function -- always
+ * truthy -- and the throw below it was unreachable. Since validation only
+ * collects broken rules and never throws, that guard was the only thing
+ * standing between a violated invariant and a returned aggregate.
+ *
+ * The library has since unified on a getter for both bases, which is what
+ * makes the shape assertion below worth keeping.
  */
 describe('Product.create', () => {
   const validName = () => Name.create('Wireless Keyboard');
@@ -27,7 +29,7 @@ describe('Product.create', () => {
       validPrice(),
     );
 
-    expect(product.isValid()).toBe(true);
+    expect(product.isValid).toBe(true);
     expect(product.brokenRules.getBrokenRules()).toHaveLength(0);
   });
 
@@ -62,10 +64,10 @@ describe('Product.create', () => {
     ).toThrow(/multiple of 100/);
   });
 
-  it('exposes isValid as a method, not a property', () => {
-    // The shape difference between the two bases is what made the guard dead.
-    // Asserting it here means a future refactor cannot silently reintroduce
-    // the property form without a test failing.
+  it('exposes isValid as a getter, the same shape as a value object', () => {
+    // The two bases used to disagree, and that disagreement is what made the
+    // guard dead. Asserting the shape here means a future change cannot
+    // reintroduce the split without a test failing.
     const product = Product.create(
       validName(),
       Description.create(
@@ -74,8 +76,7 @@ describe('Product.create', () => {
       validPrice(),
     );
 
-    expect(typeof product.isValid).toBe('function');
-    expect(typeof product.isValid()).toBe('boolean');
+    expect(typeof product.isValid).toBe('boolean');
   });
 
   it('reports hasErrors from the call, not the function reference', () => {

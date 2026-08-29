@@ -29,7 +29,7 @@ export class ChangeProductStatusCommandHandler implements ICommandHandler<
 
     product.ChangeStatus(productStatus as unknown as ProductStatus);
 
-    if (!product.isValid()) {
+    if (!product.isValid) {
       const errors = product.brokenRules.getBrokenRules();
       throw new Error(errors.map((error) => error.message).join(', '));
     }
