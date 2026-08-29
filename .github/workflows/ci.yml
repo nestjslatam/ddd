@@ -7,6 +7,12 @@ on:
     branches: [main, master, develop]
   workflow_dispatch:
 
+# Least privilege for GITHUB_TOKEN. Nothing here writes to the repository, so
+# a compromised action in the dependency chain gets a token that cannot push
+# code, open a release or move a tag.
+permissions:
+  contents: read
+
 env:
   NODE_VERSION: '20'
 

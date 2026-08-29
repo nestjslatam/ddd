@@ -19,6 +19,12 @@ on:
         type: boolean
         default: true
 
+# Least privilege for GITHUB_TOKEN. The repository default is read-only; this
+# workflow needs to create a GitHub Release, and nothing else. npm publish uses
+# NPM_TOKEN, not this token.
+permissions:
+  contents: write
+
 env:
   NODE_VERSION: '20'
   REGISTRY_URL: 'https://registry.npmjs.org'
