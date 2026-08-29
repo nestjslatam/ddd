@@ -186,16 +186,17 @@ npm install
 npm run start:dev     # :3000, Swagger at /api
 ```
 
-> [!WARNING]
-> **Every write endpoint currently returns 500.** `main.ts` installs a global `ValidationPipe({ whitelist: true })`, and no DTO in `src/` carries a single `class-validator` decorator — so `whitelist` strips every property and the body arrives empty:
->
-> ```
-> POST /products  ->  500
-> ArgumentNullException: value cannot be null or undefined
->     at new DddValueObject (node_modules/@nestjslatam/ddd-lib/valueobject.js:109:19)
-> ```
->
-> All **8** `@Body()` handlers are affected. Reads (`GET /products`, `GET /orders`) work. This is a defect in the sample, not the library — the 304 tests exercise the domain directly and all pass. It is [the best first contribution here](#contributing).
+A full round trip, covered by [`test/app.e2e-spec.ts`](test/app.e2e-spec.ts):
+
+```bash
+POST  /products                      201   { "id": "..." }
+POST  /orders                        201   an empty DRAFT
+POST  /orders/:id/items              200
+PATCH /orders/:id/items/:productId   200
+POST  /orders/:id/confirm            200
+```
+
+Structural mistakes come back as `400` naming the field; a property the DTO does not declare is stripped and ignored, which is what the global `ValidationPipe({ whitelist: true })` is for. Domain invariants stay in the domain — `price: 0` is rejected by `PriceRangeValidator`, not by a decorator.
 
 Repositories are in-memory by design: the sample stays about the domain rather than about a database. Implement the repository contract against your own store.
 
@@ -266,6 +267,7 @@ Missing `@nestjs/cqrs` is what made `2.0.0` crash on import for everyone who had
 ```bash
 npm install
 npm test          # 36 suites, 1017 tests, ~10s
+npm run test:e2e  # 10 tests over the real HTTP surface
 npm run type-check
 npm run lint
 ```
@@ -276,10 +278,10 @@ Contributions are wanted, and there is concrete, verifiable work waiting. Every 
 
 **Good first issues**, in rough order of value:
 
-1. **Fix the write endpoints.** Add `class-validator` decorators to the 8 input DTOs in `src/**/use-cases/*/`. Both packages are already installed. Verify with `POST /products` returning `201` instead of `500`.
-2. **Make the e2e test assert something.** It currently requests `GET /singers` — an endpoint that does not exist — and accepts `200`, `404` _or_ `500`.
-3. **Rewrite the six stale `docs/`.** They describe a `Singers` module this repository does not contain.
-4. **Cover the sample application.** The library is at 98.6%; `src/` is not, and it is where the write-endpoint defect above has lived unnoticed.
+1. **Rewrite the six stale `docs/`.** They describe a `Singers` module this repository does not contain.
+2. **Cover the sample application.** The library is at 98.6%; `src/` is not, and the write-endpoint defect lived there unnoticed for exactly that reason.
+3. **Map domain rejections to 4xx.** A broken invariant — `price: 0`, say — currently surfaces as a `500` with no detail. It is a client error, and an exception filter translating `brokenRules` into a `422` body would say which rule failed.
+4. **Give `Order` a richer lifecycle.** `PROCESSING` and `DELIVERED` exist in the state machine and no endpoint reaches them.
 
 **Before you open a PR**, CI will run: ESLint, `prettier --check`, `tsc --noEmit` against **both** `tsconfig.json` and `libs/ddd/tsconfig.lib.json`, unit tests with coverage on Node 18 / 20 / 22, e2e tests, the library build, and `npm audit --audit-level=moderate`. All pass locally today, so the bar is reachable:
 
