@@ -7,8 +7,8 @@ Aggregates that collect their own broken rules, value objects that validate them
 
 [![npm](https://img.shields.io/npm/v/%40nestjslatam%2Fddd-lib?color=1e73be&label=ddd-lib)](https://www.npmjs.com/package/@nestjslatam/ddd-lib)
 [![CI](https://github.com/nestjslatam/ddd/actions/workflows/ci.yml/badge.svg)](https://github.com/nestjslatam/ddd/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-1017%20passing-00d084)](#running-the-tests)
-[![coverage](https://img.shields.io/badge/coverage-98.6%25-00d084)](#running-the-tests)
+[![tests](https://img.shields.io/badge/tests-1111%20passing-00d084)](#running-the-tests)
+[![coverage](https://img.shields.io/badge/library-98.8%25-00d084)](#running-the-tests)
 [![node](https://img.shields.io/badge/node-%3E%3D20.11-575760)](#requirements)
 [![license](https://img.shields.io/badge/license-MIT-575760)](LICENSE)
 
@@ -313,7 +313,7 @@ Contributions are wanted, and there is concrete, verifiable work waiting. Every 
 
 **Good first issues**, in rough order of value:
 
-1. **Cover the sample application.** The library is at 98.6%; `src/` is not, and the write-endpoint defect lived there unnoticed for exactly that reason.
+1. **Cover the sample's application layer.** Its use-case handlers read 0% because `npm test` does not collect from the e2e run that actually exercises them — either merge the two coverage reports, or test the handlers directly.
 2. **Give `Order` a richer lifecycle.** `Order.startProcessing()` exists on the aggregate and no endpoint reaches it, so `ship` and `deliver` are unreachable through the API — both answer `409` from `CONFIRMED`.
 3. **Persist something.** The in-memory repositories are deliberate, but a second implementation against a real store would prove the contract holds.
 

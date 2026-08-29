@@ -84,9 +84,9 @@
     },
     "collectCoverageFrom": [
       "libs/ddd/src/**/*.(t|j)s",
+      "src/**/*.(t|j)s",
       "!**/*.module.ts",
       "!**/*.dto.ts",
-      "!**/*.entity.ts",
       "!**/*.interface.ts",
       "!**/*.mock.ts",
       "!**/*.spec.ts",
@@ -116,10 +116,10 @@
     ],
     "coverageThreshold": {
       "global": {
-        "branches": 90,
-        "functions": 95,
-        "lines": 95,
-        "statements": 95
+        "branches": 55,
+        "functions": 48,
+        "lines": 38,
+        "statements": 36
       },
       "libs/ddd/src/core/business-rules/impl/property-change/notify-property-changed.base.ts": {
         "branches": 85,
@@ -210,6 +210,12 @@
         "functions": 100,
         "lines": 100,
         "statements": 100
+      },
+      "libs/ddd/src": {
+        "branches": 95,
+        "functions": 95,
+        "lines": 97,
+        "statements": 97
       }
     },
     "testEnvironment": "node",
@@ -219,7 +225,8 @@
     ],
     "moduleNameMapper": {
       "^@nestjslatam/ddd-lib(|/.*)$": "<rootDir>/libs/ddd/src/$1"
-    }
+    },
+    "//coverage": "Two floors, not one, and they measure different things. The per-path entry governs libs/ddd/src -- the published library -- at 95% lines. Jest excludes path-matched files from \"global\", so that entry governs src/, the sample, at its own real level. A single number let the library hide the sample: src/ sat at 8.5% while the reported figure was 98.6%, because collectCoverageFrom named only libs/. The sample floor is low because its application layer reads 0 here -- npm run test:e2e exercises it over HTTP but its coverage is not collected into this report. Low and honest beats high and meaningless."
   },
   "engines": {
     "node": ">=20.11"
