@@ -283,6 +283,9 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/). Not
 > [!NOTE]
 > Six further documents in `docs/` — `architecture.md`, `domain-layer.md`, `application-layer.md`, `infrastructure-layer.md`, `getting-started.md` and `api-reference.md` — are written around a `Singers` module that does not exist in this repository. They are still useful for the _shape_ of a DDD application, but do not expect to find the code they describe.
 
+> [!TIP]
+> **[The CLI's full guide →](https://github.com/nestjslatam/ddd-cli/blob/main/docs/GUIDE.md)** — every command and flag, walked through by building a complete domain from nothing into ten type-checking files. Worth reading even if you never install the CLI: it is the clearest write-up of this library's idiom anywhere, because every claim in it was produced by running the tool.
+
 ## Who is behind this
 
 Built and maintained by **[BeyondNet Tech](https://beyondnet.info/)** with the [NestJS Latam](https://nestjslatam.dev/) community.
