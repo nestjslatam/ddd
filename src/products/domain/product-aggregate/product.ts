@@ -35,10 +35,11 @@ export class Product extends DddAggregateRoot<Product, IProductProps> {
       status: ProductStatus.ACTIVE,
     });
 
-    // isValid is a method on DddAggregateRoot and a getter on
-    // DddValueObject. Read as a property here it is a Function, always
+    // isValid used to be a method on DddAggregateRoot and a getter on
+    // DddValueObject. Read as a property here it was a Function, always
     // truthy, so this guard never fired and create() returned products that
-    // had failed their own invariants.
+    // had failed their own invariants. 3.0.0 made both getters, which is
+    // what makes this read correct rather than accidentally inverted.
     if (!product.isValid) {
       const errors = product.brokenRules.getBrokenRules();
       throw new Error(
