@@ -9,7 +9,7 @@ on:
 
 env:
   NODE_VERSION: '20'
-  COVERAGE_THRESHOLD: 80
+  COVERAGE_THRESHOLD: 95
 
 jobs:
   # Job 1: Lint y Format Check
@@ -182,7 +182,11 @@ jobs:
             fi
             echo "✅ Coverage ${COVERAGE}% meets threshold ${THRESHOLD}%"
           else
-            echo "⚠️ Coverage report not found, skipping threshold check"
+            echo "::error::coverage/coverage-summary.json was not produced."
+            echo "That file is written by the 'json-summary' reporter. If it is"
+            echo "missing, this gate silently passed every build -- which it did,"
+            echo "for as long as the reporter was absent. Failing instead."
+            exit 1
           fi
 
       - name: Upload test results

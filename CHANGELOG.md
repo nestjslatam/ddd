@@ -20,6 +20,67 @@ The test proving the aggregate-level guard runs had leaned on the removed rule. 
 
 304 tests pass.
 
+## 4.0.0 (2026-08-29)
+
+Eleven of the library's twelve core files had **no test suite at all** — roughly 4000 lines, including `DddAggregateRoot` and `DddValueObject` themselves. Writing those suites surfaced **34 confirmed defects**, eight of them severe. This release fixes them.
+
+Coverage of the published library goes from **58.4% to 98.6%** lines, and the test count from 308 to **1017**.
+
+### Why the reported coverage never showed this
+
+Five independent mechanisms each hid it, and any one alone was enough:
+
+| Mechanism                                                                                                                                                        | Effect                                            |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `collectCoverageFrom` excluded `aggregate-root.ts`, `valueobject.ts`, `domain-event.ts`, `enum.ts`, `tracking-state-manager.ts`, `helpers/**`, `valueobjects/**` | The untested files were not measured              |
+| `coverageReporters` lacked `json-summary`                                                                                                                        | `coverage-summary.json` was never written         |
+| CI wrapped its gate in `if [ -f coverage-summary.json ]`                                                                                                         | The gate skipped itself, silently, on every build |
+| No `global` entry in `coverageThreshold`                                                                                                                         | Nothing enforced an overall floor                 |
+| The 15 per-file thresholds                                                                                                                                       | All on files already at 100%                      |
+
+All five are fixed. The floor is now 95% lines / 90% branches globally, CI **fails** rather than skipping when the report is missing, and the exclusions are gone.
+
+### ⚠ BREAKING CHANGES
+
+**`DddAggregateRoot.validate()` clears broken rules before re-deriving them.** Previously it only ever appended, so an aggregate that failed validation once could **never become valid again** — `isValid` reads that manager, so every downstream `if (!aggregate.isValid) throw` kept firing after the violation was corrected. The canonical load → correct → revalidate → save flow was impossible. `DddValueObject.validate()` has always cleared; this is the same contract on the aggregate side. Rules seeded into an injected `BrokenRulesManager` no longer survive construction — add them after constructing.
+
+**`getCopy()` / `clone()` return an independent instance.** They were `Object.assign(Object.create(proto), this)`, which copied the property map, the broken rules, the validators and the tracking state **by reference** — mutating the "copy" mutated the original. In objects whose defining property is immutability. Note that property-changed subscriptions are not carried to the copy: subscribe to the copy.
+
+**`IdValueObject` enforces its invariant on every path.** `setValue()` now throws `InvalidFormatException` instead of silently accepting arbitrary text — an identity could previously be overwritten with `'not-a-uuid'` and still report `isValid === true`. The protected constructor validates too. Values are canonicalized to lowercase, so upper- and lower-case spellings of the same UUID are now equal and share a hash; a store holding upper-case UUIDs will read back lower-case. `getHashCode()` returns a real per-value hash instead of the constant `38` for every id. The rejection message said "valid UUID v4" while the code accepted any RFC 4122 version — the message was wrong and now says "a valid UUID".
+
+**Every `StringValueObject` option now takes effect.** `allowEmpty`, `trimWhitespace`, `minLength` and `maxLength` were all silently ignored: the constructor assigned `this.options` _after_ `super(value)`, by which point the base had already run `addValidators()` and `validate()`. Values that were accepted because their options did nothing may now report broken rules. `StringValueObject.empty()` is now valid; it previously carried "value cannot be empty". This is the same defect `NumberValueObject` shipped with, fixed the same way.
+
+Behind it sat a second one: the `maxLength` branch pushed a bare object literal into `ValidatorRuleManager`, so `validator.validate()` threw `TypeError` the moment it was reached. Nobody hit it, because the first defect meant it never was.
+
+**`DddEnum.getAll()` returns a new array on every call.** It returned the internal cache array itself, so a single in-place `sort()`, `pop()` or `splice()` by any caller permanently corrupted every lookup in the process. `getAll() === getAll()` was true and is now false; the members are still the same singletons. It also reflects members declared after the first lookup instead of freezing a partial list, and a subclass of a populated enumeration now inherits its parent's members instead of resolving nothing.
+
+**`StateTransitionManager` uses one comparator argument order.** `canTransitionTo` invoked the comparator as `(definedState, queryState)` for the source lookup and `(queryState, definedState)` for the target match, so any asymmetric comparator — wildcards, subtype matching — gave contradictory answers inside a single call. It is `(definedState, queryState)` everywhere now, documented on the comparator type. `defineTransitions` throws on two source keys the comparator considers equal, rather than silently dropping the second. Symmetric comparators and the reference-equality default are unaffected.
+
+**Nested change detection works for this library's own objects.** `NestedPropertyChangeDetector` looked for a child property named `Tracking`; `DddValueObject` and `DddAggregateRoot` both expose it as `trackingState`, so the documented feature had never fired for anything this library produces. Repositories branching on those flags will start seeing writes they previously skipped. With several tracked children the surviving flag is now deterministic — `new < dirty < selfDeleted < deleted` — instead of depending on `Object.keys` order.
+
+### 🐛 Also fixed
+
+- `version` on `DddAggregateRoot` was declared `number`, never assigned, and always `undefined` — while documented as being for optimistic concurrency control.
+- `propsCopy` promised the `TProps` members in its return type and did not deliver them.
+- `toPlainObject`/`toObject` spread props over the identity, so a props key named `id` or `version` silently won.
+- `equals()` was not reflexive when a component was `NaN`.
+- `EventMetadataBuilder.create` threw with a garbled message; `validateMetadata` accepted `undefined` and `NaN` versions.
+- `toJSON`'s payload aliased the event's own arrays and objects.
+- `extractMetadata` treated a present-but-falsy value as missing.
+- `getUtcDate` read the clock three times and could return a date that never existed.
+- `InvalidFormatException` dropped the offending value from its message when that value was the empty string.
+
+### 📈 Migration
+
+The compiler finds none of this — the changes are behavioural. In order of how likely you are to be affected:
+
+1. **Remove any workaround for sticky broken rules.** If you called `aggregate.brokenRules.clear()` before `validate()`, delete it; `validate()` does it now.
+2. **Check anything that reads `clone()` or `getCopy()`.** If you relied on the copy sharing state, that was the bug. Re-subscribe property-changed handlers on the copy.
+3. **Lower-case your stored UUIDs, or accept that reads now return lower-case.** Equality across cases is a fix, but a store with mixed casing will look different.
+4. **Re-check `StringValueObject` subclasses that pass options.** Values that used to pass may now fail, because the options finally apply.
+5. **If you pass a custom state comparator, confirm the argument order.** It is `(definedState, queryState)`.
+6. `npx ddd validate` reports the `isValid` shape mismatch from 3.0.0; nothing in 4.0.0 needs a codemod.
+
 ## 3.0.0 (2026-08-28)
 
 Published as `@nestjslatam/ddd-lib@3.0.0`.
