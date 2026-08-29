@@ -14,9 +14,5 @@ export class ProductPriceValidator extends AbstractRuleValidator<Product> {
     if (this.subject.props.price.getValue() > 1000000) {
       this.addBrokenRule('props.price', 'Price must be less than 1000000');
     }
-
-    if (this.subject.props.price.getValue() % 100 !== 0) {
-      this.addBrokenRule('props.price', 'Price must be a multiple of 100');
-    }
   }
 }
