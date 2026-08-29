@@ -4,6 +4,7 @@ import { Order } from 'src/orders/domain/order-aggregate/order';
 import { CustomerInfo } from 'src/orders/domain/value-objects/customer-info.vo';
 import { ShippingAddress } from 'src/orders/domain/value-objects/shipping-address.vo';
 import { OrderRepository } from 'src/orders/infrastructure/repositories/order.repository';
+import { BrokenRulesException } from 'src/shared/exceptions/broken-rules.exception';
 
 @CommandHandler(CreateOrderCommand)
 export class CreateOrderCommandHandler implements ICommandHandler<
@@ -50,7 +51,7 @@ export class CreateOrderCommandHandler implements ICommandHandler<
 
     if (!order.isValid) {
       const errors = order.brokenRules.getBrokenRules();
-      throw new Error(errors.map((error) => error.message).join(', '));
+      throw new BrokenRulesException('Order', errors);
     }
 
     // Save order to repository

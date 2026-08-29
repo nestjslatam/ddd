@@ -2,6 +2,7 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { ConfirmOrderCommand } from './confirm-order.command';
 import { OrderRepository } from 'src/orders/infrastructure/repositories/order.repository';
 import { NotFoundException } from '@nestjs/common';
+import { BrokenRulesException } from 'src/shared/exceptions/broken-rules.exception';
 
 @CommandHandler(ConfirmOrderCommand)
 export class ConfirmOrderCommandHandler implements ICommandHandler<
@@ -25,7 +26,7 @@ export class ConfirmOrderCommandHandler implements ICommandHandler<
 
     if (!order.isValid) {
       const errors = order.brokenRules.getBrokenRules();
-      throw new Error(errors.map((error) => error.message).join(', '));
+      throw new BrokenRulesException('Order', errors);
     }
 
     await this.orderRepository.save(order);

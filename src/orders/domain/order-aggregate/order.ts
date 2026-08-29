@@ -1,4 +1,11 @@
-import { IdValueObject, DddAggregateRoot } from '@nestjslatam/ddd-lib';
+import { NotFoundException } from '@nestjs/common';
+import {
+  ArgumentNullException,
+  DddAggregateRoot,
+  IdValueObject,
+  InvalidOperationException,
+  InvalidStateTransitionException,
+} from '@nestjslatam/ddd-lib';
 import { OrderStatus, canTransitionTo } from './order-status.enum';
 import { OrderItem } from '../entities/order-item.entity';
 import { Money } from '../value-objects/money.vo';
@@ -22,6 +29,7 @@ import {
   OrderCustomerValidator,
   OrderShippingValidator,
 } from '../validators';
+import { BrokenRulesException } from '../../../shared/exceptions/broken-rules.exception';
 
 /**
  * Order Aggregate Root.
@@ -104,10 +112,10 @@ export class Order extends DddAggregateRoot<Order, IOrderProps> {
   ): Order {
     // Validar información del cliente
     if (!customerInfo) {
-      throw new Error('Customer information is required');
+      throw new ArgumentNullException('customer');
     }
     if (!shippingAddress) {
-      throw new Error('Shipping address is required');
+      throw new ArgumentNullException('shippingAddress');
     }
 
     const order = new Order({
@@ -123,11 +131,7 @@ export class Order extends DddAggregateRoot<Order, IOrderProps> {
     // tests a Function and is always truthy, so this guard never fired.
     if (!order.isValid) {
       const errors = order.brokenRules.getBrokenRules();
-      throw new Error(
-        `Cannot create order: ${errors
-          .map((e) => `${e.property}: ${e.message}`)
-          .join(', ')}`,
-      );
+      throw new BrokenRulesException('Order', errors);
     }
 
     order.apply(
@@ -287,7 +291,7 @@ export class Order extends DddAggregateRoot<Order, IOrderProps> {
     const index = items.findIndex((item) => item.isForProduct(productId));
 
     if (index === -1) {
-      throw new Error('Item not found in order');
+      throw new NotFoundException('Item not found in order');
     }
 
     items.splice(index, 1);
@@ -309,7 +313,7 @@ export class Order extends DddAggregateRoot<Order, IOrderProps> {
 
     const itemIndex = this.findItemIndexByProductId(productId);
     if (itemIndex === -1) {
-      throw new Error('Item not found in order');
+      throw new NotFoundException('Item not found in order');
     }
 
     const oldItem = this.props.items[itemIndex];
@@ -429,7 +433,7 @@ export class Order extends DddAggregateRoot<Order, IOrderProps> {
     this.assertCanTransitionTo(OrderStatus.CANCELLED);
 
     if (!reason || reason.trim().length === 0) {
-      throw new Error('Cancellation reason is required');
+      throw new ArgumentNullException('reason');
     }
 
     const oldStatus = this.status;
@@ -503,27 +507,29 @@ export class Order extends DddAggregateRoot<Order, IOrderProps> {
 
   private assertCanModifyItems(): void {
     if (!this.canModifyItems()) {
-      throw new Error(`Cannot modify items. Order is in ${this.status} status`);
+      throw new InvalidOperationException(
+        `Cannot modify items. Order is in ${this.status} status`,
+      );
     }
   }
 
   private assertCanTransitionTo(newStatus: OrderStatus): void {
     if (!canTransitionTo(this.status, newStatus)) {
-      throw new Error(
-        `Invalid status transition from ${this.status} to ${newStatus}`,
-      );
+      throw new InvalidStateTransitionException(this.status, newStatus);
     }
   }
 
   private assertHasItems(): void {
     if (this.props.items.length === 0) {
-      throw new Error('Cannot confirm order without items');
+      throw new InvalidOperationException('Cannot confirm order without items');
     }
   }
 
   private assertMeetsMinimumAmount(): void {
     if (this.totalAmount.amount < Order.MINIMUM_ORDER_AMOUNT) {
-      throw new Error(
+      throw BrokenRulesException.of(
+        'Order',
+        'totalAmount',
         `Order amount must be at least ${Money.fromAmount(
           Order.MINIMUM_ORDER_AMOUNT,
           this.currency,
@@ -534,7 +540,9 @@ export class Order extends DddAggregateRoot<Order, IOrderProps> {
 
   private assertMaxItemsNotExceeded(): void {
     if (this.props.items.length >= Order.MAXIMUM_ITEMS) {
-      throw new Error(
+      throw BrokenRulesException.of(
+        'Order',
+        'items',
         `Cannot add more items. Maximum ${Order.MAXIMUM_ITEMS} items per order`,
       );
     }
@@ -542,7 +550,9 @@ export class Order extends DddAggregateRoot<Order, IOrderProps> {
 
   private assertCurrencyMatches(money: Money): void {
     if (money.currency !== this.currency) {
-      throw new Error(
+      throw BrokenRulesException.of(
+        'Order',
+        'currency',
         `Currency mismatch: Expected ${this.currency}, got ${money.currency}`,
       );
     }

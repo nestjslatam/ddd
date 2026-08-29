@@ -184,6 +184,65 @@ describe('Write endpoints (e2e)', () => {
     });
   });
 
+  describe('orders reject with the right code', () => {
+    const draft = async () => {
+      const res = await request(http).post('/orders').send(validCustomer);
+      return res.body.id as string;
+    };
+
+    it('answers 422 when the domain refuses an item quantity', async () => {
+      // The DTO says `@IsNumber()`, so 0 is structurally fine and reaches
+      // OrderItem, which refuses it. Well-formed, refused by the domain.
+      const product = await request(http).post('/products').send(validProduct);
+      const id = await draft();
+
+      const res = await request(http).post(`/orders/${id}/items`).send({
+        productId: product.body.id,
+        productName: validProduct.name,
+        quantity: 0,
+        unitPrice: validProduct.price,
+      });
+
+      expect(res.status).toBe(422);
+      expect(res.body.brokenRules).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ property: 'quantity' }),
+        ]),
+      );
+    });
+
+    it('answers 409 when the order is not in a state that allows it', async () => {
+      // A draft with no items cannot be confirmed. Nothing is malformed and
+      // no value is wrong -- the aggregate is simply in the wrong state, and
+      // that is a conflict rather than an unprocessable entity.
+      const id = await draft();
+
+      const res = await request(http).post(`/orders/${id}/confirm`).send({});
+
+      expect(res.status).toBe(409);
+    });
+
+    it('answers 404 for an item the order does not hold', async () => {
+      const id = await draft();
+
+      const res = await request(http)
+        .patch(`/orders/${id}/items/00000000-0000-4000-8000-000000000000`)
+        .send({ newQuantity: 2 });
+
+      expect(res.status).toBe(404);
+    });
+
+    it('answers 400 when a required value is absent', async () => {
+      // ArgumentNullException, raised by the value object rather than the
+      // pipe: the field is present and is a string, it is just empty.
+      const res = await request(http)
+        .post('/orders')
+        .send({ ...validCustomer, shippingStreet: '   ' });
+
+      expect(res.status).toBe(400);
+    });
+  });
+
   describe('reads', () => {
     it('lists products', async () => {
       await expect(

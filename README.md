@@ -220,7 +220,18 @@ Two kinds of mistake, two answers — the distinction is the point:
 }
 ```
 
-A wrong _type_ is structure and never reaches the domain. A wrong _value_ is meaning and only the aggregate can judge it. `DomainExceptionFilter` maps the second to `422`, `ArgumentNullException` and `InvalidFormatException` to `400`, and an illegal state transition to `409` — while leaving anything that is not a domain exception as a `500`, because an unexpected error genuinely is one.
+A wrong _type_ is structure and never reaches the domain. A wrong _value_ is meaning and only the aggregate can judge it. `DomainExceptionFilter` maps the whole domain vocabulary:
+
+| Exception                         | Status | Reached by                                          |
+| --------------------------------- | ------ | --------------------------------------------------- |
+| `BrokenRulesException`            | `422`  | `quantity: 0`, `price: 0` — refused by an invariant |
+| `ArgumentNullException`           | `400`  | a required value absent or blank                    |
+| `InvalidFormatException`          | `400`  | an id that is not a UUID, a status outside the enum |
+| `InvalidStateTransitionException` | `409`  | `DRAFT → SHIPPED`                                   |
+| `InvalidOperationException`       | `409`  | confirming an order with no items                   |
+| Nest's `NotFoundException`        | `404`  | an item the order does not hold                     |
+
+Anything that is **not** a domain exception is deliberately left as a `500`. Two throws in `money.vo.ts` stay that way on purpose, with a comment saying why: no endpoint can ask for a division by zero, so reaching one means a bug in this code, and dressing a fault up as a client error hides it.
 
 Repositories are in-memory by design: the sample stays about the domain rather than about a database. Implement the repository contract against your own store.
 
@@ -291,7 +302,7 @@ Missing `@nestjs/cqrs` is what made `2.0.0` crash on import for everyone who had
 ```bash
 npm install
 npm test          # 36 suites, 1017 tests, ~10s
-npm run test:e2e  # 12 tests over the real HTTP surface
+npm run test:e2e  # 16 tests over the real HTTP surface
 npm run type-check
 npm run lint
 ```
@@ -305,7 +316,7 @@ Contributions are wanted, and there is concrete, verifiable work waiting. Every 
 1. **Rewrite the six stale `docs/`.** They describe a `Singers` module this repository does not contain.
 2. **Cover the sample application.** The library is at 98.6%; `src/` is not, and the write-endpoint defect lived there unnoticed for exactly that reason.
 3. **Give `Order` a richer lifecycle.** `PROCESSING` and `DELIVERED` exist in the state machine and no endpoint reaches them.
-4. **Carry `BrokenRulesException` through the Orders module too.** Products raises it; several Orders handlers still throw a plain `Error`, so those rejections stay `500`.
+4. **Persist something.** The in-memory repositories are deliberate, but a second implementation against a real store would prove the contract holds.
 
 **Before you open a PR**, CI will run: ESLint, `prettier --check`, `tsc --noEmit` against **both** `tsconfig.json` and `libs/ddd/tsconfig.lib.json`, unit tests with coverage on Node 18 / 20 / 22, e2e tests, the library build, and `npm audit --audit-level=moderate`. All pass locally today, so the bar is reachable:
 
