@@ -1,4 +1,8 @@
 import { DddValueObject } from '@nestjslatam/ddd-lib';
+import {
+  ArgumentNullException,
+  InvalidFormatException,
+} from '@nestjslatam/ddd-lib';
 
 export interface ICustomerInfoProps {
   name: string;
@@ -34,16 +38,19 @@ export class CustomerInfo extends DddValueObject<ICustomerInfoProps> {
 
   private validateProps(props: ICustomerInfoProps): void {
     if (!props.name || props.name.trim().length === 0) {
-      throw new Error('Customer name is required');
+      throw new ArgumentNullException('customerName');
     }
     if (!props.email || props.email.trim().length === 0) {
-      throw new Error('Customer email is required');
+      throw new ArgumentNullException('customerEmail');
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.email)) {
-      throw new Error('Customer email is invalid');
+      throw new InvalidFormatException(
+        'customerEmail',
+        'a valid email address',
+      );
     }
     if (!props.phone || props.phone.trim().length === 0) {
-      throw new Error('Customer phone is required');
+      throw new ArgumentNullException('customerPhone');
     }
   }
 

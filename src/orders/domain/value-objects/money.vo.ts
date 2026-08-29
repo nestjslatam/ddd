@@ -124,6 +124,10 @@ export class Money extends DddValueObject<{
    */
   public divide(divisor: number): Money {
     if (divisor === 0) {
+      // Deliberately a plain Error, so DomainExceptionFilter leaves it as a
+      // 500. Dividing by zero is not something a request can ask for -- no
+      // endpoint exposes it -- so reaching this line means a bug in this
+      // code, and dressing a fault up as a client error hides it.
       throw new Error('Cannot divide money by zero');
     }
     return new Money(Math.round(this.cents / divisor), this.currency);
@@ -193,6 +197,10 @@ export class Money extends DddValueObject<{
 
   private assertSameCurrency(other: Money): void {
     if (this.currency !== other.currency) {
+      // Also deliberately plain: Order.assertSameCurrency already refuses a
+      // mismatched currency at the aggregate boundary with a 422 naming the
+      // rule. Reaching it here means two Money values of different currencies
+      // met inside the domain, which no request can arrange.
       throw new Error(
         `Currency mismatch: ${this.currency} vs ${other.currency}`,
       );

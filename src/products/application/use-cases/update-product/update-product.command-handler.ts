@@ -3,6 +3,7 @@ import { UpdateProductCommand } from './update-product.command';
 import { ProductRepository } from 'src/products/infrastructure/repositories/product.repository';
 import { NotFoundException } from '@nestjs/common';
 import { Name, Description, Price } from 'src/shared/valueobjects';
+import { BrokenRulesException } from 'src/shared/exceptions/broken-rules.exception';
 
 @CommandHandler(UpdateProductCommand)
 export class UpdateProductCommandHandler implements ICommandHandler<
@@ -36,7 +37,7 @@ export class UpdateProductCommandHandler implements ICommandHandler<
 
     if (!product.isValid) {
       const errors = product.brokenRules.getBrokenRules();
-      throw new Error(errors.map((error) => error.message).join(', '));
+      throw new BrokenRulesException('Product', errors);
     }
 
     await this.productRepository.save(product);

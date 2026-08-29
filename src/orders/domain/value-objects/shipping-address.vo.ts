@@ -1,4 +1,5 @@
 import { DddValueObject } from '@nestjslatam/ddd-lib';
+import { ArgumentNullException } from '@nestjslatam/ddd-lib';
 
 export interface IShippingAddressProps {
   street: string;
@@ -71,19 +72,19 @@ export class ShippingAddress extends DddValueObject<IShippingAddressProps> {
 
   private validateProps(props: IShippingAddressProps): void {
     if (!props.street || props.street.trim().length === 0) {
-      throw new Error('Street is required');
+      throw new ArgumentNullException('street');
     }
     if (!props.city || props.city.trim().length === 0) {
-      throw new Error('City is required');
+      throw new ArgumentNullException('city');
     }
     if (!props.state || props.state.trim().length === 0) {
-      throw new Error('State is required');
+      throw new ArgumentNullException('state');
     }
     if (!props.zipCode || props.zipCode.trim().length === 0) {
-      throw new Error('Zip code is required');
+      throw new ArgumentNullException('zipCode');
     }
     if (!props.country || props.country.trim().length === 0) {
-      throw new Error('Country is required');
+      throw new ArgumentNullException('country');
     }
   }
 

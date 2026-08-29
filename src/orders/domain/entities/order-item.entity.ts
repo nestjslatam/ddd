@@ -5,6 +5,7 @@ import {
   OrderItemPriceValidator,
   OrderItemProductValidator,
 } from '../validators';
+import { BrokenRulesException } from '../../../shared/exceptions/broken-rules.exception';
 
 /**
  * Value Object representing an item within an order.
@@ -136,7 +137,11 @@ export class OrderItem extends DddValueObject<IOrderItemProps> {
    */
   public withIncreasedQuantity(increment: number): OrderItem {
     if (increment <= 0) {
-      throw new Error('Increment must be positive');
+      throw BrokenRulesException.of(
+        'OrderItem',
+        'increment',
+        'Increment must be positive',
+      );
     }
     return this.withQuantity(this.quantity + increment);
   }
@@ -155,22 +160,42 @@ export class OrderItem extends DddValueObject<IOrderItemProps> {
 
   private static validateQuantity(quantity: number): void {
     if (!Number.isInteger(quantity)) {
-      throw new Error('Quantity must be an integer');
+      throw BrokenRulesException.of(
+        'OrderItem',
+        'quantity',
+        'Quantity must be an integer',
+      );
     }
     if (quantity < 1) {
-      throw new Error('Quantity must be at least 1');
+      throw BrokenRulesException.of(
+        'OrderItem',
+        'quantity',
+        'Quantity must be at least 1',
+      );
     }
     if (quantity > 10000) {
-      throw new Error('Quantity cannot exceed 10000 per item');
+      throw BrokenRulesException.of(
+        'OrderItem',
+        'quantity',
+        'Quantity cannot exceed 10000 per item',
+      );
     }
   }
 
   private static validateProductName(name: string): void {
     if (!name || name.trim().length === 0) {
-      throw new Error('Product name cannot be empty');
+      throw BrokenRulesException.of(
+        'OrderItem',
+        'productName',
+        'Product name cannot be empty',
+      );
     }
     if (name.length > 500) {
-      throw new Error('Product name cannot exceed 500 characters');
+      throw BrokenRulesException.of(
+        'OrderItem',
+        'productName',
+        'Product name cannot exceed 500 characters',
+      );
     }
   }
 

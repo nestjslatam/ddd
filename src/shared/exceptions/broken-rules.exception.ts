@@ -26,4 +26,21 @@ export class BrokenRulesException extends Error {
     );
     this.name = 'BrokenRulesException';
   }
+
+  /**
+   * For a guard that raises a single rule directly rather than accumulating
+   * into a manager. `OrderItem` and several of `Order`'s business conditions
+   * work that way, and without this they would each have to build a
+   * `BrokenRule` by hand -- which is how they ended up throwing plain
+   * `Error`s and collapsing into 500s in the first place.
+   */
+  static of(
+    subject: string,
+    property: string,
+    message: string,
+  ): BrokenRulesException {
+    return new BrokenRulesException(subject, [
+      new BrokenRule(property, message, 'Error'),
+    ]);
+  }
 }

@@ -3,6 +3,8 @@ import { ChangeProductStatusCommand } from './change-product-status.command';
 import { ProductRepository } from 'src/products/infrastructure/repositories/product.repository';
 import { NotFoundException } from '@nestjs/common';
 import { ProductStatus } from 'src/products/domain/product-aggregate/product.status';
+import { BrokenRulesException } from 'src/shared/exceptions/broken-rules.exception';
+import { InvalidFormatException } from '@nestjslatam/ddd-lib';
 
 @CommandHandler(ChangeProductStatusCommand)
 export class ChangeProductStatusCommandHandler implements ICommandHandler<
@@ -24,14 +26,18 @@ export class ChangeProductStatusCommandHandler implements ICommandHandler<
 
     const productStatus = status.toUpperCase();
     if (!Object.values(ProductStatus).includes(productStatus as any)) {
-      throw new Error(`Invalid status: ${status}`);
+      throw new InvalidFormatException(
+        'status',
+        'ACTIVE, INACTIVE or DELETED',
+        status,
+      );
     }
 
     product.ChangeStatus(productStatus as unknown as ProductStatus);
 
     if (!product.isValid) {
       const errors = product.brokenRules.getBrokenRules();
-      throw new Error(errors.map((error) => error.message).join(', '));
+      throw new BrokenRulesException('Product', errors);
     }
 
     await this.productRepository.save(product);
