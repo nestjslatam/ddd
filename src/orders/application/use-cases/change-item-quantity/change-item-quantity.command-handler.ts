@@ -25,7 +25,7 @@ export class ChangeItemQuantityCommandHandler implements ICommandHandler<
     const productIdVO = IdValueObject.load(productId);
     order.changeItemQuantity(productIdVO, newQuantity);
 
-    if (!order.isValid()) {
+    if (!order.isValid) {
       const errors = order.brokenRules.getBrokenRules();
       throw new Error(errors.map((error) => error.message).join(', '));
     }

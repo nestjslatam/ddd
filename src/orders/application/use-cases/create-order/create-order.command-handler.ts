@@ -48,7 +48,7 @@ export class CreateOrderCommandHandler implements ICommandHandler<
     // Create order aggregate
     const order = Order.create(customerInfo, shippingAddress, currency);
 
-    if (!order.isValid()) {
+    if (!order.isValid) {
       const errors = order.brokenRules.getBrokenRules();
       throw new Error(errors.map((error) => error.message).join(', '));
     }

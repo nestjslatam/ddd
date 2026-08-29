@@ -121,7 +121,7 @@ export class Order extends DddAggregateRoot<Order, IOrderProps> {
     // Validar el pedido recién creado
     // isValid is a method on DddAggregateRoot; reading it as a property
     // tests a Function and is always truthy, so this guard never fired.
-    if (!order.isValid()) {
+    if (!order.isValid) {
       const errors = order.brokenRules.getBrokenRules();
       throw new Error(
         `Cannot create order: ${errors
@@ -610,7 +610,7 @@ export class Order extends DddAggregateRoot<Order, IOrderProps> {
       isNew: this.trackingState.isNew,
       isDirty: this.trackingState.isDirty,
       isDeleted: this.trackingState.isDeleted,
-      hasErrors: !this.isValid(),
+      hasErrors: !this.isValid,
       errors: this.brokenRules.getBrokenRules().map((r) => r.message),
       status: this.status,
       totalAmount: this.totalAmount.amount,

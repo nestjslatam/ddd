@@ -12,7 +12,7 @@ npm install @nestjslatam/ddd-lib
 > [!WARNING]
 > **Pre-1.0 in spirit.** The public API is not stable and this is not recommended for production. Pin an exact version.
 >
-> **`2.0.0` and `2.1.0` are deprecated on npm and should not be used.** `2.0.0` crashes on import wherever `@nestjs/cqrs` is not already installed; `2.1.0` breaks every CommonJS consumer, Jest included, through an ESM-only `uuid`. Current is **`2.1.2`**.
+> **`2.0.0` and `2.1.0` are deprecated on npm and should not be used.** `2.0.0` crashes on import wherever `@nestjs/cqrs` is not already installed; `2.1.0` breaks every CommonJS consumer, Jest included, through an ESM-only `uuid`. Current is **`3.0.0`**, which unifies `isValid` on a getter -- see below.
 
 ## A value object
 
@@ -86,23 +86,16 @@ export class Order extends DddAggregateRoot<Order, IOrderProps> {
 }
 ```
 
-## Two shapes of `isValid`
+## `isValid` is a getter
 
-The single sharpest edge in this library, and worth reading before anything else.
-
-| Base | Declaration | Correct use |
-|---|---|---|
-| `DddValueObject` | `get isValid(): boolean` | `if (!price.isValid)` |
-| `DddAggregateRoot` | `isValid(): boolean` | `if (!order.isValid())` |
-
-Reading the aggregate's method as a property tests a `Function`, which is always truthy — so `if (!order.isValid)` **never fires** and the guard beneath it is unreachable. TypeScript does not flag it, and since validation only collects broken rules and never throws, nothing else will either. This repository's own sample shipped three of them.
-
-[`@nestjslatam/ddd-cli`](https://www.npmjs.com/package/@nestjslatam/ddd-cli) detects it:
-
-```bash
-npx ddd validate
-# error  Order.create() reads isValid as a property, but it is a method on DddAggregateRoot
+```ts
+if (!order.isValid) { ... }   // aggregate
+if (!price.isValid) { ... }   // value object
 ```
+
+Both bases expose it the same way. **This changed in 3.0.0** — `DddAggregateRoot` previously declared it as a method, and the mismatch made a silent defect easy to write: `if (!order.isValid)` tested a `Function`, always truthy, so the guard never fired. TypeScript did not flag it, and since validation only *collects* broken rules and never throws, nothing else did either. Three such guards shipped in this repository's own sample.
+
+Upgrading from 2.x, TypeScript points at every call site: `TS6234: This expression is not callable because it is a 'get' accessor.` For a mechanical pass, `npx ddd validate` reports them all.
 
 ## What you get
 
@@ -128,7 +121,7 @@ Forty-four symbols in all. `npx ddd list` prints the full inventory grouped by f
 
 ## Known limitations
 
-Honest list, all verified against `2.1.2`:
+Honest list, all verified against the current release:
 
 - **`aggregate.version` is `undefined`.** The private setter has no caller.
 - **An aggregate does not clear stale broken rules on re-validation.** Fix the data, call `validate()` again, and the old rule is still there — you must `brokenRules.clear()` first. Value objects do clear; aggregates do not.

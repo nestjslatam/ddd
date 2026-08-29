@@ -34,7 +34,7 @@ export class UpdateProductCommandHandler implements ICommandHandler<
       product.ChangePrice(Price.create(price));
     }
 
-    if (!product.isValid()) {
+    if (!product.isValid) {
       const errors = product.brokenRules.getBrokenRules();
       throw new Error(errors.map((error) => error.message).join(', '));
     }

@@ -23,7 +23,7 @@ export class ConfirmOrderCommandHandler implements ICommandHandler<
 
     order.confirm();
 
-    if (!order.isValid()) {
+    if (!order.isValid) {
       const errors = order.brokenRules.getBrokenRules();
       throw new Error(errors.map((error) => error.message).join(', '));
     }

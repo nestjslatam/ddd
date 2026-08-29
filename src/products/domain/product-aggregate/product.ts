@@ -39,7 +39,7 @@ export class Product extends DddAggregateRoot<Product, IProductProps> {
     // DddValueObject. Read as a property here it is a Function, always
     // truthy, so this guard never fired and create() returned products that
     // had failed their own invariants.
-    if (!product.isValid()) {
+    if (!product.isValid) {
       const errors = product.brokenRules.getBrokenRules();
       throw new Error(
         `Cannot create product: ${errors
@@ -273,7 +273,7 @@ export class Product extends DddAggregateRoot<Product, IProductProps> {
       isNew: this.trackingState.isNew,
       isDirty: this.trackingState.isDirty,
       isDeleted: this.trackingState.isDeleted,
-      hasErrors: !this.isValid(),
+      hasErrors: !this.isValid,
       errors: this.brokenRules.getBrokenRules().map((r) => r.message),
     };
   }

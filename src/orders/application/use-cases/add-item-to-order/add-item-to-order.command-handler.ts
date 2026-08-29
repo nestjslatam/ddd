@@ -28,7 +28,7 @@ export class AddItemToOrderCommandHandler implements ICommandHandler<
 
     order.addItem(productIdVO, productName, quantity, price);
 
-    if (!order.isValid()) {
+    if (!order.isValid) {
       const errors = order.brokenRules.getBrokenRules();
       throw new Error(errors.map((error) => error.message).join(', '));
     }

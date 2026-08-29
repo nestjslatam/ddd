@@ -156,7 +156,7 @@ export abstract class DddAggregateRoot<
    * @example
    * ```typescript
    * product.validate();
-   * if (!product.isValid()) {
+   * if (!product.isValid) {
    *   const errors = product.brokenRules.getBrokenRules();
    *   console.log(errors);
    * }
@@ -223,14 +223,14 @@ export abstract class DddAggregateRoot<
    * @example
    * ```typescript
    * product.validate();
-   * if (product.isValid()) {
+   * if (product.isValid) {
    *   await repository.save(product);
    * } else {
    *   throw new ValidationError(product.brokenRules.getBrokenRules());
    * }
    * ```
    */
-  public isValid(): boolean {
+  public get isValid(): boolean {
     return this._brokenRulesManager.getBrokenRules().length === 0;
   }
 
@@ -343,7 +343,7 @@ export abstract class DddAggregateRoot<
    * ```typescript
    * product.updatePrice(newPrice);
    * product.validate();
-   * if (!product.isValid()) {
+   * if (!product.isValid) {
    *   throw new DomainError('Invalid product state', product.brokenRules.getBrokenRules());
    * }
    * ```
@@ -535,7 +535,7 @@ export abstract class DddAggregateRoot<
       id: this.id,
       version: this.version,
       ...this._props,
-      isValid: this.isValid(),
+      isValid: this.isValid,
     };
   }
 
@@ -555,7 +555,7 @@ export abstract class DddAggregateRoot<
       ...this._props,
       trackingState: this.trackingState,
       brokenRules: this.brokenRules,
-      isValid: this.isValid(),
+      isValid: this.isValid,
     };
   }
 
