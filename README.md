@@ -7,7 +7,8 @@ Aggregates that collect their own broken rules, value objects that validate them
 
 [![npm](https://img.shields.io/npm/v/%40nestjslatam%2Fddd-lib?color=1e73be&label=ddd-lib)](https://www.npmjs.com/package/@nestjslatam/ddd-lib)
 [![CI](https://github.com/nestjslatam/ddd/actions/workflows/ci.yml/badge.svg)](https://github.com/nestjslatam/ddd/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-308%20passing-00d084)](#running-the-tests)
+[![tests](https://img.shields.io/badge/tests-1017%20passing-00d084)](#running-the-tests)
+[![coverage](https://img.shields.io/badge/coverage-98.6%25-00d084)](#running-the-tests)
 [![node](https://img.shields.io/badge/node-%3E%3D20.11-575760)](#requirements)
 [![license](https://img.shields.io/badge/license-MIT-575760)](LICENSE)
 
@@ -97,19 +98,44 @@ Note the second row: `Price must be greater than zero` never fired. `super.addVa
 
 This is not pasted from memory. The code above lives in [`libs/ddd/src/readme-example.spec.ts`](libs/ddd/src/readme-example.spec.ts), which asserts all three rows plus the getter shape, and **CI runs it on every push**. The examples it replaced had seven type errors and had never compiled against any published version — because nothing ever ran them.
 
-> [!WARNING]
-> **Not production-ready. Pin an exact version.** The public API is unstable and moves in breaking ways: `3.0.0` turned `isValid` from a method into a getter. Two releases are **deprecated on npm and must not be installed** — `2.0.0` crashed on import without `@nestjs/cqrs`, and `2.1.0` broke every CommonJS consumer through an ESM-only `uuid`. A `^2.0.0` range still resolves to them.
+> [!IMPORTANT]
+> **Where this library stands, in numbers.** `4.0.0` is the first release with a test suite covering the classes you actually extend. Before it, eleven of the twelve core files — including `DddAggregateRoot` and `DddValueObject` — had **no spec at all**, and writing those suites surfaced **34 defects**, eight severe: an aggregate that failed validation could never become valid again, `clone()` returned an alias rather than a copy, and every `StringValueObject` option was silently ignored.
+>
+> Coverage went from 58.4% to **98.6%**, and the tests from 308 to **1017**. So the honest statement is not "don't use it" and not "it's stable" — it is this:
+>
+> |                                            |                                                                                                                                   |
+> | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+> | **Proven**                                 | The aggregate and value object bases, validation, broken rules, state tracking, identity. Covered and pinned by regression tests. |
+> | **Newly covered, less proven in the wild** | State transitions, domain events, enums — untested until `4.0.0`, so the tests are new even if the code is not.                   |
+> | **The real risk**                          | **API churn, not correctness.** `4.0.0` changed observable behaviour in eight places and the compiler catches none of them.       |
+>
+> **Pin an exact version.** The API stabilises from `4.0.0`: no breaking change will ship without a deprecation cycle where one is technically possible. That promise is earned over a release cycle, not by announcing it — judge it at `4.1.0`.
+>
+> **Do not install `2.0.0` or `2.1.0`.** Both are deprecated on npm for crashing on import, and a `^2.0.0` range still resolves to them.
 
-### Upgrading to 3.0.0
+### Upgrading
 
-One change, and the compiler finds every site for you:
+**To `3.0.0`** — one change, and the compiler finds every site:
 
 ```diff
 - if (!aggregate.isValid()) {
 + if (!aggregate.isValid) {
 ```
 
-`isValid` was a **method** on aggregates and a **getter** on value objects — the same name with two shapes, which is how a guard like `if (!aggregate.isValid)` could read as a always-truthy `Function` and silently never fire. Both are getters now. TypeScript reports `TS6234`; for JavaScript consumers, `npx ddd validate` reports every call site by reading how _your installed version_ declares it.
+`isValid` was a **method** on aggregates and a **getter** on value objects — the same name with two shapes, which is how a guard like `if (!aggregate.isValid)` could read as an always-truthy `Function` and silently never fire. Both are getters. TypeScript reports `TS6234`; for JavaScript consumers, `npx ddd validate` reports every call site by reading how _your installed version_ declares it.
+
+**To `4.0.0`** — nothing to search for, because the compiler catches none of it. Eight behaviours changed, in the order you are likely to be affected:
+
+1. **Remove any `brokenRules.clear()` workaround** before `validate()`. It clears itself now.
+2. **Check anything reading `clone()`/`getCopy()`.** They return a real copy; if you relied on the copy sharing state, that was the bug. Re-subscribe property-changed handlers on the copy.
+3. **Lower-case your stored UUIDs, or expect lower-case on read.** `IdValueObject` canonicalises, so the same UUID in two cases is finally one identity.
+4. **Re-check `StringValueObject` subclasses that pass options.** `allowEmpty`, `trimWhitespace`, `minLength` and `maxLength` were ignored and now apply, so values that used to pass may fail.
+5. **`IdValueObject.setValue()` throws** on anything that is not a UUID, rather than silently accepting it.
+6. **`DddEnum.getAll()` returns a fresh array** each call; `getAll() === getAll()` is no longer true.
+7. **A custom state comparator receives `(definedState, queryState)`** at every call site.
+8. **Nested change detection now fires** for this library's own objects, so repositories may see writes they previously skipped.
+
+The [changelog](CHANGELOG.md) has the full reasoning for each.
 
 ## What you get
 
@@ -121,20 +147,10 @@ One change, and the compiler finds every site for you:
 
 | Package                                                               | Install it when                                                           | Version |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------- |
-| **[`ddd-lib`](https://www.npmjs.com/package/@nestjslatam/ddd-lib)**   | Always. This is the library. Built from `libs/ddd` here.                  | `3.0.0` |
+| **[`ddd-lib`](https://www.npmjs.com/package/@nestjslatam/ddd-lib)**   | Always. This is the library. Built from `libs/ddd` here.                  | `4.0.0` |
 | [`ddd-cli`](https://github.com/nestjslatam/ddd-cli)                   | As a **dev** dependency, to scaffold and audit. Not a runtime dependency. | `0.3.0` |
-| [`ddd-valueobjects`](https://github.com/nestjslatam/ddd-valueobjects) | You want ready-made email / phone / money / document-id types.            | `1.1.0` |
-| [`ddd-es-lib`](https://github.com/nestjslatam/ddd-event-sourcing)     | You are doing event sourcing on MongoDB. Hard-requires `mongoose`.        | `1.1.1` |
-
-> [!CAUTION]
-> **`ddd-valueobjects@1.1.0` does not compose with `ddd-lib@3.0.0` yet.** It declares `ddd-lib: ^2.0.0` as a regular dependency rather than a peer, so npm installs a **second, nested copy**:
->
-> ```
-> @nestjslatam/ddd-lib                                    3.0.0   isValid -> getter
-> @nestjslatam/ddd-valueobjects/node_modules/ddd-lib      2.1.2   isValid -> method
-> ```
->
-> Two class identities, two different shapes, and `instanceof` fails across them. Use `ddd-valueobjects` with `ddd-lib` 2.x for now. Fixing this is [good first issue material](#contributing).
+| [`ddd-valueobjects`](https://github.com/nestjslatam/ddd-valueobjects) | You want ready-made email / phone / money / document-id types.            | `1.3.0` |
+| [`ddd-es-lib`](https://github.com/nestjslatam/ddd-event-sourcing)     | You are doing event sourcing on MongoDB. Hard-requires `mongoose`.        | `1.2.0` |
 
 ## The CLI
 
@@ -206,7 +222,11 @@ The four managers listed in [What you get](#what-you-get), pre-wired to `@nestjs
 <details>
 <summary><b>Is it production-ready? Which version do I pin?</b></summary>
 
-No. Pin `3.0.0` exactly. Four releases shipped in a single day and two of them are deprecated on npm for crashing on import — the API churns, and a caret range will find the broken versions.
+Yes for the domain model, with an exact version pinned — and that is a change from what this README said before `4.0.0`.
+
+`4.0.0` is the first release whose base classes have tests: 1017 of them, 98.6% lines. Getting there surfaced 34 defects, so the previous warning was earned, not boilerplate. What remains is not correctness risk but **API churn** — `4.0.0` moved behaviour in eight places the compiler cannot see. Pin exactly, read the [migration](#upgrading), and judge the stability promise at `4.1.0` rather than taking it on trust now.
+
+Never install `2.0.0` or `2.1.0`: both are deprecated on npm for crashing on import.
 </details>
 
 <details>
@@ -245,7 +265,7 @@ Missing `@nestjs/cqrs` is what made `2.0.0` crash on import for everyone who had
 
 ```bash
 npm install
-npm test          # 23 suites, 308 tests, ~7s
+npm test          # 36 suites, 1017 tests, ~10s
 npm run type-check
 npm run lint
 ```
@@ -257,10 +277,9 @@ Contributions are wanted, and there is concrete, verifiable work waiting. Every 
 **Good first issues**, in rough order of value:
 
 1. **Fix the write endpoints.** Add `class-validator` decorators to the 8 input DTOs in `src/**/use-cases/*/`. Both packages are already installed. Verify with `POST /products` returning `201` instead of `500`.
-2. **Fix `ddd-valueobjects` composition.** Move `@nestjslatam/ddd-lib` from `dependencies` to `peerDependencies` with `^2.0.0 || ^3.0.0`, in [that repo](https://github.com/nestjslatam/ddd-valueobjects).
-3. **Make the e2e test assert something.** It currently requests `GET /singers` — an endpoint that does not exist — and accepts `200`, `404` _or_ `500`.
-4. **Repair the coverage gate.** CI's 80% threshold never runs: the configured reporters emit `coverage-final.json` while the gate reads `coverage-summary.json`. Real line coverage is 74.8%.
-5. **Rewrite the six stale `docs/`.** They describe a `Singers` module this repository does not contain.
+2. **Make the e2e test assert something.** It currently requests `GET /singers` — an endpoint that does not exist — and accepts `200`, `404` _or_ `500`.
+3. **Rewrite the six stale `docs/`.** They describe a `Singers` module this repository does not contain.
+4. **Cover the sample application.** The library is at 98.6%; `src/` is not, and it is where the write-endpoint defect above has lived unnoticed.
 
 **Before you open a PR**, CI will run: ESLint, `prettier --check`, `tsc --noEmit` against **both** `tsconfig.json` and `libs/ddd/tsconfig.lib.json`, unit tests with coverage on Node 18 / 20 / 22, e2e tests, the library build, and `npm audit --audit-level=moderate`. All pass locally today, so the bar is reachable:
 
@@ -274,7 +293,7 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/). Not
 
 | Document                                                                                       | Covers                                                                         |
 | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [`libs/ddd/README.md`](libs/ddd/README.md)                                                     | The published package, current at 3.0.0 — this is what npm shows               |
+| [`libs/ddd/README.md`](libs/ddd/README.md)                                                     | The published package, current at 4.0.0 — this is what npm shows               |
 | [`src/orders/README.md`](src/orders/README.md)                                                 | The Orders module in detail, accurate against the real controller (in Spanish) |
 | [`docs/order-aggregate-implementation.md`](docs/order-aggregate-implementation.md)             | Aggregate design walkthrough                                                   |
 | [`docs/VALIDATORS_AND_STATES_IMPLEMENTATION.md`](docs/VALIDATORS_AND_STATES_IMPLEMENTATION.md) | Validators and state tracking                                                  |
