@@ -349,6 +349,18 @@ export abstract class DddAggregateRoot<
    * ```
    */
   public validate(): void {
+    // Discard the previous run's findings before re-deriving them.
+    //
+    // Without this, broken rules accumulate forever: an aggregate that once
+    // failed validation could never become valid again, because `isValid`
+    // reads this manager. The canonical load -> correct -> revalidate -> save
+    // flow was impossible, and every downstream `if (!aggregate.isValid)`
+    // guard kept firing after the violation had been fixed.
+    //
+    // DddValueObject.validate() has always cleared first. This is the same
+    // contract on the aggregate side.
+    this.brokenRules.clear();
+
     // 1. Validaciones de integridad técnica (Guards)
     this._guardStrategy();
 

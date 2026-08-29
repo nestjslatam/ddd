@@ -94,13 +94,6 @@
       "!**/main.ts",
       "!**/index.ts",
       "!**/node_modules/**",
-      "!**/helpers/**",
-      "!**/valueobjects/**",
-      "!**/aggregate-root.ts",
-      "!**/domain-event.ts",
-      "!**/enum.ts",
-      "!**/tracking-state-manager.ts",
-      "!**/valueobject.ts",
       "!**/ddd.service.ts",
       "!**/ddd.module.ts",
       "!**/types.d.ts"
@@ -118,9 +111,16 @@
       "text-summary",
       "html",
       "lcov",
-      "json"
+      "json",
+      "json-summary"
     ],
     "coverageThreshold": {
+      "global": {
+        "branches": 90,
+        "functions": 95,
+        "lines": 95,
+        "statements": 95
+      },
       "libs/ddd/src/core/business-rules/impl/property-change/notify-property-changed.base.ts": {
         "branches": 85,
         "functions": 100,

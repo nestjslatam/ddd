@@ -1,3 +1,4 @@
+import { AbstractRuleValidator } from '../core/validator-rules/impl/abstract-rule-validator';
 import { DddValueObject } from '../valueobject';
 import { StringNotNullOrEmptyValidator } from './string-notnullorempty.validator';
 
@@ -105,14 +106,33 @@ export class StringValueObject extends DddValueObject<string> {
     options?: Partial<StringValueObjectOptions>,
   ) {
     super(value);
-    // Initialize options after super call
-    (this as any).options = {
-      allowEmpty: false,
-      trimWhitespace: false,
-      minLength: 0,
-      maxLength: Number.MAX_SAFE_INTEGER,
-      ...options,
-    };
+    this.options = { ...DEFAULT_STRING_OPTIONS, ...options };
+
+    // super() already ran addValidators() and validate() -- before `options`
+    // existed, so that pass built the validators from the defaults. Rebuild now
+    // that the real configuration is available, otherwise allowEmpty,
+    // trimWhitespace, minLength and maxLength are silently ignored and empty()
+    // returns an *invalid* value object.
+    //
+    // These three lines are deliberately identical to NumberValueObject's,
+    // which had this exact defect first. Keep the two bases in the same shape
+    // so a fix to one is obviously portable to the other.
+    this.validatorRules.clear();
+    this.addValidators();
+    this.validate();
+  }
+
+  /**
+   * The effective options, safe to read during construction.
+   *
+   * DddValueObject's constructor calls addValidators() before this subclass's
+   * constructor body has run, so `this.options` is still undefined on that
+   * first pass. Falling back to the shared defaults keeps that pass correct;
+   * the constructor rebuilds the validators straight afterwards with whatever
+   * options were actually supplied.
+   */
+  private get effectiveOptions(): StringValueObjectOptions {
+    return this.options ?? DEFAULT_STRING_OPTIONS;
   }
 
   /**
@@ -274,13 +294,7 @@ export class StringValueObject extends DddValueObject<string> {
   override addValidators(): void {
     super.addValidators();
 
-    // Options might not be initialized yet during super() call, so provide defaults
-    const options = this.options || {
-      allowEmpty: false,
-      trimWhitespace: false,
-      minLength: 0,
-      maxLength: Number.MAX_SAFE_INTEGER,
-    };
+    const options = this.effectiveOptions;
 
     // Add string validator with configuration
     this.validatorRules.add(
@@ -291,25 +305,91 @@ export class StringValueObject extends DddValueObject<string> {
       }),
     );
 
-    // Add max length validation if specified
+    // Add max length validation only when a real bound is configured, so the
+    // default case still registers exactly one validator.
+    //
+    // This used to push a bare `{ addRules: ... } as any` object literal into
+    // the manager. ValidatorRuleManager.getBrokenRules() calls
+    // `validator.validate()` on every entry, and an object literal has no
+    // validate(), so reaching this branch threw
+    // "TypeError: validator.validate is not a function". It went unnoticed only
+    // because maxLength never reached this method at all. Anything added here
+    // must be a real AbstractRuleValidator.
+    //
+    // Registering unconditionally (rather than only when the current value is
+    // already too long) is also what makes setValue() revalidate correctly: the
+    // validator re-reads the value on every validate(), so growing past the
+    // bound breaks the rule and shrinking back clears it.
     if (
       options.maxLength !== undefined &&
       options.maxLength < Number.MAX_SAFE_INTEGER
     ) {
-      const value = this.getValue();
-      if (value && value.length > options.maxLength) {
-        this.validatorRules.add({
-          addRules: () => {
-            this.validatorRules['addBrokenRule'](
-              'value',
-              `value must not exceed ${options.maxLength} characters (current length: ${value.length})`,
-            );
-          },
-        } as any);
-      }
+      this.validatorRules.add(
+        new StringMaxLengthValidator(
+          this,
+          options.maxLength,
+          options.trimWhitespace,
+        ),
+      );
     }
   }
 }
+
+/**
+ * Enforces {@link StringValueObjectOptions.maxLength}.
+ *
+ * A real validator class rather than an inline object: ValidatorRuleManager
+ * calls `validate()` on everything it holds, and it deduplicates by
+ * constructor, so an anonymous shape would be both broken and impossible to
+ * deduplicate.
+ */
+export class StringMaxLengthValidator extends AbstractRuleValidator<
+  DddValueObject<string>
+> {
+  /**
+   * @param subject The string value object to validate
+   * @param maxLength Maximum number of characters allowed
+   * @param trimWhitespace Whether to measure the trimmed value, matching how
+   * {@link StringNotNullOrEmptyValidator} applies `trimWhitespace` to
+   * `minLength`. Both bounds must measure the same string or a value can be
+   * simultaneously too short and too long.
+   */
+  constructor(
+    subject: DddValueObject<string>,
+    private readonly maxLength: number,
+    private readonly trimWhitespace: boolean = false,
+  ) {
+    super(subject);
+  }
+
+  public addRules(): void {
+    const raw = this.subject.getValue();
+
+    if (raw === null || raw === undefined) {
+      return; // Null/undefined is StringNotNullOrEmptyValidator's rule to report
+    }
+
+    const value = this.trimWhitespace ? raw.trim() : raw;
+
+    if (value.length > this.maxLength) {
+      this.addBrokenRule(
+        'value',
+        `value must not exceed ${this.maxLength} characters (current length: ${value.length})`,
+      );
+    }
+  }
+}
+
+/**
+ * Defaults applied when no options are supplied, and the fallback used while
+ * the base constructor is still running. Shared so the two cannot drift.
+ */
+export const DEFAULT_STRING_OPTIONS: StringValueObjectOptions = {
+  allowEmpty: false,
+  trimWhitespace: false,
+  minLength: 0,
+  maxLength: Number.MAX_SAFE_INTEGER,
+};
 
 /**
  * Configuration options for string value object validation.
