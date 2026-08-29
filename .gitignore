@@ -36,3 +36,7 @@ lerna-debug.log*
 
 # Build info
 *.tsbuildinfo
+
+# Merged and per-suite coverage reports
+coverage-e2e/
+coverage-merged/

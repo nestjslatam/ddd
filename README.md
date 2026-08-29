@@ -8,7 +8,7 @@ Aggregates that collect their own broken rules, value objects that validate them
 [![npm](https://img.shields.io/npm/v/%40nestjslatam%2Fddd-lib?color=1e73be&label=ddd-lib)](https://www.npmjs.com/package/@nestjslatam/ddd-lib)
 [![CI](https://github.com/nestjslatam/ddd/actions/workflows/ci.yml/badge.svg)](https://github.com/nestjslatam/ddd/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tests-1111%20passing-00d084)](#running-the-tests)
-[![coverage](https://img.shields.io/badge/library-98.8%25-00d084)](#running-the-tests)
+[![coverage](https://img.shields.io/badge/coverage-85%25%20merged-00d084)](#running-the-tests)
 [![node](https://img.shields.io/badge/node-%3E%3D20.11-575760)](#requirements)
 [![license](https://img.shields.io/badge/license-MIT-575760)](LICENSE)
 
@@ -301,11 +301,16 @@ Missing `@nestjs/cqrs` is what made `2.0.0` crash on import for everyone who had
 
 ```bash
 npm install
-npm test          # 36 suites, 1017 tests, ~10s
-npm run test:e2e  # 16 tests over the real HTTP surface
+npm test              # 42 suites, 1111 tests, ~12s
+npm run test:e2e      # 17 tests over the real HTTP surface
+npm run test:cov:all  # both, merged into one report — 85% lines
 npm run type-check
 npm run lint
 ```
+
+The two suites cover different halves of the application. `npm test` covers the domain — aggregates, value objects, validators. `npm run test:e2e` covers the wiring, driving controllers, handlers and the exception filter over real HTTP.
+
+Reported separately, the application layer read **0%** while seventeen e2e tests were exercising it. `test:cov:all` merges the two, which takes the figure from 64% to **85%** — a file is covered if a test reaches it, and which runner did is an accident of how the suites are split.
 
 ## Contributing
 
@@ -313,15 +318,16 @@ Contributions are wanted, and there is concrete, verifiable work waiting. Every 
 
 **Good first issues**, in rough order of value:
 
-1. **Cover the sample's application layer.** Its use-case handlers read 0% because `npm test` does not collect from the e2e run that actually exercises them — either merge the two coverage reports, or test the handlers directly.
-2. **Give `Order` a richer lifecycle.** `Order.startProcessing()` exists on the aggregate and no endpoint reaches it, so `ship` and `deliver` are unreachable through the API — both answer `409` from `CONFIRMED`.
-3. **Persist something.** The in-memory repositories are deliberate, but a second implementation against a real store would prove the contract holds.
+1. **Give `Order` a richer lifecycle.** `Order.startProcessing()` exists on the aggregate and no endpoint reaches it, so `ship` and `deliver` are unreachable through the API — both answer `409` from `CONFIRMED`.
+2. **Persist something.** The in-memory repositories are deliberate, but a second implementation against a real store would prove the contract holds.
 
 **Before you open a PR**, CI will run: ESLint, `prettier --check`, `tsc --noEmit` against **both** `tsconfig.json` and `libs/ddd/tsconfig.lib.json`, unit tests with coverage on Node 18 / 20 / 22, e2e tests, the library build, and `npm audit --audit-level=moderate`. All pass locally today, so the bar is reachable:
 
 ```bash
-npm run lint && npm run type-check && npm test
+npm run lint && npm run type-check && npm run test:cov:all
 ```
+
+The two suites cover different halves and neither substitutes for the other: `npm test` covers the domain, `npm run test:e2e` covers the wiring. Reported separately the application layer read **0%** while seventeen e2e tests exercised it, so `test:cov:all` merges them — 64% becomes **85%**, and that is the number worth acting on.
 
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/). Note that the husky hook is currently inert on a fresh clone — `package.json` has no `prepare` script — so nothing enforces this locally yet. Fixing that is itself a welcome PR.
 
