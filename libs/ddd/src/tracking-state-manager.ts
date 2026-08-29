@@ -233,7 +233,15 @@ export class TrackingStateManager
    *
    * @remarks
    * The actual change detection logic is delegated to the configured change detector.
-   * By default, {@link NestedPropertyChangeDetector} performs deep comparison of nested objects.
+   * By default, {@link NestedPropertyChangeDetector} scans the props one level
+   * deep for children that expose their own tracking state - under
+   * `trackingState` (what DddValueObject and DddAggregateRoot expose) or under
+   * the legacy `Tracking` key - and adopts the strongest state found, ranked
+   * `new` < `dirty` < `selfDeleted` < `deleted`.
+   *
+   * Note it is NOT additive: the default detector marks this manager clean
+   * before scanning, so any flag set beforehand is dropped when the props carry
+   * no tracked child.
    *
    * @example
    * ```typescript

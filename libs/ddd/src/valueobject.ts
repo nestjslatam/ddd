@@ -6,6 +6,44 @@ import { TrackingStateManager } from './tracking-state-manager';
 import { ValidatorRuleManager } from './validator-rule.manager';
 
 /**
+ * The three managers, without their `readonly` modifier.
+ *
+ * `readonly` is a promise to callers, not a constraint on how this class
+ * initializes itself. The cast through this type is what lets that
+ * initialization live in a method that both the constructor and getCopy() can
+ * call, instead of only in the constructor.
+ */
+type MutableValueObjectState<TValue> = {
+  brokenRules: BrokenRulesManager;
+  validatorRules: ValidatorRuleManager<
+    AbstractRuleValidator<DddValueObject<TValue>>
+  >;
+  trackingState: TrackingStateManager;
+};
+
+/**
+ * Own properties getCopy() must never carry across from the original.
+ *
+ * The first four are where a value object's mutable state actually lives --
+ * `properties` is the private Map of AbstractNotifyPropertyChanged, holding
+ * the wrapped value itself. All four are own enumerable properties, so the
+ * `Object.assign(Object.create(proto), this)` that getCopy() used to be copied
+ * all four BY REFERENCE and returned an alias: mutating the "copy" mutated the
+ * original. getCopy() rebuilds them instead.
+ *
+ * `onPropertyChanged` is a subscription rather than state: it belongs to the
+ * instance somebody subscribed to, and carrying it over would make the copy's
+ * changes surface as notifications on the original's listener.
+ */
+const NON_TRANSFERABLE_KEYS: ReadonlySet<PropertyKey> = new Set<PropertyKey>([
+  'properties',
+  'brokenRules',
+  'validatorRules',
+  'trackingState',
+  'onPropertyChanged',
+]);
+
+/**
  * Base class for Value Objects in Domain-Driven Design.
  * Value Objects are compared by their properties, not by identity (ID).
  *
@@ -132,12 +170,28 @@ export abstract class DddValueObject<
       throw new ArgumentNullException('value');
     }
 
+    this.initializeState(value);
+  }
+
+  /**
+   * Builds the whole of a value object's state: its three managers, the
+   * observable wrapped value, and a first validation pass.
+   *
+   * Extracted from the constructor because getCopy() needs exactly the same
+   * wiring on a different instance. It cannot reach it through a constructor:
+   * subclass constructor signatures are unknown here (NumberValueObject takes
+   * options, others take none), so a copy is built by re-running this instead.
+   *
+   * @param value The value to register as the observable internal value
+   */
+  private initializeState(value: TValue): void {
     // Initialize managers (equivalent to IoC container setup in C#)
-    this.brokenRules = new BrokenRulesManager();
-    this.validatorRules = new ValidatorRuleManager<
+    const state = this as unknown as MutableValueObjectState<TValue>;
+    state.brokenRules = new BrokenRulesManager();
+    state.validatorRules = new ValidatorRuleManager<
       AbstractRuleValidator<DddValueObject<TValue>>
     >();
-    this.trackingState = new TrackingStateManager();
+    state.trackingState = new TrackingStateManager();
 
     // Register internal property for change observation
     // Map typeof to constructors for type validation
@@ -146,6 +200,9 @@ export abstract class DddValueObject<
       'internalValue',
       valueType,
       value,
+      // Bound to `this`, so the handler always marks and revalidates the
+      // instance that owns the property -- which is why a copy has to
+      // re-register rather than inherit the original's property map.
       this.valuePropertyChanged.bind(this),
     );
 
@@ -404,15 +461,30 @@ export abstract class DddValueObject<
   }
 
   /**
-   * Creates a shallow copy of the value object.
+   * Creates an independent copy of the value object.
    *
-   * @returns A new instance with the same properties
+   * @returns A new instance of the same class, wrapping the same value
    *
    * @remarks
-   * ⚠️ **Shallow Copy Limitation**: This method creates a shallow copy using Object.assign.
-   * Nested objects and arrays are copied by reference, not deep-cloned.
-   * For value objects with complex nested structures, consider implementing
-   * a proper deep clone mechanism.
+   * The copy shares **no mutable state** with the original: it gets its own
+   * property map, its own broken-rules manager, its own validators (rebuilt
+   * against the copy, so they judge the copy's value) and its own tracking
+   * state. Mutating either side never reaches the other.
+   *
+   * ⚠️ **The wrapped value is still copied by reference**, which is what a
+   * value object over a primitive wants. A value object over a mutable object
+   * shares that object with its copy; wrap an immutable structure, or override
+   * this method, if that matters.
+   *
+   * Deliberately *not* carried over:
+   * - **Subscriptions.** `onPropertyChanged` and anything registered through
+   *   `registerPropertyChangedCallback` stay with the original. The
+   *   per-property callbacks are bound to the original instance, so invoking
+   *   them from the copy would mutate the original -- the exact aliasing this
+   *   method exists to prevent. Subscribe to the copy if you want them.
+   * - **Extra registered properties.** Only the wrapped value is
+   *   re-registered. A subclass that calls `registerProperty` for more must
+   *   override getCopy.
    *
    * @example
    * ```typescript
@@ -420,16 +492,69 @@ export abstract class DddValueObject<
    * const copy = original.getCopy();
    * console.log(original.equals(copy)); // true
    * console.log(original === copy); // false (different instances)
+   *
+   * copy.setValue('other@example.com');
+   * console.log(original.getValue()); // 'test@example.com' -- untouched
    * ```
    */
   public getCopy(): DddValueObject<TValue> {
-    return Object.assign(Object.create(Object.getPrototypeOf(this)), this);
+    const prototype = Object.getPrototypeOf(this);
+
+    // Built through AbstractNotifyPropertyChanged's own constructor, with the
+    // concrete class as new.target so the prototype -- and therefore
+    // equals(), which is prototype-aware -- still matches. That is what gives
+    // the copy a *fresh* property map: the base builds it. Object.create
+    // would leave the copy without one, and the previous implementation
+    // (`Object.assign(Object.create(proto), this)`) filled it in with the
+    // original's map, which is what made every "copy" an alias.
+    const copy: DddValueObject<TValue> = Reflect.construct(
+      AbstractNotifyPropertyChanged,
+      [],
+      prototype.constructor,
+    );
+
+    // Carry over the fields the subclass added -- configuration such as
+    // NumberValueObject's `options` or StringValueObject's -- and do it
+    // *before* initializeState(), because addValidators() reads them. This is
+    // also why a copy is more reliable than construction: unlike a subclass
+    // constructor, it builds the validators with the configuration already in
+    // place, so there is nothing to rebuild afterwards.
+    for (const key of Reflect.ownKeys(this)) {
+      if (NON_TRANSFERABLE_KEYS.has(key)) continue;
+
+      Object.defineProperty(
+        copy,
+        key,
+        Object.getOwnPropertyDescriptor(this, key),
+      );
+    }
+
+    copy.initializeState(this.getValue());
+
+    // Tracking state is mirrored rather than reset: the copy holds the same
+    // value, so it sits at the same point of the lifecycle. Only the manager
+    // is new. The flags are mutually exclusive -- every mark* clears the
+    // others -- so one branch reproduces the state exactly.
+    const tracking = this.trackingState.trackingProps;
+    if (tracking.isNew) {
+      copy.trackingState.markAsNew();
+    } else if (tracking.isDirty) {
+      copy.trackingState.markAsDirty();
+    } else if (tracking.isSelfDeleted) {
+      copy.trackingState.markAsSelfDeleted();
+    } else if (tracking.isDeleted) {
+      copy.trackingState.markAsDeleted();
+    } else {
+      copy.trackingState.markAsClean();
+    }
+
+    return copy;
   }
 
   /**
-   * Alias for {@link getCopy}. Creates a shallow copy of the value object.
+   * Alias for {@link getCopy}. Creates an independent copy of the value object.
    *
-   * @returns A new instance with the same properties
+   * @returns A new instance with the same value and no shared state
    *
    * @remarks
    * This method exists for compatibility with general cloning patterns.

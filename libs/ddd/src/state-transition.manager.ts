@@ -6,11 +6,29 @@ import {
 
 /**
  * Function to compare two states for equality.
+ *
+ * **The argument order is part of the contract.** The manager always invokes
+ * the comparator as `(definedState, queryState)`:
+ *
+ * - `definedState` is a state that lives in the transition graph — a source
+ *   key, or a declared target. When the manager walks its own graph, it is the
+ *   state that was seen first.
+ * - `queryState` is the state being looked up: the one the caller passed in,
+ *   or the candidate being tested against what is already known.
+ *
+ * The order only matters for asymmetric comparators — wildcards, subtype or
+ * pattern matching, where `f(a, b) !== f(b, a)` — but for those it decides the
+ * answer. Read it as: *does this state declared in the graph accept that
+ * incoming state?* Symmetric comparators (the common `a.id === b.id` shape,
+ * and the reference-equality default) are unaffected.
+ *
  * @template TState The type of state being compared
+ * @param definedState The state as declared in the transition graph
+ * @param queryState The state being looked up or tested
  */
 export type StateEqualityComparator<TState> = (
-  state1: TState,
-  state2: TState,
+  definedState: TState,
+  queryState: TState,
 ) => boolean;
 
 /**
@@ -21,21 +39,25 @@ export type StateEqualityComparator<TState> = (
  *
  * @example
  * ```typescript
- * // Using with enum states
- * enum OrderStatus {
- *   Draft = 'DRAFT',
- *   Pending = 'PENDING',
- *   Confirmed = 'CONFIRMED',
- *   Shipped = 'SHIPPED'
+ * // States must be objects: `TState extends object`, so a TypeScript `enum`
+ * // does NOT satisfy the constraint -- its members are strings or numbers.
+ * // Model the states as a class of constants instead.
+ * class OrderStatus {
+ *   static readonly Draft = new OrderStatus('DRAFT');
+ *   static readonly Pending = new OrderStatus('PENDING');
+ *   static readonly Confirmed = new OrderStatus('CONFIRMED');
+ *   static readonly Shipped = new OrderStatus('SHIPPED');
+ *
+ *   private constructor(public readonly name: string) {}
  * }
  *
  * const manager = new StateTransitionManager<OrderStatus>();
  * manager.defineTransitions(
- *   new Map([
+ *   new Map<OrderStatus, OrderStatus[]>([
  *     [OrderStatus.Draft, [OrderStatus.Pending]],
  *     [OrderStatus.Pending, [OrderStatus.Confirmed]],
- *     [OrderStatus.Confirmed, [OrderStatus.Shipped]]
- *   ])
+ *     [OrderStatus.Confirmed, [OrderStatus.Shipped]],
+ *   ]),
  * );
  *
  * // Check if transition is valid
@@ -46,12 +68,14 @@ export type StateEqualityComparator<TState> = (
  *
  * @example
  * ```typescript
- * // Using with custom equality comparator for value objects
+ * // Using with custom equality comparator for value objects.
+ * // First argument = state declared in the graph, second = state queried.
  * class OrderState {
  *   constructor(public readonly name: string) {}
  * }
  *
- * const comparator = (s1: OrderState, s2: OrderState) => s1.name === s2.name;
+ * const comparator = (defined: OrderState, query: OrderState) =>
+ *   defined.name === query.name;
  * const manager = new StateTransitionManager<OrderState>(comparator);
  * ```
  */
@@ -62,6 +86,8 @@ export class StateTransitionManager<TState extends object> {
   /**
    * Creates a new StateTransitionManager.
    * @param stateComparator Optional custom comparator for state equality.
+   *                        Always invoked as `(definedState, queryState)` --
+   *                        see {@link StateEqualityComparator}.
    *                        Defaults to reference equality (===).
    */
   constructor(stateComparator?: StateEqualityComparator<TState>) {
@@ -97,20 +123,39 @@ export class StateTransitionManager<TState extends object> {
   }
 
   /**
+   * The ONLY place the comparator is invoked.
+   *
+   * Every lookup in this class goes through here so the argument order can
+   * never split again: the source-key lookup used to call
+   * `comparator(key, currentState)` while the target match called
+   * `comparator(newState, target)`, so a single `canTransitionTo` asked an
+   * asymmetric comparator two mirror-image questions and got inconsistent
+   * answers. Adding a new lookup? Call this, never `_stateComparator`.
+   *
+   * @param definedState State declared in the transition graph (or seen first)
+   * @param queryState State supplied by the caller / candidate being tested
+   */
+  private matches(definedState: TState, queryState: TState): boolean {
+    return this._stateComparator(definedState, queryState);
+  }
+
+  /**
    * Finds a state in an array using the configured comparator.
-   * @param state The state to find
-   * @param states Array of states to search in
+   * @param state The state to find (the query)
+   * @param states Array of declared states to search in
    * @returns true if state is found, false otherwise
    */
   private findState(state: TState, states: TState[]): boolean {
-    return states.some((s) => this._stateComparator(state, s));
+    return states.some((declared) => this.matches(declared, state));
   }
 
   /**
    * Defines the map of allowed state transitions.
    * @param transitions Map of source state to array of allowed target states.
    * @throws {ArgumentNullException} If transitions is null/undefined
-   * @throws {Error} If transitions map is empty or contains invalid entries
+   * @throws {Error} If transitions map is empty, contains invalid entries, or
+   *                 declares two source states that the comparator considers
+   *                 equal (the second would be unreachable)
    *
    * @example
    * ```typescript
@@ -132,6 +177,10 @@ export class StateTransitionManager<TState extends object> {
         'Transitions map cannot be empty. Provide at least one state transition.',
       );
     }
+
+    // Source states already accepted in this batch, used to detect keys that
+    // are distinct objects but the same state under the comparator.
+    const acceptedSourceStates: TState[] = [];
 
     // Validate each transition entry
     transitions.forEach((targetStates, sourceState) => {
@@ -172,6 +221,22 @@ export class StateTransitionManager<TState extends object> {
           );
         }
       });
+
+      // A Map keys by identity, so two distinct objects that the comparator
+      // considers the same state both survive as entries -- and every lookup
+      // stops at the first match, making the second entry dead. Silently
+      // dropping half a state machine is worse than refusing to build it.
+      const shadowed = acceptedSourceStates.find((accepted) =>
+        this.matches(accepted, sourceState),
+      );
+      if (shadowed) {
+        throw new Error(
+          `Duplicate source state '${this.getStateName(sourceState)}' in ` +
+            `transitions map: two keys compare as equal, so the second entry ` +
+            `would never be reachable. Merge their target states into a single entry.`,
+        );
+      }
+      acceptedSourceStates.push(sourceState);
     });
 
     this._validTransitions.clear();
@@ -212,7 +277,7 @@ export class StateTransitionManager<TState extends object> {
     // Find current state using comparator
     let foundKey: TState | undefined;
     for (const key of this._validTransitions.keys()) {
-      if (this._stateComparator(key, currentState)) {
+      if (this.matches(key, currentState)) {
         foundKey = key;
         break;
       }
@@ -247,7 +312,7 @@ export class StateTransitionManager<TState extends object> {
 
     // Find state using comparator
     for (const [key, value] of this._validTransitions.entries()) {
-      if (this._stateComparator(key, state)) {
+      if (this.matches(key, state)) {
         return [...value]; // Return defensive copy
       }
     }
@@ -275,7 +340,7 @@ export class StateTransitionManager<TState extends object> {
     }
 
     for (const key of this._validTransitions.keys()) {
-      if (this._stateComparator(key, state)) {
+      if (this.matches(key, state)) {
         return true;
       }
     }
@@ -333,18 +398,26 @@ export class StateTransitionManager<TState extends object> {
     const warnings: string[] = [];
     const orphanedStates: TState[] = [];
     const allSourceStates = new Set(this._validTransitions.keys());
-    const allTargetStates = new Set<TState>();
 
-    // Collect all target states
+    // Collect target states, deduplicated by the comparator rather than by
+    // object identity: a Set keys on identity, so one logical terminal state
+    // reached through three different instances used to be reported three
+    // times -- three warnings and three entries in orphanedStates for a single
+    // state. Insertion order is preserved, as with the Set it replaces.
+    const allTargetStates: TState[] = [];
     this._validTransitions.forEach((targets) => {
-      targets.forEach((target) => allTargetStates.add(target));
+      targets.forEach((target) => {
+        if (!this.findState(target, allTargetStates)) {
+          allTargetStates.push(target);
+        }
+      });
     });
 
     // Find orphaned states (targets that have no outgoing transitions)
     allTargetStates.forEach((targetState) => {
       let isOrphaned = true;
       for (const sourceState of allSourceStates) {
-        if (this._stateComparator(targetState, sourceState)) {
+        if (this.matches(sourceState, targetState)) {
           isOrphaned = false;
           break;
         }

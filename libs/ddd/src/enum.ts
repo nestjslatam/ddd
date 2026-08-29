@@ -62,9 +62,6 @@ import { ArgumentNullException } from './exceptions/domain.exception';
  * @see {@link https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/enumeration-classes-over-enum-types}
  */
 export abstract class DddEnum {
-  /** Cache for storing all enum values per class */
-  private static readonly _cache = new Map<any, DddEnum[]>();
-
   /**
    * Creates a new domain enumeration instance.
    *
@@ -113,15 +110,17 @@ export abstract class DddEnum {
   }
 
   /**
-   * Gets all defined enum values for this enumeration type.
-   * Results are cached for performance.
+   * Gets all defined enum values for this enumeration type, including the
+   * members declared by any base enumeration it extends.
    *
    * @template T - The specific enum type
-   * @returns Array of all enum values
+   * @returns A fresh array of all enum values, in declaration order
+   *          (base-class members first)
    *
    * @remarks
    * This method uses reflection to find all static properties that are
-   * instances of the enum class. Results are cached after first call.
+   * instances of the enum class. Every call returns a NEW array that the
+   * caller owns; the enumeration itself is never handed out.
    *
    * @example
    * ```typescript
@@ -130,20 +129,65 @@ export abstract class DddEnum {
    * ```
    */
   public static getAll<T extends DddEnum>(): T[] {
-    const constructor = this as any;
+    // WHY no cache: this used to memoise the computed array in a static Map
+    // and hand that very array back on every call. Two bugs came out of it,
+    // and both were silent -- lookups started answering wrongly instead of
+    // throwing:
+    //   1. A caller doing getAll().sort() / .pop() / .splice() mutated the
+    //      enumeration in place, and since fromValue/fromName/isDefined/
+    //      getMinValue/getMaxValue all read through getAll(), every lookup in
+    //      the process was corrupted from then on.
+    //   2. The cache was filled by the FIRST call, which can happen while the
+    //      class body is still evaluating (e.g. a
+    //      `static readonly Default = Self.fromValue(1)` declared between two
+    //      members). That froze a partial member list forever, and there is no
+    //      hook that tells us a class body has finished so we could invalidate
+    //      it. Recomputing is the only correct answer.
+    // Discovery is a handful of property reads over a class that has, by
+    // construction, a small closed set of members; recomputing is cheap
+    // enough that correctness wins.
+    const values: T[][] = [];
+    // Names already resolved at a more derived level: a subclass static
+    // shadows the base one, exactly as it does in plain JavaScript.
+    const seen = new Set<string>();
 
-    // Check cache first
-    if (DddEnum._cache.has(constructor)) {
-      return DddEnum._cache.get(constructor) as T[];
+    // WHY walk the prototype chain: a subclass of a populated enumeration has
+    // no OWN static members, so scanning only own properties reported it as
+    // empty and made every lookup on it fail, despite inheritance being a
+    // documented benefit of the pattern.
+    for (
+      // `this` in a static method IS the constructor being walked, and the
+      // loop reassigns it up the chain. That is the intent, not an accidental
+      // capture of an instance.
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      let ctor: any = this;
+      typeof ctor === 'function' && ctor !== Function.prototype;
+      ctor = Object.getPrototypeOf(ctor)
+    ) {
+      const level: T[] = [];
+
+      for (const name of Object.getOwnPropertyNames(ctor)) {
+        if (seen.has(name)) continue;
+        seen.add(name);
+
+        const value = ctor[name];
+        // instanceof against the class that DECLARES the static, not against
+        // `this`: base members are not instances of the derived class, while
+        // an unrelated enum held as a static (or a plain constant, or a static
+        // method) is still correctly excluded.
+        if (value instanceof ctor) {
+          level.push(value as T);
+        }
+      }
+
+      values.push(level);
+
+      if (ctor === DddEnum) break;
     }
 
-    // Compute and cache
-    const values = Object.getOwnPropertyNames(constructor)
-      .map((name) => constructor[name])
-      .filter((value) => value instanceof constructor) as T[];
-
-    DddEnum._cache.set(constructor, values);
-    return values;
+    // Levels were collected derived-first; declaration order for a consumer
+    // means base members come first.
+    return values.reverse().flat();
   }
 
   /**
