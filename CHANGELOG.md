@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## Unreleased
+
+Sample application only. The published library is unaffected.
+
+### Removed a placeholder rule that only became visible when the guard was fixed
+
+`ProductPriceValidator` required the price to be **a multiple of 100** — no product could cost 19.99, or 150, or anything not divisible by 100. The rule had existed all along but was never enforced, because the guard it fed tested a Function object and was therefore always truthy. Fixing that guard turned the rule on for the first time.
+
+It also **contradicted `PriceRangeValidator`**, which explicitly permits two decimal places. A price of 19.99 satisfied one validator and violated the other, which is not something a sample meant to teach aggregate design should demonstrate.
+
+The rule is gone. `ProductPriceValidator` keeps the two rules that read as real invariants: greater than zero, and at most 1000000.
+
+### The aggregate guard is still covered, and better
+
+The test proving the aggregate-level guard runs had leaned on the removed rule. It now uses the price cap instead: `PriceRangeValidator` allows up to 9999999.99, so **2 000 000 is a perfectly valid `Price` that the aggregate must still reject**. That is a genuine split between value-object and aggregate responsibility rather than an artificial one, and it is exactly the case the dead guard used to let through.
+
+304 tests pass.
+
 ## 3.0.0 (2026-08-28)
 
 Published as `@nestjslatam/ddd-lib@3.0.0`.
@@ -17,14 +35,14 @@ Published as `@nestjslatam/ddd-lib@3.0.0`.
 
 Value objects are unaffected — they already read as a property.
 
-**Why this was worth breaking.** The two shapes made a silent defect easy to write and impossible to see. `if (!order.isValid)` tests a `Function`, which is always truthy, so the guard never fires. TypeScript did not flag it, and since validation only *collects* broken rules and never throws, nothing else caught it either. **Three such guards shipped in this repository's own sample**, including `Product.create` and `Order.create`, which meant neither factory ever rejected an invalid aggregate.
+**Why this was worth breaking.** The two shapes made a silent defect easy to write and impossible to see. `if (!order.isValid)` tests a `Function`, which is always truthy, so the guard never fires. TypeScript did not flag it, and since validation only _collects_ broken rules and never throws, nothing else caught it either. **Three such guards shipped in this repository's own sample**, including `Product.create` and `Order.create`, which meant neither factory ever rejected an invalid aggregate.
 
 **Why a getter and not a method.** The direction was chosen for its failure mode, and the two are not symmetric:
 
-| Unify on | Existing `order.isValid()` | Existing `if (!vo.isValid)` |
-|---|---|---|
-| **getter** (chosen) | `TS6234` at compile time, `TypeError` at runtime — **loud** | unaffected |
-| method | unaffected | becomes a silently dead guard — **the same bug, inflicted on value object users** |
+| Unify on            | Existing `order.isValid()`                                  | Existing `if (!vo.isValid)`                                                       |
+| ------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **getter** (chosen) | `TS6234` at compile time, `TypeError` at runtime — **loud** | unaffected                                                                        |
+| method              | unaffected                                                  | becomes a silently dead guard — **the same bug, inflicted on value object users** |
 
 A loud failure you fix in minutes beats a silent one you ship for two releases.
 

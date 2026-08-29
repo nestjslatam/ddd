@@ -16,9 +16,7 @@ import { Product } from './product';
 describe('Product.create', () => {
   const validName = () => Name.create('Wireless Keyboard');
   const longName = () => Name.create('Mechanical Gaming Keyboard Pro Edition');
-  // ProductPriceValidator requires a multiple of 100. That rule existed all
-  // along but was never enforced, because the guard it fed was dead.
-  const validPrice = () => Price.create(4900);
+  const validPrice = () => Price.create(49.99);
 
   it('returns a product when every invariant holds', () => {
     const product = Product.create(
@@ -50,18 +48,20 @@ describe('Product.create', () => {
   });
 
   it('rejects a price the domain says is invalid', () => {
-    // ProductPriceValidator requires a multiple of 100. Price.create(49.99)
-    // succeeds -- the value object has no such rule -- so this can only be
-    // caught by the aggregate, and before the fix it never was.
+    // ProductPriceValidator caps the price at 1000000, but PriceRangeValidator
+    // -- the value object's own rule set -- allows up to 9999999.99. Two
+    // million is therefore a perfectly valid Price that the aggregate must
+    // still reject, which is the only way to prove the aggregate guard runs
+    // at all. Before the fix it never did.
     expect(() =>
       Product.create(
         validName(),
         Description.create(
           'A compact wireless keyboard with a long battery life',
         ),
-        Price.create(49.99),
+        Price.create(2_000_000),
       ),
-    ).toThrow(/multiple of 100/);
+    ).toThrow(/less than 1000000/);
   });
 
   it('exposes isValid as a getter, the same shape as a value object', () => {
