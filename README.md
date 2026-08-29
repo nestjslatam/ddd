@@ -1,639 +1,305 @@
-# DDD Library for NestJS - Sample Application
+<div align="center">
 
-Welcome to the DDD Library for NestJS sample application. This project demonstrates how to implement Domain-Driven Design (DDD) principles in a NestJS application using the `@nestjslatam/ddd-lib` library.
+# `@nestjslatam/ddd-lib`
 
-## ⚠️ Important Version Information
+**Domain-Driven Design building blocks for NestJS.**
+Aggregates that collect their own broken rules, value objects that validate themselves, and state tracking — on top of `@nestjs/cqrs`.
 
-**Current release: `@nestjslatam/ddd-lib@2.1.2`.**
+[![npm](https://img.shields.io/npm/v/%40nestjslatam%2Fddd-lib?color=1e73be&label=ddd-lib)](https://www.npmjs.com/package/@nestjslatam/ddd-lib)
+[![CI](https://github.com/nestjslatam/ddd/actions/workflows/ci.yml/badge.svg)](https://github.com/nestjslatam/ddd/actions/workflows/ci.yml)
+[![tests](https://img.shields.io/badge/tests-308%20passing-00d084)](#running-the-tests)
+[![node](https://img.shields.io/badge/node-%3E%3D20.11-575760)](#requirements)
+[![license](https://img.shields.io/badge/license-MIT-575760)](LICENSE)
 
-The 2.x line publishes the DDD library as an independent npm package, which eliminated the circular dependency issues of 1.x and lets consumers resolve it the ordinary way.
+[Quick start](#quick-start) · [FAQ](#faq) · [The four packages](#the-four-packages) · [Contributing](#contributing) · [The CLI](#the-cli)
 
-**Upgrade if you are on any earlier 2.x release.** `2.0.0` crashed on import wherever `@nestjs/cqrs` was not already installed, and `2.1.0` broke every CommonJS consumer — including Jest — by way of an ESM-only `uuid`. Both are deprecated on npm; `2.1.2` also repairs `NumberValueObject`, which threw on every construction from the day it shipped. See the [changelog](CHANGELOG.md).
+</div>
 
-**This library is still in active development and not recommended for production environments.**
-
-## 📋 Table of Contents
-
-- [⚠️ Important Version Information](#️-important-version-information)
-- [The ecosystem](#the-ecosystem)
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Running the Application](#running-the-application)
-  - [API Documentation](#api-documentation)
-- [Project Structure](#project-structure)
-- [Key Features](#key-features)
-  - [🏗️ Domain-Driven Design](#️-domain-driven-design)
-  - [🔄 CQRS Pattern](#-cqrs-pattern)
-  - [📡 State Tracking](#-state-tracking)
-  - [🗄️ Repository Pattern](#️-repository-pattern)
-- [Using the DDD Library](#using-the-ddd-library)
-- [The CLI](#the-cli)
-- [Documentation](#documentation)
-- [Technologies Used](#technologies-used)
-- [Available Scripts](#available-scripts)
-- [Contributing](#contributing)
-- [License](#license)
-- [Related Links](#related-links)
-
-## The ecosystem
-
-This repository is the base of four published packages:
-
-| Package | What it is |
-|---|---|
-| [`@nestjslatam/ddd-lib`](https://www.npmjs.com/package/@nestjslatam/ddd-lib) | The DDD building blocks — aggregates, value objects, validators, broken rules, state tracking. Built from `libs/ddd` in this repository. |
-| [`@nestjslatam/ddd-cli`](https://www.npmjs.com/package/@nestjslatam/ddd-cli) | A CLI for working with the library: understand it, scaffold any stereotype, extend it, audit your code. Usable directly or from an AI agent over MCP. |
-| [`@nestjslatam/ddd-valueobjects`](https://www.npmjs.com/package/@nestjslatam/ddd-valueobjects) | Ready-made value objects — email, phone number, money, date range, document id — built on `ddd-lib`. |
-| [`@nestjslatam/ddd-es-lib`](https://www.npmjs.com/package/@nestjslatam/ddd-es-lib) | Event sourcing for `ddd-lib`: event store, snapshots, upcasting, sagas, materialised views. |
-
-## Overview
-
-This sample application showcases a complete DDD implementation with:
-
-- **Domain Layer**: Rich domain models with business rules, value objects, and domain events
-- **Application Layer**: CQRS pattern with commands, queries, and sagas
-- **Infrastructure Layer**: Repository pattern, in-memory by default so the sample stays about the domain
-- **Shared Module**: Reusable domain primitives and base classes
-
-The application implements a **Singers** domain module that manages singers and their songs, demonstrating core DDD concepts including aggregate roots, entities, value objects, domain events, and business rules validation.
-
-## Architecture
-
-This application follows a **layered architecture** based on Domain-Driven Design principles:
-
-```
-┌─────────────────────────────────────┐
-│      Presentation Layer             │
-│    (Controllers, DTOs)              │
-└─────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────┐
-│      Application Layer               │
-│  (Commands, Queries, Handlers)       │
-└─────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────┐
-│      Domain Layer                    │
-│  (Aggregates, Entities, Events)      │
-└─────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────┐
-│      Infrastructure Layer            │
-│  (Repositories, Mappers, DB)         │
-└─────────────────────────────────────┘
-```
-
-For detailed architecture documentation, see [Architecture Overview](docs/architecture.md).
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 20.11 or higher
-- npm
-
-### Installation
+---
 
 ```bash
-npm install
+npm install @nestjslatam/ddd-lib @nestjs/cqrs
 ```
 
-### Running the Application
+`@nestjs/cqrs` is not optional — `DddAggregateRoot` extends its `AggregateRoot`. The full peer list is in [Requirements](#requirements).
 
-```bash
-# Development mode
-npm run start:dev
+## Quick start
 
-# Production mode
-npm run build
-npm run start:prod
-```
+```ts
+import {
+  DddAggregateRoot,
+  NumberValueObject,
+  AbstractRuleValidator,
+  IdValueObject,
+} from '@nestjslatam/ddd-lib';
 
-The application will start on `http://localhost:3000` (or the port specified in `PORT` environment variable).
+// A rule lives in its own class, so it is testable on its own.
+class PriceRule extends AbstractRuleValidator<Price> {
+  addRules(): void {
+    if (this.subject.getValue() <= 0) {
+      this.addBrokenRule('value', 'Price must be greater than zero');
+    }
+  }
+}
 
-### API Documentation
-
-Once the application is running, you can access:
-
-- **Swagger UI**: `http://localhost:3000/api`
-
-## Project Structure
-
-```
-ddd/
-├── libs/ddd/                    # DDD Library source (published to NPM)
-│   ├── src/                     # Library source code
-│   │   ├── core/                # Core DDD building blocks
-│   │   │   ├── aggregate/       # Aggregate utilities
-│   │   │   ├── business-rules/  # Business rules and broken rules
-│   │   │   ├── repositories/    # Repository interfaces
-│   │   │   ├── tracking-state/  # State tracking (new, dirty, deleted)
-│   │   │   └── validator-rules/ # Validation framework
-│   │   ├── valueobjects/        # Base value object classes
-│   │   │   ├── id.valueobject.ts           # ID value object
-│   │   │   ├── string.valueobject.ts       # String base class
-│   │   │   ├── number.valueobject.ts       # Number base class
-│   │   │   └── validators/                 # Built-in validators
-│   │   ├── aggregate-root.ts    # AggregateRoot base class
-│   │   ├── valueobject.ts       # ValueObject base class
-│   │   ├── domain-event.ts      # Domain event base class
-│   │   └── index.ts             # Library exports
-│   ├── dist/                    # Compiled JavaScript (published)
-│   ├── package.json             # Library package configuration
-│   └── tsconfig.lib.json        # Library TypeScript config
-│
-├── src/                         # Sample application
-│   ├── app.module.ts            # Root application module
-│   ├── main.ts                  # Application entry point
-│   │
-│   ├── shared/                  # Shared domain primitives
-│   │   ├── valueobjects/        # Reusable value objects
-│   │   │   ├── Name.ts          # Name value object with validation
-│   │   │   ├── Description.ts   # Description value object
-│   │   │   ├── Price.ts         # Price value object
-│   │   │   └── validators/      # Custom validators
-│   │   └── shared.module.ts
-│   │
-│   ├── products/                # Products bounded context
-│   │   ├── products.module.ts
-│   │   ├── application/         # Application layer
-│   │   │   ├── commands/        # Command handlers
-│   │   │   ├── queries/         # Query handlers
-│   │   │   └── dto/             # Data Transfer Objects
-│   │   ├── domain/              # Domain layer
-│   │   │   └── product-aggregate/
-│   │   │       ├── product.ts   # Product aggregate root
-│   │   │       ├── product.status.ts
-│   │   │       └── validators/  # Product business rules
-│   │   └── infrastructure/      # Infrastructure layer
-│   │       └── repositories/    # Repository implementations
-│   │
-│   └── orders/                  # Orders bounded context
-│       ├── orders.module.ts
-│       ├── domain/
-│       │   ├── order-aggregate/
-│       │   │   ├── order.ts     # Order aggregate root
-│       │   │   └── validators/
-│       │   ├── entities/
-│       │   │   └── order-item.entity.ts
-│       │   └── value-objects/
-│       │       ├── customer-info.vo.ts
-│       │       └── shipping-address.vo.ts
-│       └── infrastructure/
-│
-├── docs/                        # Documentation
-├── test/                        # E2E tests
-├── package.json                 # App dependencies (@nestjslatam/ddd-lib: ^1.0.56)
-└── tsconfig.json                # App TypeScript config
-```
-
-### Key Directory Explanations
-
-**`libs/ddd/`** - The DDD library that is published to NPM as `@nestjslatam/ddd-lib`. This library provides:
-
-- Base classes for aggregates, entities, and value objects
-- Validation framework with `AbstractRuleValidator`
-- State tracking (new, dirty, deleted)
-- Business rules management
-- Domain event support
-
-**`src/shared/`** - Application-level shared code that uses the DDD library:
-
-- Custom value objects (Name, Description, Price)
-- Custom validators specific to the application
-- Reusable domain primitives
-
-**`src/products/` & `src/orders/`** - Bounded contexts that demonstrate:
-
-- Aggregate roots extending `DddAggregateRoot`
-- Custom business rule validators
-- Value objects extending `StringValueObject`, `NumberValueObject`
-- Domain events and state management
-
-## Key Features
-
-### 🏗️ Domain-Driven Design
-
-The `@nestjslatam/ddd-lib` library provides powerful building blocks for implementing DDD:
-
-- **Aggregate Roots**: `Product`, `Order` aggregates manage their consistency boundaries
-  - Extend `DddAggregateRoot` from the library
-  - Automatic state tracking (new, dirty, deleted)
-  - Built-in validation orchestration
-- **Value Objects**: `Name`, `Description`, `Price`, `CustomerInfo`, `ShippingAddress`
-
-  - Extend `StringValueObject` or `NumberValueObject`
-  - Immutable by design
-  - Custom validation rules
-  - Type-safe value access
-
-- **Custom Validators**: Business rules enforced through `AbstractRuleValidator`
-
-  - `ProductNameValidator`, `ProductPriceValidator`
-  - `OrderTotalValidator`, `OrderItemQuantityValidator`
-  - Automatic validation on aggregate changes
-
-- **Domain Events**: Events published when domain state changes
-  - `ProductCreatedEvent`, `OrderPlacedEvent`
-  - Event-driven workflows
-
-### 🔄 CQRS Pattern
-
-- **Commands**: Write operations (Create, Update, Delete)
-- **Queries**: Read operations (GetById, GetByCriteria)
-- **Command Handlers**: Process commands and modify domain state
-- **Query Handlers**: Retrieve and return data
-
-### 📡 State Tracking
-
-The library provides automatic state tracking for all aggregates:
-
-- **isNew**: Newly created aggregates
-- **isDirty**: Modified aggregates
-- **isDeleted**: Soft-deleted aggregates
-- **hasErrors**: Validation errors detected
-
-### 🗄️ Repository Pattern
-
-- **Read/Write Separation**: `IDomainReadRepository` and `IDomainWriteRepository`
-- **In-Memory Implementation**: For development and testing
-- **Easy Integration**: Works with any data persistence layer
-
-## Using the DDD Library
-
-### Installation
-
-```bash
-npm install @nestjslatam/ddd-lib
-```
-
-### Example: Creating a Value Object
-
-```typescript
-import { StringValueObject } from '@nestjslatam/ddd-lib';
-import { NameLengthValidator } from './validators';
-
-export class Name extends StringValueObject {
-  private constructor(value: string) {
-    super(value);
+export class Price extends NumberValueObject {
+  static create(value: number): Price {
+    const price = new Price(value);
+    if (!price.isValid) {
+      throw new Error(price.brokenRules.getBrokenRules()[0].message);
+    }
+    return price;
   }
 
-  static create(value: string): Name {
-    const name = new Name(value);
-    if (!name.isValid) {
-      const errors = name.brokenRules.getBrokenRules();
+  override addValidators(): void {
+    super.addValidators(); // the base registers real rules here — always chain
+    this.validatorRules.add(new PriceRule(this));
+  }
+}
+
+// An aggregate carries the invariants that span more than one value object.
+export class Product extends DddAggregateRoot<Product, IProductProps> {
+  private constructor(props: IProductProps, id?: IdValueObject) {
+    super(props, { id });
+    this.trackingState.markAsNew();
+  }
+
+  static create(name: Name, price: Price): Product {
+    const product = new Product({ name, price });
+    if (!product.isValid) {
+      // Validation COLLECTS rules, it never throws. If you skip this check,
+      // create() happily returns an object that failed its own invariants.
       throw new Error(
-        `Invalid name: ${errors.map((e) => e.message).join(', ')}`,
+        product.brokenRules
+          .getBrokenRules()
+          .map((r) => r.message)
+          .join(', '),
       );
     }
-    return name;
-  }
-
-  protected override addValidators(): void {
-    super.addValidators();
-    this.validatorRules.add(new NameLengthValidator(this));
-  }
-}
-```
-
-### Example: Creating a Custom Validator
-
-```typescript
-import { AbstractRuleValidator } from '@nestjslatam/ddd-lib';
-import { Name } from '../Name';
-
-export class NameLengthValidator extends AbstractRuleValidator<Name> {
-  constructor(subject: Name) {
-    super(subject);
-  }
-
-  public addRules(): void {
-    const value = this.subject.getValue();
-
-    if (!value || value.trim().length === 0) {
-      this.addBrokenRule('value', 'Name cannot be empty');
-    }
-
-    if (value && value.length < 3) {
-      this.addBrokenRule('value', 'Name must be at least 3 characters');
-    }
-
-    if (value && value.length > 100) {
-      this.addBrokenRule('value', 'Name must not exceed 100 characters');
-    }
-  }
-}
-```
-
-### Example: Creating an Aggregate Root
-
-```typescript
-import { DddAggregateRoot, IdValueObject } from '@nestjslatam/ddd-lib';
-import { Name } from '../../shared/valueobjects/Name';
-import { Price } from '../../shared/valueobjects/Price';
-import { Description } from '../../shared/valueobjects/Description';
-import { ProductStatus } from './product.status';
-import {
-  ProductNameValidator,
-  ProductPriceValidator,
-  ProductStatusValidator,
-} from './validators';
-
-interface ProductProps {
-  name: Name;
-  description: Description;
-  price: Price;
-  status: ProductStatus;
-}
-
-export class Product extends DddAggregateRoot<ProductProps> {
-  private constructor(
-    id: IdValueObject,
-    props: ProductProps,
-    createdAt?: Date,
-    updatedAt?: Date,
-  ) {
-    super(id, props, createdAt, updatedAt);
-  }
-
-  static create(name: Name, description: Description, price: Price): Product {
-    const id = IdValueObject.create();
-    const product = new Product(id, {
-      name,
-      description,
-      price,
-      status: ProductStatus.INACTIVE,
-    });
-
-    // Validate on creation
-    product.validate();
-
-    if (!product.isValid()) {
-      throw new Error('Invalid product');
-    }
-
     return product;
   }
 
-  // Business methods
-  ChangePrice(price: Price): void {
-    if (!price.isValid) {
-      throw new Error('Invalid price');
-    }
-
-    this.props.price = price;
-    this.trackingState.markAsDirty();
-    this.validate();
-  }
-
-  ChangeStatus(status: ProductStatus): void {
-    if (status === ProductStatus.ACTIVE && this.props.price.getValue() === 0) {
-      throw new Error('Cannot activate product with zero price');
-    }
-
-    this.props.status = status;
-    this.trackingState.markAsDirty();
-  }
-
-  // Validation
   protected override addValidators(): void {
-    super.addValidators();
-    this.validatorRules.add(new ProductNameValidator(this));
-    this.validatorRules.add(new ProductPriceValidator(this));
-    this.validatorRules.add(new ProductStatusValidator(this));
-  }
-
-  // Getters
-  get name(): Name {
-    return this.props.name;
-  }
-
-  get price(): Price {
-    return this.props.price;
-  }
-
-  get status(): ProductStatus {
-    return this.props.status;
+    this.validators.add(new ProductRule(this));
   }
 }
 ```
 
-## What's New in Version 2.0.0
+What that buys you, and where each failure is caught:
 
-### Major Changes from 1.x.x
+| Input                 | Result                                                | Caught by                                  |
+| --------------------- | ----------------------------------------------------- | ------------------------------------------ |
+| `Price.create(49.99)` | valid                                                 | —                                          |
+| `Price.create(0)`     | `value must be a positive number (greater than zero)` | the **base** `NumberValueObject` validator |
+| price `2_000_000`     | `Price must be less than 1000000`                     | the **aggregate**, `ProductRule`           |
 
-**🎯 NPM Package Distribution**
+Note the second row: `Price must be greater than zero` never fired. `super.addValidators()` had already registered the base's own positive-number rule, which caught `0` first. Drop that `super` call and _both_ rules disappear silently — no error, invalid value accepted.
 
-- **Before (1.x.x)**: Library was part of the monorepo using TypeScript path mappings
-- **After (2.0.0)**: Library is published as an independent NPM package `@nestjslatam/ddd-lib`
-- **Benefit**: Standard Node.js module resolution, works in any NestJS project
+This is not pasted from memory. The code above lives in [`libs/ddd/src/readme-example.spec.ts`](libs/ddd/src/readme-example.spec.ts), which asserts all three rows plus the getter shape, and **CI runs it on every push**. The examples it replaced had seven type errors and had never compiled against any published version — because nothing ever ran them.
 
-**🔧 Eliminated Circular Dependencies**
+> [!WARNING]
+> **Not production-ready. Pin an exact version.** The public API is unstable and moves in breaking ways: `3.0.0` turned `isValid` from a method into a getter. Two releases are **deprecated on npm and must not be installed** — `2.0.0` crashed on import without `@nestjs/cqrs`, and `2.1.0` broke every CommonJS consumer through an ESM-only `uuid`. A `^2.0.0` range still resolves to them.
 
-- **Before (1.x.x)**: Circular dependency issues caused runtime errors like "Class extends value undefined"
-- **After (2.0.0)**: Direct imports from specific files eliminate circular dependencies
-- **Example**: `import { AbstractNotifyPropertyChanged } from './core/business-rules/impl/property-change'`
+### Upgrading to 3.0.0
 
-**📦 Pre-compiled Distribution**
+One change, and the compiler finds every site for you:
 
-- **Before (1.x.x)**: TypeScript source files with on-the-fly compilation
-- **After (2.0.0)**: Pre-compiled JavaScript with TypeScript declarations
-- **Benefit**: Faster application startup, reliable runtime behavior
+```diff
+- if (!aggregate.isValid()) {
++ if (!aggregate.isValid) {
+```
 
-**🎨 Cleaner Imports**
+`isValid` was a **method** on aggregates and a **getter** on value objects — the same name with two shapes, which is how a guard like `if (!aggregate.isValid)` could read as a always-truthy `Function` and silently never fire. Both are getters now. TypeScript reports `TS6234`; for JavaScript consumers, `npx ddd validate` reports every call site by reading how _your installed version_ declares it.
 
-- **Before (1.x.x)**: Required path mappings in `tsconfig.json`
-  ```json
-  "paths": {
-    "@nestjslatam/ddd-lib": ["libs/ddd/src"],
-    "@nestjslatam/ddd-lib/*": ["libs/ddd/src/*"]
-  }
-  ```
-- **After (2.0.0)**: Standard NPM imports
-  ```typescript
-  import { DddAggregateRoot, StringValueObject } from '@nestjslatam/ddd-lib';
-  ```
+## What you get
 
-**🚀 Improved Module Exports**
+`DddAggregateRoot` extends `@nestjs/cqrs`'s `AggregateRoot` and pre-wires four collaborators you would otherwise hand-roll: `BrokenRulesManager` (error collection), `ValidatorRuleManager` (rule registration), `TrackingStateManager` (new / dirty / clean), and `StateTransitionManager` (a state machine). Plus `IdValueObject` identity, prototype-aware `equals`, and `toPlainObject`.
 
-- All core classes properly exported through `index.ts`
-- No need for deep imports into library internals
-- Better tree-shaking support
+`npx ddd list` prints the full inventory by reading the declarations of the version you have installed, so it cannot go stale the way a table here would.
 
-**📚 Enhanced Type Definitions**
+## The four packages
 
-- Complete `.d.ts` files for all exported classes
-- Better IDE autocomplete and type checking
-- Source maps for debugging
+| Package                                                               | Install it when                                                           | Version |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------- |
+| **[`ddd-lib`](https://www.npmjs.com/package/@nestjslatam/ddd-lib)**   | Always. This is the library. Built from `libs/ddd` here.                  | `3.0.0` |
+| [`ddd-cli`](https://github.com/nestjslatam/ddd-cli)                   | As a **dev** dependency, to scaffold and audit. Not a runtime dependency. | `0.3.0` |
+| [`ddd-valueobjects`](https://github.com/nestjslatam/ddd-valueobjects) | You want ready-made email / phone / money / document-id types.            | `1.1.0` |
+| [`ddd-es-lib`](https://github.com/nestjslatam/ddd-event-sourcing)     | You are doing event sourcing on MongoDB. Hard-requires `mongoose`.        | `1.1.1` |
 
-### Migration from 1.x.x to 2.0.0
-
-1. **Remove path mappings** from `tsconfig.json`:
-
-   ```diff
-   - "paths": {
-   -   "@nestjslatam/ddd-lib": ["libs/ddd/src"]
-   - }
-   ```
-
-2. **Install the NPM package**:
-
-   ```bash
-   npm install @nestjslatam/ddd-lib
-   ```
-
-3. **Update imports** to use the published package:
-
-   ```typescript
-   // All imports now come from the package
-   import {
-     DddAggregateRoot,
-     StringValueObject,
-     NumberValueObject,
-     AbstractRuleValidator,
-     IdValueObject,
-   } from '@nestjslatam/ddd-lib';
-   ```
-
-4. **No webpack configuration needed** - Standard module resolution works out of the box
+> [!CAUTION]
+> **`ddd-valueobjects@1.1.0` does not compose with `ddd-lib@3.0.0` yet.** It declares `ddd-lib: ^2.0.0` as a regular dependency rather than a peer, so npm installs a **second, nested copy**:
+>
+> ```
+> @nestjslatam/ddd-lib                                    3.0.0   isValid -> getter
+> @nestjslatam/ddd-valueobjects/node_modules/ddd-lib      2.1.2   isValid -> method
+> ```
+>
+> Two class identities, two different shapes, and `instanceof` fails across them. Use `ddd-valueobjects` with `ddd-lib` 2.x for now. Fixing this is [good first issue material](#contributing).
 
 ## The CLI
 
-[`@nestjslatam/ddd-cli`](https://github.com/nestjslatam/ddd-cli) generates and audits the code this sample demonstrates by hand.
+[`@nestjslatam/ddd-cli`](https://github.com/nestjslatam/ddd-cli) reads the `.d.ts` files of the `ddd-lib` **installed in your project** with the TypeScript compiler API — so it describes your version, not whatever it was built against.
 
 ```bash
-npm install -D @nestjslatam/ddd-cli
+npx ddd list                  # every stereotype, grouped by how you use it
+npx ddd new value-object Sku  # scaffold; nothing is written until you confirm
+npx ddd validate              # audit against the idiom
 ```
 
-### Understand the library
+`validate` enforces four rules, each a mistake this library makes easy and silent:
 
-```bash
-npx ddd list                          # every stereotype, grouped, with its role
-npx ddd list --family validation      # just the validators and business rules
-npx ddd explain AbstractRuleValidator # what it is, its contract, an example
-```
+| Rule                                  | The mistake it catches                                                                                                                                                                                               |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `no-subclass-state-in-add-validators` | The base constructor calls `addValidators()` **before** your constructor body runs. Reading a field you assign there throws on every construction — exactly how `NumberValueObject` shipped broken for two releases. |
+| `super-add-validators`                | An override that does not chain drops the base's real validators, and invalid values pass with no error.                                                                                                             |
+| `factory-checks-validity`             | A `create()` that skips the `isValid` check returns objects that failed their own invariants.                                                                                                                        |
+| `handler-commits-events`              | Only `mergeObjectContext(...).commit()` dispatches domain events. Without it the command succeeds and every handler is silently skipped.                                                                             |
 
-`list` uses no model at all. It reads the `.d.ts` files of the `ddd-lib` **installed in your project** with the TypeScript compiler, so it reflects your version rather than whatever the CLI was built against. The output turns on the distinction that is most of understanding the design: `extend` (a base you subclass), `implement` (an interface), `compose` (a collaborator the aggregate delegates to — `BrokenRulesManager`, `ValidatorRuleManager`, `TrackingStateManager`) and `use`.
-
-### Create and extend
-
-```bash
-npx ddd new value-object OrderTotal --kind number
-npx ddd new validator OrderTotalRules --for OrderTotal
-npx ddd extend AbstractRuleValidator ShippingRules
-npx ddd generate:aggregate "An order has a customer and a total. The total must be positive."
-```
-
-`new` and `extend` use no model: these have one correct shape, taken from the code in this repository. `extend` derives the contract from the installed declarations, so it works for bases it has never seen. Nothing is written before you see the file list and confirm.
-
-### Audit what you wrote
-
-```bash
-npx ddd validate
-```
-
-Four rules, each a mistake this library makes easy and silent:
-
-| Rule | Why it matters |
-|---|---|
-| `no-subclass-state-in-add-validators` | The base constructor calls `addValidators()` **before** the subclass constructor body runs. Reading a field assigned there throws on every construction — this is exactly how `NumberValueObject` shipped broken through two releases. |
-| `super-add-validators` | `StringValueObject` and `NumberValueObject` register real validators there. An override that does not chain drops them, and invalid values pass with no error. |
-| `factory-checks-validity` | Validation collects broken rules rather than throwing, so a `create()` that skips the `isValid` check can return an object that failed its own invariants. |
-| `handler-commits-events` | An aggregate collects its domain events; only `mergeObjectContext(...).commit()` dispatches them. Without it the command succeeds and every downstream handler is silently skipped. |
-
-### From an AI agent
-
-If you already work inside Claude Code, Codex or Cursor, that agent has a model and credentials — the CLI does not need its own:
+It also runs as an **MCP server**, so Claude Code, Codex or Cursor drive it with their own model and **no API key**:
 
 ```bash
 claude mcp add ddd -- npx -y @nestjslatam/ddd-cli mcp
 ```
 
-Seven tools become available, with **no API key**. The agent supplies the domain modelling; the CLI reads the installed declarations exactly, renders deterministically and audits the idiom.
+## The sample application
 
-## Documentation
-
-> [!WARNING]
-> **Six of these documents describe an application this repository does not contain.** They are written around a `singers` module — `src/singers/`, a `Singer` aggregate, `Song` entities, `POST /singers` endpoints — none of which exists. The sample here is Orders and Products. `infrastructure-layer.md` additionally documents a TypeORM setup that was removed in 2.1.0.
->
-> They are still useful for the *shape* of a DDD application with this library, but do not follow them expecting to find the code they describe. Rewriting them against the current sample is [tracked separately](https://github.com/nestjslatam/ddd/issues).
-
-### Architecture & Development
-
-| Document | Covers | State |
-|---|---|---|
-| [Architecture Overview](docs/architecture.md) | Layers, CQRS wiring, where domain events travel | Structure is accurate; every example is a `singers` module that does not exist |
-| [Domain Layer](docs/domain-layer.md) | Aggregates, entities, value objects, business rules | Same — written against `src/singers/domain/` |
-| [Application Layer](docs/application-layer.md) | Commands, queries, handlers, sagas | Same |
-| [Infrastructure Layer](docs/infrastructure-layer.md) | Repositories and persistence | Same, plus a TypeORM integration this project no longer has |
-| [Getting Started](docs/getting-started.md) | Prerequisites, install, run | Install and run are correct; the API walkthrough calls `/singers` endpoints that return 404 |
-| [API Reference](docs/api-reference.md) | Endpoint documentation | Documents the `singers` API. The real endpoints are `/products` and `/orders` — see the Swagger UI at `/api` instead |
-
-The accurate references for the shipped sample are [order-aggregate-implementation.md](docs/order-aggregate-implementation.md) and [VALIDATORS_AND_STATES_IMPLEMENTATION.md](docs/VALIDATORS_AND_STATES_IMPLEMENTATION.md), which are written against the Orders module that is actually here.
-
-### CI/CD & Automation
-
-- **[CI/CD Summary](docs/ci-cd-summary.md)** - Executive summary of CI/CD automation
-- **[CI/CD Implementation Guide](docs/ci-cd-implementation.md)** - How to use the CI/CD system
-- **[CI/CD Plan](docs/ci-cd-plan.md)** - Detailed CI/CD implementation plan
-- **[CI/CD Workflows Examples](docs/ci-cd-workflows-examples.md)** - GitHub Actions workflow examples
-
-## Technologies Used
-
-- **NestJS 11** - Progressive Node.js framework
-- **TypeScript 5.9** - Typed superset of JavaScript
-- **@nestjs/cqrs** - Commands, queries, events and sagas
-- **@nestjslatam/ddd-lib** - The DDD building blocks
-- **class-validator / class-transformer** - Request validation and transformation
-- **Swagger** - API documentation
-- **Jest 30** - Testing framework
-- **ESLint 10 / Prettier** - Linting and formatting
-- **Husky + Commitlint** - Git hooks and commit message linting
-
-Persistence is deliberately absent. The repositories under `src/**/infrastructure` are in-memory, which keeps the sample about the domain rather than about a database — pick your own store and implement the repository contract against it.
-
-## Available Scripts
+`src/` is an Orders and Products sample that consumes the library. It is not published.
 
 ```bash
-# Development
-npm run start:dev          # Start in watch mode
-npm run start:debug        # Start in debug mode
+npm install
+npm run start:dev     # :3000, Swagger at /api
+```
 
-# Building
-npm run build              # Build the application
-npm run build:lib          # Build the DDD library
+> [!WARNING]
+> **Every write endpoint currently returns 500.** `main.ts` installs a global `ValidationPipe({ whitelist: true })`, and no DTO in `src/` carries a single `class-validator` decorator — so `whitelist` strips every property and the body arrives empty:
+>
+> ```
+> POST /products  ->  500
+> ArgumentNullException: value cannot be null or undefined
+>     at new DddValueObject (node_modules/@nestjslatam/ddd-lib/valueobject.js:109:19)
+> ```
+>
+> All **8** `@Body()` handlers are affected. Reads (`GET /products`, `GET /orders`) work. This is a defect in the sample, not the library — the 304 tests exercise the domain directly and all pass. It is [the best first contribution here](#contributing).
 
-# Testing
-npm run test               # Run unit tests
-npm run test:watch         # Run tests in watch mode
-npm run test:cov           # Run tests with coverage
-npm run test:e2e           # Run end-to-end tests
+Repositories are in-memory by design: the sample stays about the domain rather than about a database. Implement the repository contract against your own store.
 
-# Code Quality
-npm run lint               # Run ESLint
-npm run format             # Format code with Prettier
+## FAQ
+
+<details>
+<summary><b>Four packages — which do I actually install?</b></summary>
+
+`@nestjslatam/ddd-lib`, and only that, unless you specifically need one of the others. `ddd-cli` is a dev dependency. See [the table above](#the-four-packages), including the caution about `ddd-valueobjects`.
+</details>
+
+<details>
+<summary><b>Does it work with my NestJS and Node version?</b></summary>
+
+Declared: NestJS 10 or 11, Node `>=20.11`. In practice **only NestJS 11.2.3 is ever exercised** — CI varies Node (18, 20, 22) and never varies NestJS, so treat NestJS 10 as untested rather than supported.
+</details>
+
+<details>
+<summary><b>What does <code>DddAggregateRoot</code> give me over writing my own base class?</b></summary>
+
+The four managers listed in [What you get](#what-you-get), pre-wired to `@nestjs/cqrs`. Be aware the `StateTransitionManager` is the least proven piece — the sample in this repo does not use it, hand-rolling its own `canTransitionTo` instead.
+</details>
+
+<details>
+<summary><b>Is it production-ready? Which version do I pin?</b></summary>
+
+No. Pin `3.0.0` exactly. Four releases shipped in a single day and two of them are deprecated on npm for crashing on import — the API churns, and a caret range will find the broken versions.
+</details>
+
+<details>
+<summary><b>What is the footgun that will bite me first?</b></summary>
+
+Validation **collects** broken rules and never throws. Nothing stops an invalid aggregate from escaping unless your factory checks `isValid` itself. Second: the base constructor calls `addValidators()` before your subclass constructor body runs, so a validator reading a field you assign there throws on every construction.
+</details>
+
+<details>
+<summary><b>I edited <code>libs/ddd</code> and the running app did not change. Why?</b></summary>
+
+Only the tests read `libs/ddd/src` — Jest's `moduleNameMapper` points there. `tsconfig.json` has no path mapping, so `nest build` and `start:dev` resolve the package from `node_modules`. Run `npm run build:lib` and install the tarball, or add a path mapping, if you want the app to exercise your changes. **This split can hide bugs**: green tests against local source while the running app uses a different version entirely.
+</details>
+
+<details>
+<summary><b>Is this repo the library or a sample app?</b></summary>
+
+Both, and the library is the point. `libs/ddd/` is the published package; `src/` is the sample that consumes it. Anything you read describing a `Singers` module is stale — the sample is Orders and Products.
+</details>
+
+## Requirements
+
+Node `>=20.11`. Five peer dependencies, all required:
+
+```
+@nestjs/common    ^10.0.0 || ^11.0.0
+@nestjs/core      ^10.0.0 || ^11.0.0
+@nestjs/cqrs      ^10.0.0 || ^11.0.0
+rxjs              ^7.2.0
+reflect-metadata  ^0.1.13 || ^0.2.0
+```
+
+Missing `@nestjs/cqrs` is what made `2.0.0` crash on import for everyone who had not installed it independently.
+
+## Running the tests
+
+```bash
+npm install
+npm test          # 23 suites, 308 tests, ~7s
+npm run type-check
+npm run lint
 ```
 
 ## Contributing
 
-This is a sample application demonstrating DDD principles with NestJS. Contributions and feedback are welcome!
+Contributions are wanted, and there is concrete, verifiable work waiting. Every item below was confirmed by running it.
+
+**Good first issues**, in rough order of value:
+
+1. **Fix the write endpoints.** Add `class-validator` decorators to the 8 input DTOs in `src/**/use-cases/*/`. Both packages are already installed. Verify with `POST /products` returning `201` instead of `500`.
+2. **Fix `ddd-valueobjects` composition.** Move `@nestjslatam/ddd-lib` from `dependencies` to `peerDependencies` with `^2.0.0 || ^3.0.0`, in [that repo](https://github.com/nestjslatam/ddd-valueobjects).
+3. **Make the e2e test assert something.** It currently requests `GET /singers` — an endpoint that does not exist — and accepts `200`, `404` _or_ `500`.
+4. **Repair the coverage gate.** CI's 80% threshold never runs: the configured reporters emit `coverage-final.json` while the gate reads `coverage-summary.json`. Real line coverage is 74.8%.
+5. **Rewrite the six stale `docs/`.** They describe a `Singers` module this repository does not contain.
+
+**Before you open a PR**, CI will run: ESLint, `prettier --check`, `tsc --noEmit` against **both** `tsconfig.json` and `libs/ddd/tsconfig.lib.json`, unit tests with coverage on Node 18 / 20 / 22, e2e tests, the library build, and `npm audit --audit-level=moderate`. All pass locally today, so the bar is reachable:
+
+```bash
+npm run lint && npm run type-check && npm test
+```
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/). Note that the husky hook is currently inert on a fresh clone — `package.json` has no `prepare` script — so nothing enforces this locally yet. Fixing that is itself a welcome PR.
+
+## Documentation
+
+| Document                                                                                       | Covers                                                                         |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| [`libs/ddd/README.md`](libs/ddd/README.md)                                                     | The published package, current at 3.0.0 — this is what npm shows               |
+| [`src/orders/README.md`](src/orders/README.md)                                                 | The Orders module in detail, accurate against the real controller (in Spanish) |
+| [`docs/order-aggregate-implementation.md`](docs/order-aggregate-implementation.md)             | Aggregate design walkthrough                                                   |
+| [`docs/VALIDATORS_AND_STATES_IMPLEMENTATION.md`](docs/VALIDATORS_AND_STATES_IMPLEMENTATION.md) | Validators and state tracking                                                  |
+| [`CHANGELOG.md`](CHANGELOG.md)                                                                 | Every release, including the two deprecated ones and why                       |
+
+> [!NOTE]
+> Six further documents in `docs/` — `architecture.md`, `domain-layer.md`, `application-layer.md`, `infrastructure-layer.md`, `getting-started.md` and `api-reference.md` — are written around a `Singers` module that does not exist in this repository. They are still useful for the _shape_ of a DDD application, but do not expect to find the code they describe.
+
+## Who is behind this
+
+Built and maintained by **[BeyondNet Tech](https://beyondnet.info/)** with the [NestJS Latam](https://nestjslatam.dev/) community.
+
+- **[Evolith](https://github.com/beyondnetcode/evolith_arch32)** — executable architecture governance: a CLI, MCP server and REST API that check a repository against Rego/OPA rules, and report a rule they could not evaluate as a failure rather than a silent pass. The same idea as `ddd validate`, one level up.
+- **[Shell.ddd](https://github.com/beyondnetcode/Shell.ddd)** — the .NET counterpart of this library: entities, aggregate roots, value objects, domain events and business rules for C#.
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
 
-## Related Links
+---
 
-- [NestJS Documentation](https://docs.nestjs.com/)
-- [NestJS Latam](https://nestjslatam.dev/) - The community behind these packages
-- [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)
-- [CQRS Pattern](https://martinfowler.com/bliki/CQRS.html)
+<div align="center">
 
-### Sibling repositories
+**Powered by [BeyondNetCode](https://beyondnet.info/)**
 
-- [nestjslatam/ddd-cli](https://github.com/nestjslatam/ddd-cli) - The CLI
-- [nestjslatam/ddd-valueobjects](https://github.com/nestjslatam/ddd-valueobjects) - Ready-made value objects
-- [nestjslatam/ddd-event-sourcing](https://github.com/nestjslatam/ddd-event-sourcing) - Event sourcing
+[Website](https://beyondnet.info/) · [GitHub](https://github.com/beyondnetcode) · [NestJS Latam](https://nestjslatam.dev/)
+
+</div>
