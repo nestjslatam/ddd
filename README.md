@@ -2,17 +2,19 @@
 
 # `@nestjslatam/ddd-lib`
 
-**Domain-Driven Design building blocks for NestJS.**
-Aggregates that collect their own broken rules, value objects that validate themselves, and state tracking — on top of `@nestjs/cqrs`.
+**Bloques de construcción de Domain-Driven Design para NestJS.**
+Agregados que recolectan sus propias reglas rotas, value objects que se validan solos y seguimiento de estado — sobre `@nestjs/cqrs`.
 
 [![npm](https://img.shields.io/npm/v/%40nestjslatam%2Fddd-lib?color=1e73be&label=ddd-lib)](https://www.npmjs.com/package/@nestjslatam/ddd-lib)
 [![CI](https://github.com/nestjslatam/ddd/actions/workflows/ci.yml/badge.svg)](https://github.com/nestjslatam/ddd/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-1111%20passing-00d084)](#running-the-tests)
-[![coverage](https://img.shields.io/badge/coverage-85%25%20merged-00d084)](#running-the-tests)
-[![node](https://img.shields.io/badge/node-%3E%3D20.11-575760)](#requirements)
-[![license](https://img.shields.io/badge/license-MIT-575760)](LICENSE)
+[![tests](https://img.shields.io/badge/tests-1111%20pasando-00d084)](#ejecutar-las-pruebas)
+[![coverage](https://img.shields.io/badge/cobertura-85%25%20combinada-00d084)](#ejecutar-las-pruebas)
+[![node](https://img.shields.io/badge/node-%3E%3D20.11-575760)](#requisitos)
+[![license](https://img.shields.io/badge/licencia-MIT-575760)](LICENSE)
 
-[Quick start](#quick-start) · [FAQ](#faq) · [The four packages](#the-four-packages) · [Contributing](#contributing) · [The CLI](#the-cli)
+[Inicio rápido](#inicio-rápido) · [Preguntas frecuentes](#preguntas-frecuentes) · [Los cuatro paquetes](#los-cuatro-paquetes) · [Colaborar](#colaborar) · [El CLI](#el-cli)
+
+**[📖 Documentación completa en docs.nestjslatam.dev](https://docs.nestjslatam.dev)**
 
 </div>
 
@@ -22,9 +24,9 @@ Aggregates that collect their own broken rules, value objects that validate them
 npm install @nestjslatam/ddd-lib @nestjs/cqrs
 ```
 
-`@nestjs/cqrs` is not optional — `DddAggregateRoot` extends its `AggregateRoot`. The full peer list is in [Requirements](#requirements).
+`@nestjs/cqrs` no es opcional — `DddAggregateRoot` extiende su `AggregateRoot`. La lista completa de dependencias par está en [Requisitos](#requisitos).
 
-## Quick start
+## Inicio rápido
 
 ```ts
 import {
@@ -34,11 +36,11 @@ import {
   IdValueObject,
 } from '@nestjslatam/ddd-lib';
 
-// A rule lives in its own class, so it is testable on its own.
+// Cada regla vive en su propia clase, así se puede probar por separado.
 class PriceRule extends AbstractRuleValidator<Price> {
   addRules(): void {
     if (this.subject.getValue() <= 0) {
-      this.addBrokenRule('value', 'Price must be greater than zero');
+      this.addBrokenRule('value', 'El precio debe ser mayor que cero');
     }
   }
 }
@@ -53,12 +55,12 @@ export class Price extends NumberValueObject {
   }
 
   override addValidators(): void {
-    super.addValidators(); // the base registers real rules here — always chain
+    super.addValidators(); // la base registra reglas reales aquí — encadena siempre
     this.validatorRules.add(new PriceRule(this));
   }
 }
 
-// An aggregate carries the invariants that span more than one value object.
+// El agregado carga las invariantes que abarcan más de un value object.
 export class Product extends DddAggregateRoot<Product, IProductProps> {
   private constructor(props: IProductProps, id?: IdValueObject) {
     super(props, { id });
@@ -68,8 +70,9 @@ export class Product extends DddAggregateRoot<Product, IProductProps> {
   static create(name: Name, price: Price): Product {
     const product = new Product({ name, price });
     if (!product.isValid) {
-      // Validation COLLECTS rules, it never throws. If you skip this check,
-      // create() happily returns an object that failed its own invariants.
+      // La validación RECOLECTA reglas, nunca lanza. Si te saltas esta
+      // comprobación, create() devuelve tan tranquilo un objeto que incumple
+      // sus propias invariantes.
       throw new Error(
         product.brokenRules
           .getBrokenRules()
@@ -86,123 +89,123 @@ export class Product extends DddAggregateRoot<Product, IProductProps> {
 }
 ```
 
-What that buys you, and where each failure is caught:
+Lo que eso te da, y dónde se detecta cada fallo:
 
-| Input                 | Result                                                | Caught by                                  |
-| --------------------- | ----------------------------------------------------- | ------------------------------------------ |
-| `Price.create(49.99)` | valid                                                 | —                                          |
-| `Price.create(0)`     | `value must be a positive number (greater than zero)` | the **base** `NumberValueObject` validator |
-| price `2_000_000`     | `Price must be less than 1000000`                     | the **aggregate**, `ProductRule`           |
+| Entrada               | Resultado                                             | Lo detecta                                  |
+| --------------------- | ----------------------------------------------------- | ------------------------------------------- |
+| `Price.create(49.99)` | válido                                                | —                                           |
+| `Price.create(0)`     | `value must be a positive number (greater than zero)` | el validador **base** de `NumberValueObject` |
+| precio `2_000_000`    | `Price must be less than 1000000`                     | el **agregado**, `ProductRule`              |
 
-Note the second row: `Price must be greater than zero` never fired. `super.addValidators()` had already registered the base's own positive-number rule, which caught `0` first. Drop that `super` call and _both_ rules disappear silently — no error, invalid value accepted.
+Fíjate en la segunda fila: `El precio debe ser mayor que cero` **nunca se disparó**. `super.addValidators()` ya había registrado la regla de número positivo de la base, que atrapó el `0` primero. Quita ese `super` y **ambas** reglas desaparecen en silencio — sin error, con el valor inválido aceptado.
 
-This is not pasted from memory. The code above lives in [`libs/ddd/src/readme-example.spec.ts`](libs/ddd/src/readme-example.spec.ts), which asserts all three rows plus the getter shape, and **CI runs it on every push**. The examples it replaced had seven type errors and had never compiled against any published version — because nothing ever ran them.
+Esto no está copiado de memoria. El código de arriba vive en [`libs/ddd/src/readme-example.spec.ts`](libs/ddd/src/readme-example.spec.ts), que comprueba las tres filas más la forma del getter, y **CI lo ejecuta en cada push**. Los ejemplos a los que sustituyó tenían siete errores de tipos y nunca habían compilado contra ninguna versión publicada — porque nadie los ejecutaba.
 
 > [!IMPORTANT]
-> **Where this library stands, in numbers.** `4.0.0` is the first release with a test suite covering the classes you actually extend. Before it, eleven of the twelve core files — including `DddAggregateRoot` and `DddValueObject` — had **no spec at all**, and writing those suites surfaced **34 defects**, eight severe: an aggregate that failed validation could never become valid again, `clone()` returned an alias rather than a copy, and every `StringValueObject` option was silently ignored.
+> **Dónde está esta librería, en números.** La `4.0.0` es la primera versión con una batería de pruebas que cubre las clases que realmente extiendes. Antes, once de los doce ficheros del núcleo — incluidos `DddAggregateRoot` y `DddValueObject` — **no tenían ni un test**, y escribir esas pruebas destapó **34 defectos**, ocho graves: un agregado que fallaba la validación no podía volver a ser válido nunca, `clone()` devolvía un alias en lugar de una copia, y todas las opciones de `StringValueObject` se ignoraban en silencio.
 >
-> Coverage went from 58.4% to **98.6%**, and the tests from 308 to **1017**. So the honest statement is not "don't use it" and not "it's stable" — it is this:
+> La cobertura pasó del 58,4 % al **98,6 %**, y las pruebas de 308 a **1017**. Así que la afirmación honesta no es «no lo uses» ni «es estable», sino ésta:
 >
-> |                                            |                                                                                                                                   |
-> | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-> | **Proven**                                 | The aggregate and value object bases, validation, broken rules, state tracking, identity. Covered and pinned by regression tests. |
-> | **Newly covered, less proven in the wild** | State transitions, domain events, enums — untested until `4.0.0`, so the tests are new even if the code is not.                   |
-> | **The real risk**                          | **API churn, not correctness.** `4.0.0` changed observable behaviour in eight places and the compiler catches none of them.       |
+> |                                               |                                                                                                                                     |
+> | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+> | **Probado**                                   | Las bases de agregado y value object, la validación, las reglas rotas, el seguimiento de estado y la identidad. Cubiertas y fijadas por pruebas de regresión. |
+> | **Recién cubierto, menos rodado en producción** | Transiciones de estado, eventos de dominio y enums — sin pruebas hasta la `4.0.0`, así que los tests son nuevos aunque el código no lo sea. |
+> | **El riesgo real**                            | **Cambios de API, no de corrección.** La `4.0.0` cambió el comportamiento observable en ocho sitios y el compilador no detecta ninguno. |
 >
-> **Pin an exact version.** The API stabilises from `4.0.0`: no breaking change will ship without a deprecation cycle where one is technically possible. That promise is earned over a release cycle, not by announcing it — judge it at `4.1.0`.
+> **Clava una versión exacta.** La API se estabiliza a partir de la `4.0.0`: ningún cambio incompatible se publicará sin un ciclo de obsolescencia donde sea técnicamente posible. Esa promesa se gana a lo largo de un ciclo de versiones, no anunciándola — júzgala en la `4.1.0`.
 >
-> **Do not install `2.0.0` or `2.1.0`.** Both are deprecated on npm for crashing on import, and a `^2.0.0` range still resolves to them.
+> **No instales la `2.0.0` ni la `2.1.0`.** Ambas están marcadas como obsoletas en npm por reventar al importarlas, y un rango `^2.0.0` todavía resuelve a ellas.
 
-### Upgrading
+### Migrar
 
-**To `3.0.0`** — one change, and the compiler finds every site:
+**A la `3.0.0`** — un solo cambio, y el compilador encuentra todos los sitios:
 
 ```diff
 - if (!aggregate.isValid()) {
 + if (!aggregate.isValid) {
 ```
 
-`isValid` was a **method** on aggregates and a **getter** on value objects — the same name with two shapes, which is how a guard like `if (!aggregate.isValid)` could read as an always-truthy `Function` and silently never fire. Both are getters. TypeScript reports `TS6234`; for JavaScript consumers, `npx ddd validate` reports every call site by reading how _your installed version_ declares it.
+`isValid` era un **método** en los agregados y un **getter** en los value objects — el mismo nombre con dos formas, que es exactamente cómo un guard como `if (!aggregate.isValid)` podía leerse como una `Function` siempre verdadera y no dispararse jamás. Ahora los dos son getters. TypeScript avisa con `TS6234`; para quien consuma desde JavaScript, `npx ddd validate` señala cada llamada leyendo cómo lo declara **tu versión instalada**.
 
-**To `4.0.0`** — nothing to search for, because the compiler catches none of it. Eight behaviours changed, in the order you are likely to be affected:
+**A la `4.0.0`** — no hay nada que buscar, porque el compilador no detecta nada de esto. Cambiaron ocho comportamientos, en el orden en que probablemente te afecten:
 
-1. **Remove any `brokenRules.clear()` workaround** before `validate()`. It clears itself now.
-2. **Check anything reading `clone()`/`getCopy()`.** They return a real copy; if you relied on the copy sharing state, that was the bug. Re-subscribe property-changed handlers on the copy.
-3. **Lower-case your stored UUIDs, or expect lower-case on read.** `IdValueObject` canonicalises, so the same UUID in two cases is finally one identity.
-4. **Re-check `StringValueObject` subclasses that pass options.** `allowEmpty`, `trimWhitespace`, `minLength` and `maxLength` were ignored and now apply, so values that used to pass may fail.
-5. **`IdValueObject.setValue()` throws** on anything that is not a UUID, rather than silently accepting it.
-6. **`DddEnum.getAll()` returns a fresh array** each call; `getAll() === getAll()` is no longer true.
-7. **A custom state comparator receives `(definedState, queryState)`** at every call site.
-8. **Nested change detection now fires** for this library's own objects, so repositories may see writes they previously skipped.
+1. **Quita cualquier apaño con `brokenRules.clear()`** antes de `validate()`. Ahora se limpia solo.
+2. **Revisa todo lo que lea `clone()` / `getCopy()`.** Devuelven una copia de verdad; si dependías de que la copia compartiera estado, eso era el bug. Vuelve a suscribir en la copia los manejadores de cambio de propiedad.
+3. **Pasa a minúsculas los UUID que tengas guardados**, o espéralos en minúsculas al leer. `IdValueObject` los canonicaliza, así que el mismo UUID en dos capitalizaciones es por fin una sola identidad.
+4. **Vuelve a comprobar las subclases de `StringValueObject` que pasen opciones.** `allowEmpty`, `trimWhitespace`, `minLength` y `maxLength` se ignoraban y ahora se aplican, así que valores que antes pasaban pueden fallar.
+5. **`IdValueObject.setValue()` lanza** ante cualquier cosa que no sea un UUID, en vez de aceptarlo en silencio.
+6. **`DddEnum.getAll()` devuelve un array nuevo** en cada llamada; `getAll() === getAll()` ya no es cierto.
+7. **Un comparador de estado personalizado recibe `(definedState, queryState)`** en todas las llamadas.
+8. **La detección de cambios anidados ahora se dispara** para los objetos propios de esta librería, así que los repositorios pueden ver escrituras que antes se saltaban.
 
-The [changelog](CHANGELOG.md) has the full reasoning for each.
+El [registro de cambios](CHANGELOG.md) explica el razonamiento de cada uno.
 
-## What you get
+## Qué obtienes
 
-`DddAggregateRoot` extends `@nestjs/cqrs`'s `AggregateRoot` and pre-wires four collaborators you would otherwise hand-roll: `BrokenRulesManager` (error collection), `ValidatorRuleManager` (rule registration), `TrackingStateManager` (new / dirty / clean), and `StateTransitionManager` (a state machine). Plus `IdValueObject` identity, prototype-aware `equals`, and `toPlainObject`.
+`DddAggregateRoot` extiende el `AggregateRoot` de `@nestjs/cqrs` y trae cableados cuatro colaboradores que si no tendrías que escribir a mano: `BrokenRulesManager` (recolección de errores), `ValidatorRuleManager` (registro de reglas), `TrackingStateManager` (nuevo / sucio / limpio) y `StateTransitionManager` (una máquina de estados). Más la identidad de `IdValueObject`, un `equals` consciente del prototipo y `toPlainObject`.
 
-`npx ddd list` prints the full inventory by reading the declarations of the version you have installed, so it cannot go stale the way a table here would.
+`npx ddd list` imprime el inventario completo leyendo las declaraciones de la versión que tengas instalada, así que no puede quedarse obsoleto como sí le pasaría a una tabla escrita aquí.
 
-## The four packages
+## Los cuatro paquetes
 
-| Package                                                               | Install it when                                                           | Version |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------- |
-| **[`ddd-lib`](https://www.npmjs.com/package/@nestjslatam/ddd-lib)**   | Always. This is the library. Built from `libs/ddd` here.                  | `4.0.0` |
-| [`ddd-cli`](https://github.com/nestjslatam/ddd-cli)                   | As a **dev** dependency, to scaffold and audit. Not a runtime dependency. | `0.3.0` |
-| [`ddd-valueobjects`](https://github.com/nestjslatam/ddd-valueobjects) | You want ready-made email / phone / money / document-id types.            | `1.3.0` |
-| [`ddd-es-lib`](https://github.com/nestjslatam/ddd-event-sourcing)     | You are doing event sourcing on MongoDB. Hard-requires `mongoose`.        | `1.2.0` |
+| Paquete                                                               | Instálalo cuando                                                                | Versión |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------- |
+| **[`ddd-lib`](https://www.npmjs.com/package/@nestjslatam/ddd-lib)**   | Siempre. Ésta es la librería. Se construye desde `libs/ddd` en este repositorio. | `4.0.0` |
+| [`ddd-cli`](https://github.com/nestjslatam/ddd-cli)                   | Como dependencia **de desarrollo**, para andamiar y auditar. No es de ejecución. | `0.4.0` |
+| [`ddd-valueobjects`](https://github.com/nestjslatam/ddd-valueobjects) | Quieres tipos ya hechos de email, teléfono, dinero o documentos de identidad.    | `1.3.0` |
+| [`ddd-es-lib`](https://github.com/nestjslatam/ddd-event-sourcing)     | Vas a hacer event sourcing sobre MongoDB. Exige `mongoose`.                      | `1.5.1` |
 
-## The CLI
+## El CLI
 
-[`@nestjslatam/ddd-cli`](https://github.com/nestjslatam/ddd-cli) reads the `.d.ts` files of the `ddd-lib` **installed in your project** with the TypeScript compiler API — so it describes your version, not whatever it was built against.
+[`@nestjslatam/ddd-cli`](https://github.com/nestjslatam/ddd-cli) lee los ficheros `.d.ts` del `ddd-lib` **instalado en tu proyecto** usando la API del compilador de TypeScript — así que describe tu versión, y no aquella contra la que se construyó.
 
 ```bash
-npx ddd list                  # every stereotype, grouped by how you use it
-npx ddd new value-object Sku  # scaffold; nothing is written until you confirm
-npx ddd validate              # audit against the idiom
+npx ddd list                  # cada estereotipo, agrupado por cómo se usa
+npx ddd new value-object Sku  # andamiaje; no escribe nada hasta que confirmas
+npx ddd validate              # audita contra el idioma de la librería
 ```
 
-`validate` enforces four rules, each a mistake this library makes easy and silent:
+`validate` aplica cuatro reglas, cada una un error que esta librería hace fácil y silencioso:
 
-| Rule                                  | The mistake it catches                                                                                                                                                                                               |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `no-subclass-state-in-add-validators` | The base constructor calls `addValidators()` **before** your constructor body runs. Reading a field you assign there throws on every construction — exactly how `NumberValueObject` shipped broken for two releases. |
-| `super-add-validators`                | An override that does not chain drops the base's real validators, and invalid values pass with no error.                                                                                                             |
-| `factory-checks-validity`             | A `create()` that skips the `isValid` check returns objects that failed their own invariants.                                                                                                                        |
-| `handler-commits-events`              | Only `mergeObjectContext(...).commit()` dispatches domain events. Without it the command succeeds and every handler is silently skipped.                                                                             |
+| Regla                                 | El error que atrapa                                                                                                                                                                                                       |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `no-subclass-state-in-add-validators` | El constructor base llama a `addValidators()` **antes** de que se ejecute el cuerpo del tuyo. Leer un campo que asignas ahí lanza en cada construcción — exactamente como `NumberValueObject` se publicó roto durante dos versiones. |
+| `super-add-validators`                | Un override que no encadena tira los validadores reales de la base, y los valores inválidos pasan sin error.                                                                                                               |
+| `factory-checks-validity`             | Un `create()` que se salta la comprobación de `isValid` devuelve objetos que incumplen sus propias invariantes.                                                                                                            |
+| `handler-commits-events`              | Sólo `mergeObjectContext(...).commit()` despacha los eventos de dominio. Sin eso el comando triunfa y todos los manejadores se saltan en silencio.                                                                         |
 
-It also runs as an **MCP server**, so Claude Code, Codex or Cursor drive it with their own model and **no API key**:
+También corre como **servidor MCP**, así que Claude Code, Codex o Cursor lo manejan con su propio modelo y **sin clave de API**:
 
 ```bash
 claude mcp add ddd -- npx -y @nestjslatam/ddd-cli mcp
 ```
 
-## The sample application
+## La aplicación de ejemplo
 
-`src/` is an Orders and Products sample that consumes the library. It is not published.
+`src/` es un ejemplo de Pedidos y Productos que consume la librería. No se publica.
 
 ```bash
 npm install
-npm run start:dev     # :3000, Swagger at /api
+npm run start:dev     # :3000, Swagger en /api
 ```
 
-A full round trip, covered by [`test/app.e2e-spec.ts`](test/app.e2e-spec.ts):
+Un recorrido completo, cubierto por [`test/app.e2e-spec.ts`](test/app.e2e-spec.ts):
 
 ```bash
 POST  /products                      201   { "id": "..." }
-POST  /orders                        201   an empty DRAFT
+POST  /orders                        201   un DRAFT vacío
 POST  /orders/:id/items              200
 PATCH /orders/:id/items/:productId   200
 POST  /orders/:id/confirm            200
 ```
 
-Two kinds of mistake, two answers — the distinction is the point:
+Dos clases de error, dos respuestas — y la distinción es el motivo de todo esto:
 
-| Request                  | Answer                          | Caught by                                   |
-| ------------------------ | ------------------------------- | ------------------------------------------- |
-| `price: "forty"`         | **400** naming the field        | `ValidationPipe`, before the domain sees it |
-| `price: 0`               | **422** with the broken rules   | `PriceRangeValidator`, inside the aggregate |
-| `{ ..., isAdmin: true }` | **201**, the extra key stripped | `whitelist: true`                           |
+| Petición                 | Respuesta                        | Lo detecta                                       |
+| ------------------------ | -------------------------------- | ------------------------------------------------ |
+| `price: "cuarenta"`      | **400** nombrando el campo       | `ValidationPipe`, antes de que el dominio lo vea |
+| `price: 0`               | **422** con las reglas rotas     | `PriceRangeValidator`, dentro del agregado       |
+| `{ ..., isAdmin: true }` | **201**, la clave extra se quita | `whitelist: true`                                |
 
 ```json
 // POST /products  { "price": 0 }  ->  422
@@ -220,72 +223,72 @@ Two kinds of mistake, two answers — the distinction is the point:
 }
 ```
 
-A wrong _type_ is structure and never reaches the domain. A wrong _value_ is meaning and only the aggregate can judge it. `DomainExceptionFilter` maps the whole domain vocabulary:
+Un **tipo** equivocado es estructura y nunca llega al dominio. Un **valor** equivocado es significado, y sólo el agregado puede juzgarlo. `DomainExceptionFilter` mapea todo el vocabulario del dominio:
 
-| Exception                         | Status | Reached by                                          |
-| --------------------------------- | ------ | --------------------------------------------------- |
-| `BrokenRulesException`            | `422`  | `quantity: 0`, `price: 0` — refused by an invariant |
-| `ArgumentNullException`           | `400`  | a required value absent or blank                    |
-| `InvalidFormatException`          | `400`  | an id that is not a UUID, a status outside the enum |
-| `InvalidStateTransitionException` | `409`  | `DRAFT → SHIPPED`                                   |
-| `InvalidOperationException`       | `409`  | confirming an order with no items                   |
-| Nest's `NotFoundException`        | `404`  | an item the order does not hold                     |
+| Excepción                         | Estado | Se llega desde                                          |
+| --------------------------------- | ------ | ------------------------------------------------------- |
+| `BrokenRulesException`            | `422`  | `quantity: 0`, `price: 0` — rechazados por una invariante |
+| `ArgumentNullException`           | `400`  | un valor obligatorio ausente o en blanco                |
+| `InvalidFormatException`          | `400`  | un id que no es UUID, un estado fuera del enum          |
+| `InvalidStateTransitionException` | `409`  | `DRAFT → SHIPPED`                                       |
+| `InvalidOperationException`       | `409`  | confirmar un pedido sin artículos                       |
+| `NotFoundException` de Nest       | `404`  | un artículo que el pedido no contiene                   |
 
-Anything that is **not** a domain exception is deliberately left as a `500`. Two throws in `money.vo.ts` stay that way on purpose, with a comment saying why: no endpoint can ask for a division by zero, so reaching one means a bug in this code, and dressing a fault up as a client error hides it.
+Todo lo que **no** sea una excepción de dominio se deja deliberadamente como `500`. Dos `throw` en `money.vo.ts` siguen así a propósito, con un comentario que lo explica: ningún endpoint puede pedir una división por cero, así que llegar a una significa un bug en este código, y disfrazar un fallo de error del cliente lo esconde.
 
-Repositories are in-memory by design: the sample stays about the domain rather than about a database. Implement the repository contract against your own store.
+Los repositorios son en memoria por diseño: el ejemplo trata sobre el dominio, no sobre una base de datos. Implementa el contrato del repositorio contra tu propio almacén.
 
-## FAQ
+## Preguntas frecuentes
 
 <details>
-<summary><b>Four packages — which do I actually install?</b></summary>
+<summary><b>Cuatro paquetes, ¿cuál instalo realmente?</b></summary>
 
-`@nestjslatam/ddd-lib`, and only that, unless you specifically need one of the others. `ddd-cli` is a dev dependency. See [the table above](#the-four-packages), including the caution about `ddd-valueobjects`.
+`@nestjslatam/ddd-lib`, y sólo ése, salvo que necesites específicamente alguno de los otros. `ddd-cli` es dependencia de desarrollo. Mira [la tabla de arriba](#los-cuatro-paquetes).
 </details>
 
 <details>
-<summary><b>Does it work with my NestJS and Node version?</b></summary>
+<summary><b>¿Funciona con mi versión de NestJS y de Node?</b></summary>
 
-Declared: NestJS 10 or 11, Node `>=20.11`. In practice **only NestJS 11.2.3 is ever exercised** — CI varies Node (18, 20, 22) and never varies NestJS, so treat NestJS 10 as untested rather than supported.
+Declarado: NestJS 10 u 11, Node `>=20.11`. En la práctica **sólo se ejercita NestJS 11.2.3** — CI varía Node (18, 20, 22) y nunca varía NestJS, así que trata NestJS 10 como no probado, no como soportado.
 </details>
 
 <details>
-<summary><b>What does <code>DddAggregateRoot</code> give me over writing my own base class?</b></summary>
+<summary><b>¿Qué me da <code>DddAggregateRoot</code> frente a escribir mi propia clase base?</b></summary>
 
-The four managers listed in [What you get](#what-you-get), pre-wired to `@nestjs/cqrs`. Be aware the `StateTransitionManager` is the least proven piece — the sample in this repo does not use it, hand-rolling its own `canTransitionTo` instead.
+Los cuatro gestores que se listan en [Qué obtienes](#qué-obtienes), ya cableados a `@nestjs/cqrs`. Ten en cuenta que `StateTransitionManager` es la pieza menos rodada — el ejemplo de este repositorio no lo usa, se escribe su propio `canTransitionTo`.
 </details>
 
 <details>
-<summary><b>Is it production-ready? Which version do I pin?</b></summary>
+<summary><b>¿Está listo para producción? ¿Qué versión clavo?</b></summary>
 
-Yes for the domain model, with an exact version pinned — and that is a change from what this README said before `4.0.0`.
+Sí para el modelo de dominio, con una versión exacta clavada — y eso es un cambio respecto a lo que decía este README antes de la `4.0.0`.
 
-`4.0.0` is the first release whose base classes have tests: 1017 of them, 98.6% lines. Getting there surfaced 34 defects, so the previous warning was earned, not boilerplate. What remains is not correctness risk but **API churn** — `4.0.0` moved behaviour in eight places the compiler cannot see. Pin exactly, read the [migration](#upgrading), and judge the stability promise at `4.1.0` rather than taking it on trust now.
+La `4.0.0` es la primera versión cuyas clases base tienen pruebas: 1017 de ellas, 98,6 % de líneas. Llegar ahí destapó 34 defectos, así que la advertencia anterior estaba ganada, no era relleno. Lo que queda no es riesgo de corrección sino **cambio de API** — la `4.0.0` movió comportamiento en ocho sitios que el compilador no ve. Clava exacto, lee la [migración](#migrar), y juzga la promesa de estabilidad en la `4.1.0` en lugar de creértela ahora.
 
-Never install `2.0.0` or `2.1.0`: both are deprecated on npm for crashing on import.
+No instales nunca la `2.0.0` ni la `2.1.0`: ambas están obsoletas en npm por reventar al importarlas.
 </details>
 
 <details>
-<summary><b>What is the footgun that will bite me first?</b></summary>
+<summary><b>¿Cuál es la trampa que me va a morder primero?</b></summary>
 
-Validation **collects** broken rules and never throws. Nothing stops an invalid aggregate from escaping unless your factory checks `isValid` itself. Second: the base constructor calls `addValidators()` before your subclass constructor body runs, so a validator reading a field you assign there throws on every construction.
+La validación **recolecta** reglas rotas y nunca lanza. Nada impide que un agregado inválido se escape salvo que tu fábrica compruebe `isValid` por su cuenta. La segunda: el constructor base llama a `addValidators()` antes de que corra el cuerpo del constructor de tu subclase, así que un validador que lea un campo que asignas ahí lanza en cada construcción.
 </details>
 
 <details>
-<summary><b>I edited <code>libs/ddd</code> and the running app did not change. Why?</b></summary>
+<summary><b>Edité <code>libs/ddd</code> y la app en marcha no cambió. ¿Por qué?</b></summary>
 
-Only the tests read `libs/ddd/src` — Jest's `moduleNameMapper` points there. `tsconfig.json` has no path mapping, so `nest build` and `start:dev` resolve the package from `node_modules`. Run `npm run build:lib` and install the tarball, or add a path mapping, if you want the app to exercise your changes. **This split can hide bugs**: green tests against local source while the running app uses a different version entirely.
+Sólo las pruebas leen `libs/ddd/src` — el `moduleNameMapper` de Jest apunta ahí. `tsconfig.json` no tiene mapeo de rutas, así que `nest build` y `start:dev` resuelven el paquete desde `node_modules`. Ejecuta `npm run build:lib` e instala el tarball, o añade un mapeo de rutas, si quieres que la app ejercite tus cambios. **Esta separación puede esconder bugs**: pruebas en verde contra el fuente local mientras la app en marcha usa otra versión distinta.
 </details>
 
 <details>
-<summary><b>Is this repo the library or a sample app?</b></summary>
+<summary><b>¿Este repositorio es la librería o una app de ejemplo?</b></summary>
 
-Both, and the library is the point. `libs/ddd/` is the published package; `src/` is the sample that consumes it — Orders and Products. If you find anything describing a `Singers` module, it predates `4.0.0` and is stale; the `docs/` were rewritten against the code that is actually here.
+Las dos cosas, y la librería es lo importante. `libs/ddd/` es el paquete publicado; `src/` es el ejemplo que lo consume — Pedidos y Productos. Si encuentras algo que describa un módulo `Singers`, es anterior a la `4.0.0` y está obsoleto; los `docs/` se reescribieron contra el código que hay de verdad.
 </details>
 
-## Requirements
+## Requisitos
 
-Node `>=20.11`. Five peer dependencies, all required:
+Node `>=20.11`. Cinco dependencias par, todas obligatorias:
 
 ```
 @nestjs/common    ^10.0.0 || ^11.0.0
@@ -295,78 +298,78 @@ rxjs              ^7.2.0
 reflect-metadata  ^0.1.13 || ^0.2.0
 ```
 
-Missing `@nestjs/cqrs` is what made `2.0.0` crash on import for everyone who had not installed it independently.
+Que faltara `@nestjs/cqrs` es lo que hacía que la `2.0.0` reventara al importarla para todo el que no la hubiera instalado por su cuenta.
 
-## Running the tests
+## Ejecutar las pruebas
 
 ```bash
 npm install
-npm test              # 42 suites, 1111 tests, ~12s
-npm run test:e2e      # 17 tests over the real HTTP surface
-npm run test:cov:all  # both, merged into one report — 85% lines
+npm test              # 42 suites, 1111 pruebas, ~12s
+npm run test:e2e      # 17 pruebas sobre la superficie HTTP real
+npm run test:cov:all  # ambas, combinadas en un informe — 85 % de líneas
 npm run type-check
 npm run lint
 ```
 
-The two suites cover different halves of the application. `npm test` covers the domain — aggregates, value objects, validators. `npm run test:e2e` covers the wiring, driving controllers, handlers and the exception filter over real HTTP.
+Las dos baterías cubren mitades distintas de la aplicación. `npm test` cubre el dominio — agregados, value objects, validadores. `npm run test:e2e` cubre el cableado, conduciendo controladores, handlers y el filtro de excepciones sobre HTTP real.
 
-Reported separately, the application layer read **0%** while seventeen e2e tests were exercising it. `test:cov:all` merges the two, which takes the figure from 64% to **85%** — a file is covered if a test reaches it, and which runner did is an accident of how the suites are split.
+Informadas por separado, la capa de aplicación marcaba **0 %** mientras diecisiete pruebas e2e la estaban recorriendo. `test:cov:all` combina las dos, y eso lleva la cifra del 64 % al **85 %** — un fichero está cubierto si un test lo recorre, y cuál de los dos ejecutores lo hizo es un accidente de cómo repartiste las suites.
 
-## Contributing
+## Colaborar
 
-Contributions are wanted, and there is concrete, verifiable work waiting. Every item below was confirmed by running it.
+Se buscan colaboraciones, y hay trabajo concreto y verificable esperando. Cada punto de abajo se confirmó ejecutándolo.
 
-**Good first issues**, in rough order of value:
+**Buenos primeros issues**, más o menos por orden de valor:
 
-1. **Give `Order` a richer lifecycle.** `Order.startProcessing()` exists on the aggregate and no endpoint reaches it, so `ship` and `deliver` are unreachable through the API — both answer `409` from `CONFIRMED`.
-2. **Persist something.** The in-memory repositories are deliberate, but a second implementation against a real store would prove the contract holds.
+1. **Dale a `Order` un ciclo de vida más rico.** `Order.startProcessing()` existe en el agregado y ningún endpoint llega a él, así que `ship` y `deliver` son inalcanzables desde la API — ambos responden `409` desde `CONFIRMED`.
+2. **Persiste algo.** Los repositorios en memoria son deliberados, pero una segunda implementación contra un almacén real demostraría que el contrato aguanta.
 
-**Before you open a PR**, CI will run: ESLint, `prettier --check`, `tsc --noEmit` against **both** `tsconfig.json` and `libs/ddd/tsconfig.lib.json`, unit tests with coverage on Node 18 / 20 / 22, e2e tests, the library build, and `npm audit --audit-level=moderate`. All pass locally today, so the bar is reachable:
+**Antes de abrir un PR**, CI ejecutará: ESLint, `prettier --check`, `tsc --noEmit` contra **ambos** `tsconfig.json` y `libs/ddd/tsconfig.lib.json`, pruebas unitarias con cobertura en Node 18 / 20 / 22, pruebas e2e, la construcción de la librería y `npm audit --audit-level=moderate`. Hoy pasan todas en local, así que el listón es alcanzable:
 
 ```bash
 npm run lint && npm run type-check && npm run test:cov:all
 ```
 
-The two suites cover different halves and neither substitutes for the other: `npm test` covers the domain, `npm run test:e2e` covers the wiring. Reported separately the application layer read **0%** while seventeen e2e tests exercised it, so `test:cov:all` merges them — 64% becomes **85%**, and that is the number worth acting on.
+Los commits siguen [Conventional Commits](https://www.conventionalcommits.org/). Ojo: el hook de husky está inerte en un clon nuevo — `package.json` no tiene script `prepare` — así que de momento nada lo aplica en local. Arreglar eso es en sí mismo un PR bienvenido.
 
-Commits follow [Conventional Commits](https://www.conventionalcommits.org/). Note that the husky hook is currently inert on a fresh clone — `package.json` has no `prepare` script — so nothing enforces this locally yet. Fixing that is itself a welcome PR.
+## Documentación
 
-## Documentation
+**[docs.nestjslatam.dev](https://docs.nestjslatam.dev)** — la guía completa en español, del primer value object a la referencia de API.
 
-| Document                                                                                       | Covers                                                                         |
-| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [`libs/ddd/README.md`](libs/ddd/README.md)                                                     | The published package, current at 4.0.0 — this is what npm shows               |
-| [`src/orders/README.md`](src/orders/README.md)                                                 | The Orders module in detail, accurate against the real controller (in Spanish) |
-| [`docs/order-aggregate-implementation.md`](docs/order-aggregate-implementation.md)             | Aggregate design walkthrough                                                   |
-| [`docs/VALIDATORS_AND_STATES_IMPLEMENTATION.md`](docs/VALIDATORS_AND_STATES_IMPLEMENTATION.md) | Validators and state tracking                                                  |
-| [`CHANGELOG.md`](CHANGELOG.md)                                                                 | Every release, including the two deprecated ones and why                       |
-| [`docs/architecture.md`](docs/architecture.md)                                                 | The four layers, and why the dependencies point inwards                        |
-| [`docs/getting-started.md`](docs/getting-started.md)                                           | Run it, and the three mistakes this library makes easy                         |
-| [`docs/domain-layer.md`](docs/domain-layer.md)                                                 | Aggregates, value objects, validators, domain events                           |
-| [`docs/application-layer.md`](docs/application-layer.md)                                       | Use cases, handlers, queries, sagas                                            |
-| [`docs/infrastructure-layer.md`](docs/infrastructure-layer.md)                                 | Repositories, and why persistence is deliberately absent                       |
-| [`docs/api-reference.md`](docs/api-reference.md)                                               | Every endpoint, with the status codes it actually returns                      |
+| Documento                                                                                      | Cubre                                                                              |
+| ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [`libs/ddd/README.md`](libs/ddd/README.md)                                                     | El paquete publicado, al día en 4.0.0 — esto es lo que muestra npm                 |
+| [`src/orders/README.md`](src/orders/README.md)                                                 | El módulo de Pedidos en detalle, fiel al controlador real                          |
+| [`docs/order-aggregate-implementation.md`](docs/order-aggregate-implementation.md)             | Recorrido por el diseño del agregado                                               |
+| [`docs/VALIDATORS_AND_STATES_IMPLEMENTATION.md`](docs/VALIDATORS_AND_STATES_IMPLEMENTATION.md) | Validadores y seguimiento de estado                                                |
+| [`CHANGELOG.md`](CHANGELOG.md)                                                                 | Cada versión, incluidas las dos obsoletas y por qué                                |
+| [`docs/architecture.md`](docs/architecture.md)                                                 | Las cuatro capas, y por qué las dependencias apuntan hacia dentro                  |
+| [`docs/getting-started.md`](docs/getting-started.md)                                           | Cómo ejecutarlo, y los tres errores que esta librería hace fáciles                 |
+| [`docs/domain-layer.md`](docs/domain-layer.md)                                                 | Agregados, value objects, validadores, eventos de dominio                          |
+| [`docs/application-layer.md`](docs/application-layer.md)                                       | Casos de uso, handlers, consultas, sagas                                           |
+| [`docs/infrastructure-layer.md`](docs/infrastructure-layer.md)                                 | Repositorios, y por qué la persistencia está deliberadamente ausente               |
+| [`docs/api-reference.md`](docs/api-reference.md)                                               | Cada endpoint, con los códigos de estado que devuelve de verdad                    |
 
 > [!TIP]
-> **[The CLI's full guide →](https://github.com/nestjslatam/ddd-cli/blob/main/docs/GUIDE.md)** — every command and flag, walked through by building a complete domain from nothing into ten type-checking files. Worth reading even if you never install the CLI: it is the clearest write-up of this library's idiom anywhere, because every claim in it was produced by running the tool.
+> **[La guía completa del CLI →](https://github.com/nestjslatam/ddd-cli/blob/main/docs/GUIDE.md)** — cada comando y cada opción, recorridos construyendo un dominio completo desde cero hasta diez ficheros que compilan. Vale la pena leerla aunque nunca instales el CLI: es la explicación más clara del idioma de esta librería que existe, porque cada afirmación se produjo ejecutando la herramienta.
 
-## Who is behind this
+## Quiénes están detrás
 
-Built and maintained by **[BeyondNet Tech](https://beyondnet.info/)** with the [NestJS Latam](https://nestjslatam.dev/) community.
+Construido y mantenido por **[BeyondNet Tech](https://beyondnet.info/)** junto a la comunidad [NestJS Latam](https://nestjslatam.dev/).
 
-- **[Evolith](https://github.com/beyondnetcode/evolith_arch32)** — executable architecture governance: a CLI, MCP server and REST API that check a repository against Rego/OPA rules, and report a rule they could not evaluate as a failure rather than a silent pass. The same idea as `ddd validate`, one level up.
-- **[Shell.ddd](https://github.com/beyondnetcode/Shell.ddd)** — the .NET counterpart of this library: entities, aggregate roots, value objects, domain events and business rules for C#.
+- **[Evolith](https://github.com/beyondnetcode/evolith_arch32)** — gobierno de arquitectura ejecutable: un CLI, un servidor MCP y una API REST que comprueban un repositorio contra reglas Rego/OPA, y que informan de una regla que no pudieron evaluar como un fallo en lugar de dejarla pasar en silencio. La misma idea que `ddd validate`, un nivel por encima.
+- **[Shell.ddd](https://github.com/beyondnetcode/Shell.ddd)** — la contraparte .NET de esta librería: entidades, raíces de agregado, value objects, eventos de dominio y reglas de negocio para C#.
 
-## License
+## Licencia
 
-MIT — see [LICENSE](LICENSE).
+MIT — ver [LICENSE](LICENSE).
 
 ---
 
 <div align="center">
 
-**Powered by [BeyondNetCode](https://beyondnet.info/)**
+**Impulsado por [BeyondNetCode](https://beyondnet.info/)**
 
-[Website](https://beyondnet.info/) · [GitHub](https://github.com/beyondnetcode) · [NestJS Latam](https://nestjslatam.dev/)
+[Web](https://beyondnet.info/) · [GitHub](https://github.com/beyondnetcode) · [NestJS Latam](https://nestjslatam.dev/)
 
 </div>
