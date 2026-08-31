@@ -30,19 +30,19 @@
     "test:cov:all": "npm run test:cov && npm run test:e2e:cov && node scripts/merge-coverage.js"
   },
   "dependencies": {
-    "@nestjs/common": "^11.2.3",
-    "@nestjs/config": "^4.0.4",
-    "@nestjs/core": "^11.2.3",
-    "@nestjs/cqrs": "^11.0.3",
-    "@nestjs/platform-express": "^11.2.3",
-    "@nestjs/swagger": "^11.4.7",
+    "@nestjs/common": "^12.0.1",
+    "@nestjs/config": "^12.0.0",
+    "@nestjs/core": "^12.0.1",
+    "@nestjs/cqrs": "^12.0.0",
+    "@nestjs/platform-express": "^12.0.1",
+    "@nestjs/swagger": "^12.0.1",
     "@nestjslatam/ddd-lib": "^3.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "nestjs-request-context": "^4.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "uuid": "^11.1.0"
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.1",
